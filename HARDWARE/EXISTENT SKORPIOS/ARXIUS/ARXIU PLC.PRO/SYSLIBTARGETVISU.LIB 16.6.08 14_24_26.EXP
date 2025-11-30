@@ -1,0 +1,56 @@
+LIBRARY
+SysLibTargetVisu.lib 16.6.08 14:24:26
+(* @LIBRARYSYMFILEINFO := '0' *)
+NumOfPOUs: 49
+BeginPaint: 0
+CalcRotation: 2048
+ChangePassword: 0
+ChangeUserLevel: 0
+CreateBitmap: 0
+CreateUserdefinedControl: 2048
+DeleteBitmap: 0
+DrawBitmap: 0
+DrawBitmapByString: 2048
+DrawButton: 0
+DrawEditC: 0
+DrawPie: 0
+DrawPolygon: 0
+DrawRect: 0
+DrawText: 0
+EndPaint: 0
+EnumToString: 2048
+ExecuteCommand: 2048
+ExecuteUserdefinedControlCall: 2048
+GetSurroundRect: 2048
+GetText: 2048
+GetTextByStringId: 2048
+GetUnicodeText: 2048
+GetUnicodeTextByStringId: 2048
+IsClickedEditC: 0
+IsClickedPolygon: 0
+IsClickedRect: 0
+IsClosedEditC: 0
+IsKeyPressed: 0
+IsMovedInPolygon: 2048
+IsMovedInRect: 2048
+MovePolygon: 2048
+PopTransformation: 0
+Printf: 0
+PrintfInput: 2048
+PushTransformation: 0
+RefreshUserdefinedControl: 2048
+RegisterVariable: 2048
+ReturnEnteredValue: 0
+RGBColor: 0
+SendBitmap: 0
+SendEnum: 2048
+SetFill: 0
+SetFont: 0
+SetLine: 0
+StopVisu: 0
+StringToEnum: 2048
+TransformPoint: 2048
+Version2326: 2048
+NumOfGVLs: 1
+Globale_Variablen: 0
+END_LIBRARY

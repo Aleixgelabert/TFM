@@ -1,0 +1,20 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_DE_CYLINDER_POS_CFG :
+STRUCT
+	TgtLS_In  : REAL;
+	TgtLS_Out : REAL;
+	TgtLS_Mid : REAL;
+	TgtLS_DB  : REAL;
+
+	LS_Limit_In  : BOOL;
+	LS_Limit_Out : BOOL;
+
+	Cycle   : REAL; (*Seconds*)
+	TimeMax : REAL; (*Seconds*)
+
+	HP : BYTE;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

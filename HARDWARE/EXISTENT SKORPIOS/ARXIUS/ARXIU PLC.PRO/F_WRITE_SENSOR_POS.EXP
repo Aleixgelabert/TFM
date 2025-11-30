@@ -1,0 +1,21 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_SENSOR_POS : BOOL
+VAR_INPUT
+	wSize   :DWORD;
+	pBuffer :POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wPos     : DWORD;
+	stSensor : ST_SENSOR_POS;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_K'   ), S2:='$t', S3:= REAL_TO_STRING( stSensor.Cal_K   ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_Off' ), S2:='$t', S3:= REAL_TO_STRING( stSensor.Cal_Off ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+END_FUNCTION

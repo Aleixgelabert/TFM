@@ -1,0 +1,22 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_WINCHE_CFG :
+STRUCT
+	Spd1 : ARRAY[1..7] OF REAL;
+	Spd2 : ARRAY[1..7] OF REAL;
+	Spd3 : ARRAY[1..7] OF REAL;
+
+	A_Spd1 : BOOL;
+
+	P1_Max : REAL;
+	P2_Max : REAL;
+	P3_Max : REAL;
+
+	Cycle   : REAL; (*Seconds*)
+	TimeMax : REAL; (*Seconds*)
+
+(*	PP : BYTE;*)
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

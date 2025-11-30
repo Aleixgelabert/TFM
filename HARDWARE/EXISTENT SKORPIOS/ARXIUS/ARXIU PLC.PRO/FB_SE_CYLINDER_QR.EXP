@@ -1,0 +1,218 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_SE_CYLINDER_QR
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	IN_CylIn  : ARRAY[1..2] OF BOOL;
+	IN_CylOut : ARRAY[1..2] OF BOOL;
+	IN_CylQR  : ARRAY[1..2] OF BOOL;
+END_VAR
+VAR_IN_OUT
+	P   : ST_SENSOR_BAR;
+	CFG : ST_SE_CYLINDER_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_CylIn  : BOOL;
+	OUT_CylOut : BOOL;
+	OUT_Ease   : REAL;
+	OUT_HP     : BYTE;
+END_VAR
+VAR
+	State   : WORD;
+
+	IN_Hmi_CylIn  : BOOL;
+	IN_Hmi_CylOut : BOOL;
+	IN_Hmi_CylQR  : BOOL;
+
+	SIIn  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SIOut : ARRAY[1..3] OF FB_SMART_INPUT;
+	SIQR  : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	EventIn  : EN_SMART_INPUT_STATE;
+	EventOut : EN_SMART_INPUT_STATE;
+	EventQR  : EN_SMART_INPUT_STATE;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+	ToFaroValue : REAL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*Check Inputs*)
+SIIn[1](In:= IN_CylIn[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIIn[2](In:= IN_CylIn[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIIn[3](In:= IN_Hmi_CylIn, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SIOut[1](In:= IN_CylOut[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIOut[2](In:= IN_CylOut[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIOut[3](In:= IN_Hmi_CylOut, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SIQR[1](In:= IN_CylQR[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIQR[2](In:= IN_CylQR[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIQR[3](In:= IN_Hmi_CylQR, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	OUT_CylIn  := FALSE;
+	OUT_CylOut := FALSE;
+	OUT_Ease   := 0.0;
+	OUT_HP     := 0;
+
+	ToFaroValue := 0.0;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax);
+TimeCnt := TimeCnt + 1;
+
+IF    SIIn[1].Event <> NONE THEN EventIn := SIIn[1].Event;
+ELSIF SIIn[2].Event <> NONE THEN EventIn := SIIn[2].Event;
+ELSIF SIIn[3].Event <> NONE THEN EventIn := SIIn[3].Event;
+ELSE
+	EventIn := NONE;
+END_IF
+
+IF    SIOut[1].Event <> NONE THEN EventOut := SIOut[1].Event;
+ELSIF SIOut[2].Event <> NONE THEN EventOut := SIOut[2].Event;
+ELSIF SIOut[3].Event <> NONE THEN EventOut := SIOut[3].Event;
+ELSE
+	EventOut := NONE;
+END_IF
+
+IF    SIQR[1].Event <> NONE THEN EventQR := SIQR[1].Event;
+ELSIF SIQR[2].Event <> NONE THEN EventQR := SIQR[2].Event;
+ELSIF SIQR[3].Event <> NONE THEN EventQR := SIQR[3].Event;
+ELSE
+	EventQR := NONE;
+END_IF
+
+(*Working States*)
+CASE State OF
+
+(*Init State*)
+0:
+	ToFaroValue := 0.0;
+
+	(*Start Manual IN*)
+	IF EventIn = INIT_CONTINUOUS AND Ready AND NOT P.AlMax THEN
+		OUT_CylIn  := TRUE;
+		OUT_CylOut := FALSE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := Cfg.HP;
+
+		TimeOut := FALSE; (*Reset TimeOut Error*)
+		State   := 1100;  (*Next State*)
+
+		ToFaroValue := 1.0;
+
+	(*Start Manual OUT*)
+	ELSIF EventOut = INIT_CONTINUOUS THEN
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := TRUE;
+		OUT_Ease   := Cfg.Ease;
+		OUT_HP     := 0;
+
+		TimeOut := FALSE; (*Reset TimeOut Error*)
+		State   := 2100;  (*Next State*)
+
+		ToFaroValue := -1.0;
+
+	(*Start QR OUT*)
+	ELSIF EventQR = INIT_CONTINUOUS THEN
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := TRUE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := 0;
+
+		TimeOut := FALSE; (*Reset TimeOut Error*)
+		State   := 2200;  (*Next State*)
+
+		ToFaroValue := -2.0;
+
+	(*Nothing*)
+	ELSE
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := FALSE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := 0;
+
+	END_IF
+
+    TimeCnt := 0; (*Time Count*)
+
+(*Manual IN*)
+1100:
+	(*End IN*)
+	IF EventIn <> NONE OR EventOut <> NONE OR TimeOut OR P.AlMax THEN
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := FALSE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := 0;
+
+		State := 0; (*Next State*)
+
+	(*Start QR OUT*)
+	ELSIF EventQR = INIT_CONTINUOUS THEN
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := TRUE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := 0;
+
+		TimeCnt := 0;    (*Time Count*)
+		State   := 2200; (*Next State*)
+
+		ToFaroValue := -2.0;
+
+	END_IF
+
+(*Manual OUT*)
+2100:
+	(*End OUT*)
+	IF EventOut <> NONE OR EventIn <> NONE OR TimeOut THEN
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := FALSE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := 0;
+
+		State := 0; (*Next State*)
+
+	(*Start QR OUT*)
+	ELSIF EventQR = INIT_CONTINUOUS THEN
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := TRUE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := 0;
+
+		TimeCnt := 0;    (*Time Count*)
+		State   := 2200; (*Next State*)
+
+		ToFaroValue := -2.0;
+
+	ELSIF TimeCnt > CFG.TimeEase THEN
+		OUT_Ease   := 0.0;
+
+	END_IF
+
+(*QR OUT*)
+2200:
+	(*End QR OUT*)
+	IF EventQR <> NONE OR TimeOut THEN
+		OUT_CylIn  := FALSE;
+		OUT_CylOut := FALSE;
+		OUT_Ease   := 0.0;
+		OUT_HP     := 0;
+
+		State := 0; (*Next State*)
+	END_IF
+
+END_CASE
+
+END_FUNCTION_BLOCK

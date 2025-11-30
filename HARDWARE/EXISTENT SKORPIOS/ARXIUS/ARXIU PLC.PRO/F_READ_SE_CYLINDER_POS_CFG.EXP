@@ -1,0 +1,34 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_SE_CYLINDER_POS_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_SE_CYLINDER_POS_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+	SMax: BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.Ease    := F_IDLIST_GETREAL( CONCAT(sHead, '_Ease'    ), fbIdList );
+
+stConfig.TgtLS_In  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_In'  ), fbIdList );
+stConfig.TgtLS_Out := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Out' ), fbIdList );
+stConfig.TgtLS_Slow := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Slow' ), fbIdList );
+
+stConfig.TimeMax  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax'  ), fbIdList );
+stConfig.TimeEase := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeEase' ), fbIdList );
+stConfig.Cycle    := rTime;
+
+stConfig.LS_Limit_In  := F_IDLIST_GETBOOL( CONCAT(sHead, '_LS_Limit_In'  ), fbIdList );
+stConfig.LS_Limit_Out := F_IDLIST_GETBOOL( CONCAT(sHead, '_LS_Limit_Out' ), fbIdList );
+
+stConfig.HP  := F_IDLIST_GETBYTE( CONCAT(sHead, '_HP'  ), fbIdList );
+
+END_FUNCTION

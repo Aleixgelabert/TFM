@@ -1,0 +1,20 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM J1939
+VAR CONSTANT
+	Cycle_Time1 : REAL := 0.005; (*5ms*)
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+PARAMS; (*To Load Faster*)
+
+(**********)
+(* ENGINE *)
+(**********)
+RECV_J1939;
+SEND_J1939;
+END_PROGRAM

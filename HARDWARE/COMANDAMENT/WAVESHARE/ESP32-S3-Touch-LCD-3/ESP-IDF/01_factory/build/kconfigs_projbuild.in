@@ -1,0 +1,6 @@
+source "/Users/aleixgelabert/esp/v5.5.1/esp-idf/components/bootloader/Kconfig.projbuild"
+source "/Users/aleixgelabert/esp/v5.5.1/esp-idf/components/esp_app_format/Kconfig.projbuild"
+source "/Users/aleixgelabert/esp/v5.5.1/esp-idf/components/esp_rom/Kconfig.projbuild"
+source "/Users/aleixgelabert/esp/v5.5.1/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "/Users/aleixgelabert/esp/v5.5.1/esp-idf/components/partition_table/Kconfig.projbuild"
+source "/Users/aleixgelabert/Library/CloudStorage/GoogleDrive-aleixgelabert@gmail.com/La meva unitat/Mecatrònica/Treball Final de Màster/DOCUMENTACIÓ/SCREENS/ILI9488/WAVESHARE/ESP32-S3-Touch-LCD-3/ESP-IDF/01_factory/main/Kconfig.projbuild"

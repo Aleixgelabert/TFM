@@ -1,0 +1,39 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_SENSOR_BAR :
+STRUCT
+	Name : STRING;
+	Desc : STRING;
+
+	Raw : REAL;
+	Err : BOOL;
+	Bar : REAL;
+
+	(*Calib*)
+	Cal_K   : REAL;
+	Cal_Off : REAL;
+	Raw_Off : REAL := 4.0;
+
+	(*Avg*)
+	Avg_Buf : ARRAY[0..4] OF REAL;
+	Avg_Sum : LREAL;
+	Avg_Pos : INT;
+
+	(*Alarm*)
+	Alarm : ST_ALARM;
+
+	MinRaw : REAL :=  2.0;
+	MaxRaw : REAL := 22.0;
+	MinBar : REAL :=  0.0;
+	MaxBar : REAL :=  0.0;
+
+	AlErr : BOOL;
+	AlMax : BOOL;
+	AlMin : BOOL;
+
+	AdverVal : REAL;
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

@@ -1,0 +1,15 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_TACK_VALVE_CFG :
+STRUCT
+	Cycle   : REAL; (*Seconds*)
+	TimeMax : REAL; (*Seconds*)
+
+	Hyst_HeelH : REAL;
+	Hyst_HeelL : REAL;
+	Hyst_Time  : REAL;	(*Seconds*)
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

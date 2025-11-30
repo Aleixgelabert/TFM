@@ -1,0 +1,15 @@
+LIBRARY
+TcMouseEvents.lib 10.9.08 11:57:58
+(* @LIBRARYSYMFILEINFO := '0' *)
+NumOfPOUs: 8
+GetLastLeftMouseDownEvent: 2048
+GetLastLeftMouseUpEvent: 2048
+GetLastMouseMoveEvent: 2048
+GetLastRightMouseDownEvent: 2048
+GetLastRightMouseUpEvent: 2048
+MouseShowCursor: 2048
+SetWindowToForeground: 2048
+UseSIP: 2048
+NumOfGVLs: 1
+Global_Variables: 2048
+END_LIBRARY

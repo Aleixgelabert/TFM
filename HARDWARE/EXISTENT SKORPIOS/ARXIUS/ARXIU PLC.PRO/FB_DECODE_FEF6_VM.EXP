@@ -1,0 +1,19 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/PGN FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_DECODE_FEF6_VM
+VAR_IN_OUT
+	IN: ARRAY [0..7] OF USINT;
+END_VAR
+VAR_OUTPUT
+	EngineBoostPressure : REAL;
+
+	Count : DWORD;
+END_VAR
+(* @END_DECLARATION := '0' *)
+EngineBoostPressure := BUFFER_TO_REAL( pBuffer:= ADR(IN[1]), ByteSize := 1, Scale:= 2.0, Offset := 0.0 );
+
+Count := Count + 1;
+END_FUNCTION_BLOCK

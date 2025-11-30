@@ -1,0 +1,941 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM INPUTS
+VAR
+(*Analog Inputs*)
+	(*Node00*)
+	Prop_DynRPM : FB_DYN_RPM;
+
+	THR1_Prop_V : FB_AVG5;
+	THR2_Prop_V : FB_AVG5;
+	THR_Prop_Chk : REAL;
+
+	THR_Alarm : ST_ALARM;
+
+(*Cylinders Buttons*)
+	B301 : ARRAY[1..2] OF BOOL;
+	B302 : ARRAY[1..2] OF BOOL;
+	B303 : ARRAY[1..2] OF BOOL;
+	B304 : ARRAY[1..2] OF BOOL;
+	B305 : ARRAY[1..2] OF BOOL;
+	B306 : ARRAY[1..2] OF BOOL;
+	B307 : ARRAY[1..2] OF BOOL;
+	B308 : ARRAY[1..2] OF BOOL;
+	B309 : ARRAY[1..2] OF BOOL;
+	B310 : ARRAY[1..2] OF BOOL;
+	B311 : ARRAY[1..2] OF BOOL;
+	B312 : ARRAY[1..2] OF BOOL;
+
+	B501 : ARRAY[1..2] OF BOOL;
+	B502 : ARRAY[1..2] OF BOOL;
+	B503 : ARRAY[1..2] OF BOOL;
+	B504 : ARRAY[1..2] OF BOOL;
+	B505 : ARRAY[1..2] OF BOOL;
+	B506 : ARRAY[1..2] OF BOOL;
+	B506Q: ARRAY[1..2] OF BOOL;
+
+	B601 : ARRAY[1..2] OF BOOL;
+	B603 : ARRAY[1..2] OF BOOL;
+	B605 : ARRAY[1..2] OF BOOL;
+	B607 : ARRAY[1..2] OF BOOL;
+	B606 : ARRAY[1..2] OF BOOL;
+
+	B701 : ARRAY[1..2] OF BOOL;
+	B702 : ARRAY[1..2] OF BOOL;
+	B703 : ARRAY[1..2] OF BOOL;
+	B704 : ARRAY[1..2] OF BOOL;
+	B705 : ARRAY[1..2] OF BOOL;
+	B706 : ARRAY[1..2] OF BOOL;
+	B707 : ARRAY[1..2] OF BOOL;
+	B708 : ARRAY[1..2] OF BOOL;
+	B709 : ARRAY[1..2] OF BOOL;
+	B710 : ARRAY[1..2] OF BOOL;
+
+	B901 : ARRAY[1..2] OF BOOL;
+	B902 : ARRAY[1..2] OF BOOL;
+	B903 : ARRAY[1..2] OF BOOL;
+	B904 : ARRAY[1..2] OF BOOL;
+	B90T : ARRAY[1..2] OF BOOL;
+
+	BTravA : ARRAY[1..3] OF BOOL;
+	BTravB : ARRAY[1..3] OF BOOL;
+	BTravT : ARRAY[1..2] OF BOOL;
+	BTravD : ARRAY[1..2] OF BOOL;
+
+	BKeelP : ARRAY[1..4] OF BOOL;
+	BKeelS : ARRAY[1..4] OF BOOL;
+	BKeelC : ARRAY[1..4] OF BOOL;
+	BKeelF : ARRAY[1..4] OF BOOL;
+	BKeelT : ARRAY[1..2] OF BOOL;
+
+	BBoardP : ARRAY[1..2] OF BOOL;
+	BBoardS : ARRAY[1..2] OF BOOL;
+	BBoardC : ARRAY[1..2] OF BOOL;
+
+	BBowThrP : BOOL;
+	BBowThrS : BOOL;
+	BBowThrU : BOOL;
+	BBowThrD : BOOL;
+
+	BWB_P_Fwd : ARRAY[1..2] OF BOOL;
+	BWB_P_Aft : ARRAY[1..2] OF BOOL;
+	BWB_S_Fwd : ARRAY[1..2] OF BOOL;
+	BWB_S_Aft : ARRAY[1..2] OF BOOL;
+	BWB_Fill  : ARRAY[1..2] OF BOOL;
+	BWB_12    : ARRAY[1..2] OF BOOL;
+	BWB_Dump  : ARRAY[1..2] OF BOOL;
+	BWB_Move  : ARRAY[1..2] OF BOOL;
+	BWB_Stop  : ARRAY[1..2] OF BOOL;
+
+	L_Red_Trig    : R_TRIG;
+	L_Anchor_Trig : R_TRIG;
+	L_Steam_Trig  : R_TRIG;
+	L_Deck_Trig   : R_TRIG;
+	L_Nav_Trig    : R_TRIG;
+
+	L_HMI_Red_Trig    : R_TRIG;
+	L_HMI_Anchor_Trig : R_TRIG;
+	L_HMI_Steam_Trig  : R_TRIG;
+	L_HMI_Deck_Trig   : R_TRIG;
+	L_HMI_Nav_Trig    : R_TRIG;
+
+	Override_Trig : R_TRIG;
+	RemPort_Trig  : R_TRIG;
+	RemStbd_Trig  : R_TRIG;
+	RemOff_Trig   : R_TRIG;
+
+	Override_ON : BOOL;
+	RemPort_ON : BOOL;
+	RemStbd_ON : BOOL;
+
+
+(*	N02_IN_BTrig : R_TRIG;
+	N03_IN_BTrig : R_TRIG;
+	N04_IN_BTrig : R_TRIG;
+	N05_IN_BTrig : R_TRIG;
+	N06_IN_BTrig : R_TRIG;
+	N07_IN_BTrig : R_TRIG;
+	N08_IN_BTrig : R_TRIG;
+	N09_IN_BTrig : R_TRIG;
+	N10_IN_BTrig : R_TRIG;
+	N11_IN_BTrig : R_TRIG;
+	N12_IN_BTrig : R_TRIG;
+	N13_IN_BTrig : R_TRIG;
+	N14_IN_BTrig : R_TRIG;
+	N15_IN_BTrig : R_TRIG;
+	N16_IN_BTrig : R_TRIG;
+	N17_IN_BTrig : R_TRIG;
+	N18_IN_BTrig : R_TRIG;
+	N19_IN_BTrig : R_TRIG;
+	N20_IN_BTrig : R_TRIG;
+	N21_IN_BTrig : R_TRIG;
+
+	N02_IN_CTrig : R_TRIG;
+	N03_IN_CTrig : R_TRIG;
+	N04_IN_CTrig : R_TRIG;
+	N05_IN_CTrig : R_TRIG;
+	N06_IN_Ctrig : R_TRIG;
+	N07_IN_Ctrig : R_TRIG;
+	N08_IN_CTrig : R_TRIG;
+	N09_IN_CTrig : R_TRIG;
+	N10_IN_CTrig : R_TRIG;
+	N11_IN_CTrig : R_TRIG;
+	N12_IN_CTrig : R_TRIG;
+	N13_IN_CTrig : R_TRIG;
+	N14_IN_CTrig : R_TRIG;
+	N15_IN_CTrig : R_TRIG;
+	N16_IN_CTrig : R_TRIG;
+	N17_IN_CTrig : R_TRIG;
+	N18_IN_CTrig : R_TRIG;
+	N19_IN_CTrig : R_TRIG;
+	N20_IN_CTrig : R_TRIG;
+	N21_IN_CTrig : R_TRIG;
+
+	C_PP: BOOL;
+	C_PS: BOOL;
+	C_SP: BOOL;
+	C_SS: BOOL;
+	C_MP1: BOOL;
+	C_MP2: BOOL;
+	C_MS1: BOOL;
+	C_MS2: BOOL;*)
+
+	B1202_1 : ARRAY[1..4] OF BOOL;
+	B1202_2 : ARRAY[1..4] OF BOOL;
+	B1204_1 : ARRAY[1..4] OF BOOL;
+	B1204_2 : ARRAY[1..4] OF BOOL;
+	B1206_1 : ARRAY[1..4] OF BOOL;
+	B1206_2 : ARRAY[1..4] OF BOOL;
+	B1208_1 : ARRAY[1..4] OF BOOL;
+	B1208_2 : ARRAY[1..4] OF BOOL;
+	B1210_1 : ARRAY[1..4] OF BOOL;
+	B1210_2 : ARRAY[1..4] OF BOOL;
+	B1212_1 : ARRAY[1..4] OF BOOL;
+	B1212_2 : ARRAY[1..4] OF BOOL;
+	B1214_1 : ARRAY[1..4] OF BOOL;
+	B1214_2 : ARRAY[1..4] OF BOOL;
+
+	B1602_1 : ARRAY[1..4] OF BOOL;
+	B1602_2 : ARRAY[1..4] OF BOOL;
+	B1604_1 : ARRAY[1..4] OF BOOL;
+	B1604_2 : ARRAY[1..4] OF BOOL;
+
+	B1202_G : BOOL;
+	B1204_G : BOOL;
+	B1206_G : BOOL;
+	B1208_G : BOOL;
+	B1210_G : BOOL;
+	B1212_G : BOOL;
+	B1214_G : BOOL;
+
+	B1602_G : BOOL;
+	B1604_G : BOOL;
+
+
+(*System Time*)
+	fbLocalTime :FB_LocalSystemTime;
+	(*tsTime      :TIMESTRUCT;*)
+	sLocal      :STRING;
+	sVisuTime   :STRING;
+
+END_VAR
+(*
+Forestay 	= 27500 kg or 525 bar
+JibCunn		=  9500 kg or 445 bar
+GS			=  4200 kg or 320 bar
+Deflector   =  8400 kg or 400 bar
+MainCunn	=  2600 kg or 400 bar
+Outhaul		=  6500 kg or 450 bar
+Vang 		= 19500 kg or 450 bar
+JibInOut	=  5500 kg or 470 bar
+JibUpDw		=  5000 kg or 440 bar
+*)
+
+(* @END_DECLARATION := '0' *)
+(*Node00 - PLC*)
+Prop_DynRPM( CNT:= N0_CNT1, CycleTime:= 20, MaxWidth:= 500, Accuracy:= 20 );
+
+IF PARAMS.stPropulsionCfg.PropRPM_K > 0
+THEN Prop_RPM := Prop_DynRPM.RPM / PARAMS.stPropulsionCfg.PropRPM_K;
+ELSE Prop_RPM := Prop_DynRPM.RPM;
+END_IF
+
+THR1_Prop_V( IN:= N0_AI1 / 3276.7 );
+THR2_Prop_V( IN:= N0_AI2 / 3276.7 );
+
+THR_Prop_Fwd := N0_DI2;
+THR_Prop_Rev := N0_DI3;
+THR_Prop_Chk := THR1_Prop_V.AVG + THR2_Prop_V.AVG;
+THR_Prop_Err := N0_AI1_Err OR THR1_Prop_V.AVG < 0.5 OR THR1_Prop_V.AVG > 4.5
+			 OR N0_AI2_Err OR THR2_Prop_V.AVG < 0.5 OR THR2_Prop_V.AVG > 4.5
+			 OR THR_Prop_Chk > 5.5 OR THR_Prop_Chk < 4.5;
+
+IF THR_Prop_Fwd THEN
+	THR_Prop := THR1_Prop_V.AVG;
+
+ELSIF THR_Prop_Rev THEN
+	THR_Prop := -THR1_Prop_V.AVG;
+
+ELSE
+	THR_Prop := 0.0;
+
+END_IF
+
+IF ALARMS.Clear THEN
+	THR_Alarm.Alarm := FALSE;
+	THR_Alarm.Adver := FALSE;
+	THR_Alarm.AlCnt := 0;
+	THR_Alarm.AlLen := 0.0;
+
+END_IF
+
+IF THR_Prop_Err THEN
+	IF NOT THR_Alarm.Alarm THEN
+		THR_Alarm.AlCnt  := THR_Alarm.AlCnt + 1;
+		THR_Alarm.AlLen  := 0.0;
+		THR_Alarm.TimeInit := INPUTS.sLocal;
+		THR_Alarm.AlInit   := TRUE;
+
+		THR_Alarm.Text   := 'Propulsion Throttle Error.';
+
+	ELSE
+		THR_Alarm.AlLen  := THR_Alarm.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	THR_Alarm.Adver := TRUE;
+	THR_Alarm.Alarm := TRUE;
+
+ELSE
+	IF THR_Alarm.Alarm THEN
+		THR_Alarm.TimeEnd := INPUTS.sLocal;
+		THR_Alarm.AlEnd   := TRUE;
+
+	END_IF
+
+	THR_Alarm.Alarm := FALSE;
+
+END_IF
+
+(*SF000 := N0_DI1;*)
+F_CALC_SENSOR_NC ( N0_DI1, ALARMS.Clear, MAIN.Cycle_Time, 0.0, SF000 );
+
+(*TANK + GS + MF00 + PP - Node36/37*)
+F_CALC_SENSOR_NC ( N37_DI13_CH4_2, ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF001 );
+F_CALC_SENSOR_NC ( N37_DI9_CH3_2 , ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF002 );
+F_CALC_SENSOR_NC ( N37_DI5_CH5_2 , ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF003 );
+F_CALC_SENSOR_NC ( N37_DI1_CH7_2 , ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF004 );
+F_CALC_SENSOR_NC ( N37_DI3_CH6_2 , ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF005 );
+F_CALC_SENSOR_NC ( N37_DI7_CH8_2 , ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF006 );
+F_CALC_SENSOR_NC ( N36_DI1_CH7_2 , ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF007 );
+F_CALC_SENSOR_NC ( N36_DI0_CH7_4 , ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF008 );
+F_CALC_SENSOR_NC ( N37_DI15_CH2_2, ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF009 );
+
+F_CALC_SENSOR_BAR ( N36_AI3_CH5_2 * 0.004, ALARMS.Clear,  P010 );
+F_CALC_SENSOR_BAR ( N36_AI1_CH6_2 * 0.004, ALARMS.Clear,  P001 );
+F_CALC_SENSOR_BAR ( N36_AI0_CH6_4 * 0.004, ALARMS.Clear,  P002 );
+F_CALC_SENSOR_BAR ( N36_AI5_CH8_2 * 0.004, ALARMS.Clear,  P051 );
+F_CALC_SENSOR_BAR ( N36_AI4_CH8_4 * 0.004, ALARMS.Clear,  P052 );
+
+F_CALC_SENSOR_BAR ( N42_AI4_CH8_4 * 0.004, ALARMS.Clear,  P003 );
+
+F_CALC_SENSOR_TEMP( N36_AI2_CH5_4 * 0.004, ALARMS.Clear, MAIN.Cycle_Time, S011 );
+
+(*MF01 - Node22/42*)
+(*F_CALC_SENSOR_NC ( N22_DI1_CH7_2, ALARMS.Clear, MAIN.Cycle_Time, 0.0, PTC101 );*)	(*New 20211008*)
+(*F_CALC_SENSOR_NC ( N22_DI0_CH7_4, ALARMS.Clear, MAIN.Cycle_Time, 0.0, PTC102 );*)	(*New 20211008*)
+
+F_CALC_SENSOR_TEMP( N21_AI5_CH8_2 * 0.001, ALARMS.Clear, MAIN.Cycle_Time, S101 );	(*New 20211008*)
+F_CALC_SENSOR_TEMP( N21_AI4_CH8_4 * 0.001, ALARMS.Clear, MAIN.Cycle_Time, S102 );	(*New 20211008*)
+F_CALC_SENSOR_TEMP( N42_AI5_CH8_2 * 0.004, ALARMS.Clear, MAIN.Cycle_Time, S100 );	(*New 20250117*)
+
+F_CALC_SENSOR_BAR ( N42_AI1_CH6_2 * 0.004, ALARMS.Clear, P101 );
+F_CALC_SENSOR_BAR ( N42_AI0_CH6_4 * 0.004, ALARMS.Clear, P103 );
+
+F_CALC_SENSOR_NC ( N42_DI1_CH7_2, ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF100 ); (*change to CH7 20250117*)
+
+
+(*MF02 - Node34*)
+F_CALC_SENSOR_BAR( N34_AI5_CH8_2 * 0.001, ALARMS.Clear,  P201 );
+
+(*MF03 - Node43/44*)
+F_CALC_SENSOR_BAR( N43_AI3_CH5_2 * 0.004, ALARMS.Clear,  P309 );
+F_CALC_SENSOR_BAR( N43_AI2_CH5_4 * 0.004, ALARMS.Clear,  P311 );
+F_CALC_SENSOR_BAR( N43_AI1_CH6_2 * 0.004, ALARMS.Clear,  P307 );
+
+F_CALC_SENSOR_POS( N43_AI0_CH6_4 * 0.004, ALARMS.Clear, LS309 );
+F_CALC_SENSOR_POS( N43_AI5_CH8_2 * 0.004, ALARMS.Clear, LS307 );
+F_CALC_SENSOR_POS( N43_AI4_CH8_4 * 0.004, ALARMS.Clear, LS311 );
+
+F_CALC_SENSOR_BAR( N44_AI3_CH5_2 * 0.004, ALARMS.Clear,  P301 );
+F_CALC_SENSOR_BAR( N44_AI1_CH6_2 * 0.004, ALARMS.Clear,  P303 );
+F_CALC_SENSOR_BAR( N44_AI5_CH8_2 * 0.004, ALARMS.Clear,  P305 );
+
+F_CALC_SENSOR_POS( N44_AI2_CH5_4 * 0.004, ALARMS.Clear, LS301 );
+F_CALC_SENSOR_POS( N44_AI0_CH6_4 * 0.004, ALARMS.Clear, LS303 );
+F_CALC_SENSOR_POS( N44_AI4_CH8_4 * 0.004, ALARMS.Clear, LS305 );
+
+F_CALC_SENSOR_KG( P301.Bar, L301 );
+F_CALC_SENSOR_KG( P303.Bar, L303 );
+F_CALC_SENSOR_KG( P305.Bar, L305 );
+F_CALC_SENSOR_KG( P307.Bar, L307 );
+F_CALC_SENSOR_KG( P309.Bar, L309 );
+F_CALC_SENSOR_KG( P311.Bar, L311 );
+
+(*MF04 - Node44*)
+SF402 := N38_DI7_CH8_2;
+SF403 := N38_DI6_CH8_4;
+SF404 := N44_DI1_CH7_2;
+SF405 := N44_DI0_CH7_4;
+
+(*MF05 - Node41*)
+F_CALC_SENSOR_BAR( N41_AI3_CH5_2 * 0.004, ALARMS.Clear,  P501 );
+F_CALC_SENSOR_BAR( N41_AI2_CH5_4 * 0.004, ALARMS.Clear,  P503 );
+F_CALC_SENSOR_BAR( N41_AI1_CH6_2 * 0.004, ALARMS.Clear,  P507 );
+F_CALC_SENSOR_BAR( N41_AI0_CH6_4 * 0.004, ALARMS.Clear,  P505 );
+
+(*F_CALC_SENSOR_KG( P501.Bar, L501 );*)
+F_CALC_SENSOR_KG( P503.Bar, L503 );
+F_CALC_SENSOR_KG( P505.Bar, L505 );
+L501_7 := P501.Bar * L501.Cal_K - P507.Bar * L501.Cal_C;
+
+(*MF06 - Node20/47*)
+F_CALC_SENSOR_BAR ( N20_AI3_CH5_2 * 0.004, ALARMS.Clear,  P601 );
+F_CALC_SENSOR_BAR ( N20_AI2_CH5_4 * 0.004, ALARMS.Clear,  P603 );
+F_CALC_SENSOR_BAR ( N20_AI1_CH6_2 * 0.004, ALARMS.Clear,  P605 );
+F_CALC_SENSOR_BAR ( N20_AI0_CH6_4 * 0.004, ALARMS.Clear,  P607 );
+
+F_CALC_SENSOR_POS ( N47_AI1_CH6_2 * 0.004, ALARMS.Clear, LS601 );
+F_CALC_SENSOR_POS ( N20_AI4_CH8_4 * 0.004, ALARMS.Clear, LS605 );
+
+
+(*MF07 - Node21/22*)
+F_CALC_SENSOR_BAR( N21_AI3_CH5_2 * 0.004, ALARMS.Clear,  P701 );
+F_CALC_SENSOR_BAR( N21_AI2_CH5_4 * 0.004, ALARMS.Clear,  P703 );
+
+F_CALC_SENSOR_POS( N21_AI1_CH6_2 * 0.004, ALARMS.Clear, LS707 );
+F_CALC_SENSOR_POS( N21_AI0_CH6_4 * 0.004, ALARMS.Clear, LS709 );
+
+F_CALC_SENSOR_BAR( N22_AI3_CH5_2 * 0.004, ALARMS.Clear,  P707 );
+F_CALC_SENSOR_BAR( N22_AI2_CH5_4 * 0.004, ALARMS.Clear,  P709 );
+F_CALC_SENSOR_BAR( N22_AI1_CH6_2 * 0.004, ALARMS.Clear,  P705 );
+
+F_CALC_SENSOR_KG( P701.Bar, L701 );
+F_CALC_SENSOR_KG( P703.Bar, L703 );
+F_CALC_SENSOR_KG( P705.Bar, L705 );
+F_CALC_SENSOR_KG( P707.Bar, L707 );
+F_CALC_SENSOR_KG( P709.Bar, L709 );
+
+(*MF08 - Node23*)
+F_CALC_SENSOR_NC ( NOT N39_DI3_CH6_2 , ALARMS.Clear, MAIN.Cycle_Time, 0.0, SF801 );
+F_CALC_SENSOR_NC ( NOT N39_DI2_CH6_4 , ALARMS.Clear, MAIN.Cycle_Time, 0.0, SF803 );
+
+F_CALC_SENSOR_BAR( N23_AI1_CH6_2 * 0.004, ALARMS.Clear,  P804 );(**)
+F_CALC_SENSOR_BAR( N23_AI0_CH6_4 * 0.004, ALARMS.Clear,  P802 );(**)
+
+F_CALC_SENSOR_POS( N23_AI3_CH5_2 * 0.004, ALARMS.Clear, LS803 );(**)
+F_CALC_SENSOR_POS( N23_AI2_CH5_4 * 0.004, ALARMS.Clear, LS801 );(**)
+
+(*MF09 - Node35*)
+F_CALC_SENSOR_BAR( N35_AI3_CH5_2 * 0.004, ALARMS.Clear,  P901 );
+F_CALC_SENSOR_BAR( N35_AI2_CH5_4 * 0.004, ALARMS.Clear,  P903 );
+F_CALC_SENSOR_BAR( N35_AI1_CH6_2 * 0.004, ALARMS.Clear,  P905 );
+F_CALC_SENSOR_BAR( N35_AI0_CH6_4 * 0.004, ALARMS.Clear,  P907 );
+
+F_CALC_SENSOR_KG( P901.Bar, L901 );
+F_CALC_SENSOR_KG( P903.Bar, L903 );
+
+F_CALC_SENSOR_POS( N38_AI3_CH5_2 * 0.004, ALARMS.Clear, LS901 );
+F_CALC_SENSOR_POS( N38_AI2_CH5_4 * 0.004, ALARMS.Clear, LS903 );
+
+(*MF10 - Node39/40*)
+F_CALC_SENSOR_NC ( N39_DI1_CH7_2, ALARMS.Clear, MAIN.Cycle_Time, 0.0            , SF1002 );
+F_CALC_SENSOR_NC (NOT N40_DI7_CH8_2, ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF1003 );
+F_CALC_SENSOR_NC (NOT N40_DI6_CH8_4, ALARMS.Clear, MAIN.Cycle_Time, PARAMS.SF_Delay, SF1004 );
+
+F_CALC_SENSOR_BAR( N40_AI3_CH5_2 * 0.004, ALARMS.Clear,  P1001 );
+F_CALC_SENSOR_BAR( N40_AI2_CH5_4 * 0.004, ALARMS.Clear,  P1002 );
+F_CALC_SENSOR_POS( N40_AI1_CH6_2 * 0.004, ALARMS.Clear, LS1002 );(**)
+F_CALC_SENSOR_POS( N40_AI0_CH6_4 * 0.004, ALARMS.Clear, LS1001 );(**)
+
+(*MF11 - Node47*)
+F_CALC_SENSOR_BAR( N47_AI3_CH5_2 * 0.004, ALARMS.Clear,  P1101 );
+F_CALC_SENSOR_BAR( N47_AI2_CH5_4 * 0.004, ALARMS.Clear,  P1102 );
+
+F_CALC_SENSOR_TEMP( N47_AI4_CH8_4 * 0.001, ALARMS.Clear, MAIN.Cycle_Time, S1100 );
+
+(*MF12 - Node24/25*)
+F_CALC_SENSOR_BAR( N24_AI7_CH3_2 * 0.001, ALARMS.Clear,  P1216 );
+F_CALC_SENSOR_BAR( N24_AI6_CH3_4 * 0.001, ALARMS.Clear,  P1219 );
+F_CALC_SENSOR_BAR( N24_AI3_CH5_2 * 0.001, ALARMS.Clear,  P1214 );
+F_CALC_SENSOR_BAR( N24_AI2_CH5_4 * 0.001, ALARMS.Clear,  P1215 );
+F_CALC_SENSOR_BAR( N24_AI1_CH6_2 * 0.001, ALARMS.Clear,  P1212 );
+F_CALC_SENSOR_BAR( N24_AI0_CH6_4 * 0.001, ALARMS.Clear,  P1213 );
+F_CALC_SENSOR_BAR( N24_AI5_CH8_2 * 0.001, ALARMS.Clear,  P1210 );
+F_CALC_SENSOR_BAR( N24_AI4_CH8_4 * 0.001, ALARMS.Clear,  P1211 );
+
+F_CALC_SENSOR_BAR( N25_AI7_CH3_2 * 0.001, ALARMS.Clear,  P1208 );
+F_CALC_SENSOR_BAR( N25_AI6_CH3_4 * 0.001, ALARMS.Clear,  P1209 );
+F_CALC_SENSOR_BAR( N25_AI3_CH5_2 * 0.001, ALARMS.Clear,  P1206 );
+F_CALC_SENSOR_BAR( N25_AI2_CH5_4 * 0.001, ALARMS.Clear,  P1207 );
+F_CALC_SENSOR_BAR( N25_AI1_CH6_2 * 0.001, ALARMS.Clear,  P1204 );
+F_CALC_SENSOR_BAR( N25_AI0_CH6_4 * 0.001, ALARMS.Clear,  P1205 );
+F_CALC_SENSOR_BAR( N25_AI5_CH8_2 * 0.001, ALARMS.Clear,  P1202 );
+F_CALC_SENSOR_BAR( N25_AI4_CH8_4 * 0.001, ALARMS.Clear,  P1203 );
+
+(*MF13 - Node33 - Traveller*)
+SF1301 := N38_DI1_CH7_2;
+SF1302 := N38_DI0_CH7_4;
+
+F_CALC_SENSOR_BAR( N33_AI3_CH5_2 * 0.004, ALARMS.Clear,  P1302 );
+F_CALC_SENSOR_BAR( N33_AI2_CH5_4 * 0.004, ALARMS.Clear,  P1301 );
+
+F_CALC_SENSOR_POS( N38_AI1_CH6_2 * 0.004, ALARMS.Clear, LS1303 );
+
+(*MF16 - Node34*)
+F_CALC_SENSOR_BAR( N34_AI3_CH5_2 * 0.001, ALARMS.Clear,  P1603 );
+F_CALC_SENSOR_BAR( N34_AI2_CH5_4 * 0.001, ALARMS.Clear,  P1605 );
+F_CALC_SENSOR_BAR( N34_AI1_CH6_2 * 0.001, ALARMS.Clear,  P1604 );
+F_CALC_SENSOR_BAR( N34_AI0_CH6_4 * 0.001, ALARMS.Clear,  P1602 );
+
+(*MF19 - Node32*)
+F_CALC_SENSOR_POS( N32_AI1_CH6_2 * 0.004, ALARMS.Clear, LS1905 );
+
+SF1909 := N32_DI1_CH7_2;
+SF1911 := N32_DI0_CH7_4;
+SF1901 := N32_DI7_CH8_2;
+SF1903 := N32_DI6_CH8_4;
+
+(*MF20 - Node31*)
+F_CALC_SENSOR_POS( N31_AI3_CH5_2 * 0.004, ALARMS.Clear, LS2001 );
+F_CALC_SENSOR_POS( N31_AI2_CH5_4 * 0.001, ALARMS.Clear, LS2005 );
+
+SF2009 := N31_DI1_CH7_2;
+SF2011 := N31_DI0_CH7_4;
+
+(*MF21 - Node28*)
+SF2101 := N28_DI5_CH5_2;
+SF2103 := N28_DI4_CH5_4;
+SF2105 := N28_DI3_CH6_2;
+SF2107 := N28_DI2_CH6_4;
+SF2109 := N28_DI1_CH7_2;
+SF2111 := N28_DI0_CH7_4;
+
+(*MF22 - Node27*)
+SF2205 := N27_DI3_CH6_2;
+SF2207 := N27_DI2_CH6_4;
+SF2209 := N27_DI1_CH7_2;
+SF2211 := N27_DI0_CH7_4;
+
+(*MF23 - Node30*)
+F_CALC_SENSOR_POS( N30_AI3_CH5_2 * 0.004, ALARMS.Clear, LS021  );
+F_CALC_SENSOR_POS( N30_AI2_CH5_4 * 0.004, ALARMS.Clear, LS022  );
+F_CALC_SENSOR_POS( N30_AI1_CH6_2 * 0.004, ALARMS.Clear, LS2301 );
+F_CALC_SENSOR_POS( N30_AI0_CH6_4 * 0.004, ALARMS.Clear, LS2305 );
+
+SF2309 := N30_DI1_CH7_2;
+SF2311 := N30_DI0_CH7_4;
+SF021  := N30_DI7_CH8_2;
+SF022  := N30_DI6_CH8_4;
+
+(*MF24 - Node29*)
+F_CALC_SENSOR_POS( N29_AI3_CH5_2 * 0.001, ALARMS.Clear, LS2401 );
+F_CALC_SENSOR_POS( N29_AI2_CH5_4 * 0.004, ALARMS.Clear, LS2409 );
+F_CALC_SENSOR_POS( N29_AI1_CH6_2 * 0.004, ALARMS.Clear, LS2201 );
+F_CALC_SENSOR_POS( N29_AI0_CH6_4 * 0.004, ALARMS.Clear, LS023  );
+
+SF2405 := N29_DI1_CH7_2;
+SF2407 := N29_DI0_CH7_4;
+
+(*MF25 - Node26*)
+F_CALC_SENSOR_POS( N26_AI3_CH5_2 * 0.004, ALARMS.Clear, LS2501 );
+F_CALC_SENSOR_POS( N26_AI2_CH5_4 * 0.004, ALARMS.Clear, LS2505 );
+F_CALC_SENSOR_BAR( N26_AI1_CH6_2 * 0.004, ALARMS.Clear, P2500  );
+F_CALC_SENSOR_POS( N26_AI0_CH6_4 * 0.004, ALARMS.Clear, LS024  );
+
+SF023  := N26_DI7_CH8_2;
+SF024  := N26_DI6_CH8_4;
+
+
+(*DGB Sela - Node48*)
+F_CALC_SENSOR_BAR ( N48_AI3_CH5_2 * 0.004, ALARMS.Clear,  P_SealP );
+F_CALC_SENSOR_BAR ( N48_AI1_CH6_2 * 0.004, ALARMS.Clear,  P_SealS );
+
+
+(*L102_raw := P102_bar * PARAMS.stL102_Cal.K;*)
+
+(*L102_Kg := L102_raw * (PARAMS.stL102_Cal.C / 100.0);*)
+
+(*Buttons*)
+(*FRO TACK*)
+B301[1] := N102_IN.2;
+B302[1] := N102_IN.3;
+B301[2] := N113_IN.3;
+B302[2] := N113_IN.2;
+(*A3 TACK*)
+B303[1] := N102_IN.4;
+B304[1] := N102_IN.5;
+B303[2] := N113_IN.5;
+B304[2] := N113_IN.4;
+(*J5*)
+B305[1] := N118_IN.6;
+B306[1] := N118_IN.7;
+B305[2] := N119_IN.7;
+B306[2] := N119_IN.6;
+(*J4*)
+B307[1] := N118_IN.8;
+B308[1] := N118_IN.9;
+B307[2] := N119_IN.9;
+B308[2] := N119_IN.8;
+(*FORESTAY*)
+B309[1] := N104_IN.1;
+B310[1] := N104_IN.0;
+B309[2] := N105_IN.0;
+B310[2] := N105_IN.1;
+(*J2*)
+B311[1] := N114_IN.4;
+B312[1] := N114_IN.5;
+B311[2] := N115_IN.5;
+B312[2] := N115_IN.4;
+(*JIB INOUT*)
+B501[1] := N114_IN.2;
+B502[1] := N114_IN.3;
+B501[2] := N115_IN.3;
+B502[2] := N115_IN.2;
+(*JIB UPDW*)
+B503[1] := N114_IN.0;
+B504[1] := N114_IN.1;
+B503[2] := N115_IN.1;
+B504[2] := N115_IN.0;
+(*VANG*)
+(*B505 [1] := N116_IN.4;
+B506 [1] := N116_IN.5;
+B506Q[1] := N116_IN.5 AND N116_IN.0;
+B505 [2] := N117_IN.5;
+B506 [2] := N117_IN.4;
+B506Q[2] := N117_IN.4 AND N117_IN.1;*)
+
+(*PORP UP/DW*)
+B601[1] := N112_IN.3; (*DW*)
+B603[1] := N112_IN.2; (*UP*)
+(*TRIM TAB*)
+B605[1] := N104_IN.3;
+B607[1] := N104_IN.2;
+B606[1] := N104_IN.4;
+B605[2] := N105_IN.3;
+B607[2] := N105_IN.2;
+B606[2] := N105_IN.5;
+
+(*INNER STAYSAIL*)
+B701[1] := N102_IN.0;
+B702[1] := N102_IN.1;
+B701[2] := N113_IN.1;
+B702[2] := N113_IN.0;
+(*MAIN OUTHAUL*)
+B703[1] := N116_IN.8;
+B704[1] := N116_IN.9;
+B703[2] := N117_IN.9;
+B704[2] := N117_IN.8;
+(*MAIN CUNNINGHAM*)
+B705[1] := N116_IN.6;
+B706[1] := N116_IN.7;
+B705[2] := N117_IN.7;
+B706[2] := N117_IN.6;
+(*BOTTOM DEFLECTOR*)
+B707[1] := N118_IN.2;
+B708[1] := N118_IN.3;
+B707[2] := N119_IN.3;
+B708[2] := N119_IN.2;
+(*TOP DEFLECTOR*)
+B709[1] := N118_IN.4;
+B710[1] := N118_IN.5;
+B709[2] := N119_IN.5;
+B710[2] := N119_IN.4;
+
+(*BACSTAY PORT*)
+(*B901[1] := N104_IN.7; (*Panel Stbd works on Backstay Port*)
+B902[1] := N104_IN.6;
+
+B901[2] := N118_IN.0; (*Panel Port works on Backstay Port Fine Tune*)
+B902[2] := N118_IN.1;*)
+
+(*BACKSTAY STBD*)
+(*B903[1] := N105_IN.6; (*Panel Port works on Backstay Stbd*)
+B904[1] := N105_IN.7;
+
+B903[2] := N119_IN.1; (*Panel Stbd works on Backstay Stbd Fine Tune*)
+B904[2] := N119_IN.0;*)
+
+(*BACKSTAY TACK*)
+(*B90T[1] := N104_IN.5;
+B90T[2] := N105_IN.4;*)
+(******************************************************fine tune y TACK***)
+
+(*TRAVELLER*)
+BTravA[1] := N116_IN.3;
+BTravB[1] := N116_IN.2;
+BTravT[1] := N116_IN.1;
+BTravD[1] := N116_IN.1 AND N116_IN.0;
+
+BTravA[2] := N117_IN.3;
+BTravB[2] := N117_IN.2;
+BTravT[2] := N117_IN.0;
+BTravD[2] := N117_IN.0 AND N117_IN.1;
+
+BTravA[3] := N38_DI0_CH7_4; (******************************Verificar cual es Port y Stbd***)
+BTravB[3] := N38_DI1_CH7_2;
+
+(*KEEL*)
+BKeelP[1] := N110_IN.0;
+BKeelS[1] := N110_IN.4;
+BKeelC[1] := N110_IN.3;
+BKeelF[1] := N110_IN.2;
+BKeelT[1] := N110_IN.5;
+
+BKeelP[2] := N111_IN.0;
+BKeelS[2] := N111_IN.4;
+BKeelC[2] := N111_IN.3;
+BKeelF[2] := N111_IN.2;
+BKeelT[2] := N111_IN.5;
+
+(*BKeelP[3] := N108_IN.0;
+BKeelS[3] := N108_IN.4;
+BKeelC[3] := N108_IN.3;
+BKeelF[3] := N108_IN.2;
+
+BKeelP[4] := N109_IN.0;
+BKeelS[4] := N109_IN.4;
+BKeelC[4] := N109_IN.3;
+BKeelF[4] := N109_IN.2;*) (*Now Mast setup*)
+
+(*BOARD*)
+BBoardP[1] := MAIN.fbMastSetup.State_MS = 0 AND N108_IN.6;
+BBoardS[1] := MAIN.fbMastSetup.State_MS = 0 AND N108_IN.7;
+BBoardC[1] := MAIN.fbMastSetup.State_MS = 0 AND N108_IN.5;
+
+BBoardP[2] := MAIN.fbMastSetup.State_HS = 0 AND N109_IN.6;
+BBoardS[2] := MAIN.fbMastSetup.State_HS = 0 AND N109_IN.7;
+BBoardC[2] := MAIN.fbMastSetup.State_HS = 0 AND N109_IN.5;
+
+(*Bow Thruster*)
+BBowThrP := N38_DI7_CH8_2;
+BBowThrS := N38_DI6_CH8_4;
+BBowThrU := N112_IN.4;
+BBowThrD := N112_IN.5;
+
+(*Water Ballast*)
+BWB_P_Fwd[1] := N106_IN.0;
+BWB_S_Fwd[1] := N106_IN.1;
+BWB_P_Aft[1] := N106_IN.2;
+BWB_S_Aft[1] := N106_IN.3;
+BWB_Fill [1] := N106_IN.4;
+BWB_Dump [1] := N106_IN.5;
+BWB_Stop [1] := N106_IN.7;
+BWB_12   [1] := N106_IN.8;
+BWB_Move [1] := N106_IN.9;
+
+BWB_P_Fwd[2] := N107_IN.0;
+BWB_S_Fwd[2] := N107_IN.1;
+BWB_P_Aft[2] := N107_IN.2;
+BWB_S_Aft[2] := N107_IN.3;
+BWB_Fill [2] := N107_IN.4;
+BWB_Dump [2] := N107_IN.5;
+BWB_Stop [2] := N107_IN.7;
+BWB_12   [2] := N107_IN.8;
+BWB_Move [2] := N107_IN.9;
+
+(*Ligths*)
+L_Red_Trig   ( CLK:= N103_IN.0 );
+L_Anchor_Trig( CLK:= N103_IN.1 );
+L_Steam_Trig ( CLK:= N103_IN.2 );
+L_Deck_Trig  ( CLK:= N103_IN.3 );
+L_Nav_Trig   ( CLK:= N103_IN.4 );
+
+L_HMI_Red_Trig   ( );
+L_HMI_Anchor_Trig( );
+L_HMI_Steam_Trig ( );
+L_HMI_Deck_Trig  ( );
+L_HMI_Nav_Trig   ( );
+
+L_Red    := L_Red_Trig.CLK    OR L_HMI_Red_Trig.CLK;
+L_Anchor := L_Anchor_Trig.CLK OR L_HMI_Anchor_Trig.CLK;
+L_Steam  := L_Steam_Trig.CLK  OR L_HMI_Steam_Trig.CLK;
+L_Deck   := L_Deck_Trig.CLK   OR L_HMI_Deck_Trig.CLK;
+L_Nav    := L_Nav_Trig.CLK    OR L_HMI_Nav_Trig.CLK;
+
+Override_Trig( CLK:= N117_IN.1 );
+RemPort_Trig ( CLK:= N105_IN.4 );
+RemStbd_Trig ( CLK:= N104_IN.5 );
+RemOff_Trig  ( CLK:= N20_DI0 OR N20_DI1 OR N20_DI3 OR N20_DI4);
+
+IF Override_Trig.Q THEN
+	Override_ON := NOT Override_ON;
+END_IF
+
+IF RemPort_Trig.Q THEN
+	RemPort_ON := NOT RemPort_ON;
+END_IF
+
+IF RemStbd_Trig.Q THEN
+	RemStbd_ON := NOT RemStbd_ON;
+END_IF
+
+IF RemOff_Trig.Q THEN
+	RemPort_ON := FALSE;
+	RemStbd_ON := FALSE;
+END_IF
+
+(*W1202 - Prim Stbd*)
+IF NOT RemStbd_ON THEN
+	B1202_1[1] := N10_DI0;
+	B1202_2[1] := N10_DI1;
+ELSE
+	B1202_1[1] := FALSE;
+	B1202_2[1] := FALSE;
+END_IF
+
+B1202_G    := N10_DI2;
+B1202_1[4] := N120_IN.3;
+B1202_2[4] := N120_IN.8;
+
+(* W1204 - Pit Stbd*)
+B1204_1[1] := N10_DI6;
+B1204_2[1] := N10_DI7;
+B1204_G    := FALSE;
+B1204_1[4] := N120_IN.1;
+B1204_2[4] := N120_IN.6;
+
+(*W1206 - MAIN*)
+B1206_1[1] := N20_DI0;
+B1206_2[1] := N20_DI1;
+B1206_G    := N20_DI2;
+B1206_1[2] := N20_DI3;
+B1206_2[2] := N20_DI4;
+B1206_1[4] := N120_IN.0;
+B1206_2[4] := N120_IN.5;
+
+IF RemStbd_ON AND RemPOrt_ON THEN
+	B1206_1[3] := N10_DI0 OR N11_DI0;
+	B1206_2[3] := N10_DI1 OR N11_DI1;
+ELSIF RemStbd_ON THEN
+	B1206_1[3] := N10_DI0;
+	B1206_2[3] := N10_DI1;
+ELSIF RemPort_ON THEN
+	B1206_1[3] := N11_DI0;
+	B1206_2[3] := N11_DI1;
+ELSE
+	B1206_1[3] := FALSE;
+	B1206_2[3] := FALSE;
+END_IF
+
+(*W1208 - Runn Port*)
+B1208_1[1] := N13_DI0;
+B1208_2[1] := N13_DI1;
+B1208_G    := N13_DI2;
+B1208_1[4] := N121_IN.0;
+B1208_2[4] := N121_IN.4;
+
+(*W1210 - Prim Port*)
+IF NOT RemPort_ON THEN
+	B1210_1[1] := N11_DI0;
+	B1210_2[1] := N11_DI1;
+ELSE
+	B1210_1[1] := FALSE;
+	B1210_2[1] := FALSE;
+END_IF
+
+B1210_G    := N11_DI2;
+B1210_1[4] := N121_IN.1;
+B1210_2[4] := N121_IN.5;
+
+(*W1212 - Sec Port*)
+B1212_1[1] := N11_DI3;
+B1212_2[1] := N11_DI4;
+B1212_G    := N11_DI5;
+B1212_1[4] := N121_IN.2;
+B1212_2[4] := N121_IN.6;
+
+(* W1214 - Pit Port*)
+B1214_1[1] := N11_DI6;
+B1214_2[1] := N11_DI7;
+B1214_G    := FALSE;
+B1214_1[4] := N121_IN.3;
+B1214_2[4] := N121_IN.7;
+
+(*W1602 - Runn Stbd*)
+B1602_1[1] := N12_DI0;
+B1602_2[1] := N12_DI1;
+B1602_G    := N12_DI2;
+B1602_1[4] := N120_IN.4;
+B1602_2[4] := N120_IN.9;
+
+(*W1604 - Sec Stbd*)
+B1604_1[1] := N10_DI3;
+B1604_2[1] := N10_DI4;
+B1604_G    := N10_DI5;
+B1604_1[4] := N120_IN.2;
+B1604_2[4] := N120_IN.7;
+
+(*****************)
+(* CAN NODESTATE *)
+(*****************)
+F_CALC_CAN_STATE ( CAN1_State, ALARMS.Clear,  CAN1 );
+F_CALC_CAN_STATE ( CAN2_State, ALARMS.Clear,  CAN2 );
+F_CALC_CAN_STATE ( CAN3_State, ALARMS.Clear,  CAN3 );
+F_CALC_CAN_STATE ( CAN4_State, ALARMS.Clear,  CAN4 );
+F_CALC_CAN_STATE ( CAN5_State, ALARMS.Clear,  CAN5 );
+
+F_CALC_CAN_NODESTATE( J1939_NodeState, ALARMS.Clear, NJ1939 );
+
+F_CALC_CAN_NODESTATE ( N20_NodeState, ALARMS.Clear,  N20 );
+F_CALC_CAN_NODESTATE ( N21_NodeState, ALARMS.Clear,  N21 );
+F_CALC_CAN_NODESTATE ( N22_NodeState, ALARMS.Clear,  N22 );
+F_CALC_CAN_NODESTATE ( N23_NodeState, ALARMS.Clear,  N23 );
+F_CALC_CAN_NODESTATE ( N24_NodeState, ALARMS.Clear,  N24 );
+F_CALC_CAN_NODESTATE ( N25_NodeState, ALARMS.Clear,  N25 );
+F_CALC_CAN_NODESTATE ( N26_NodeState, ALARMS.Clear,  N26 );
+F_CALC_CAN_NODESTATE ( N27_NodeState, ALARMS.Clear,  N27 );
+F_CALC_CAN_NODESTATE ( N28_NodeState, ALARMS.Clear,  N28 );
+F_CALC_CAN_NODESTATE ( N29_NodeState, ALARMS.Clear,  N29 );
+F_CALC_CAN_NODESTATE ( N30_NodeState, ALARMS.Clear,  N30 );
+F_CALC_CAN_NODESTATE ( N31_NodeState, ALARMS.Clear,  N31 );
+F_CALC_CAN_NODESTATE ( N32_NodeState, ALARMS.Clear,  N32 );
+F_CALC_CAN_NODESTATE ( N33_NodeState, ALARMS.Clear,  N33 );
+F_CALC_CAN_NODESTATE ( N34_NodeState, ALARMS.Clear,  N34 );
+F_CALC_CAN_NODESTATE ( N35_NodeState, ALARMS.Clear,  N35 );
+F_CALC_CAN_NODESTATE ( N36_NodeState, ALARMS.Clear,  N36 );
+F_CALC_CAN_NODESTATE ( N37_NodeState, ALARMS.Clear,  N37 );
+F_CALC_CAN_NODESTATE ( N38_NodeState, ALARMS.Clear,  N38 );
+F_CALC_CAN_NODESTATE ( N39_NodeState, ALARMS.Clear,  N39 );
+F_CALC_CAN_NODESTATE ( N40_NodeState, ALARMS.Clear,  N40 );
+F_CALC_CAN_NODESTATE ( N41_NodeState, ALARMS.Clear,  N41 );
+F_CALC_CAN_NODESTATE ( N42_NodeState, ALARMS.Clear,  N42 );
+F_CALC_CAN_NODESTATE ( N43_NodeState, ALARMS.Clear,  N43 );
+F_CALC_CAN_NODESTATE ( N44_NodeState, ALARMS.Clear,  N44 );
+F_CALC_CAN_NODESTATE ( N47_NodeState, ALARMS.Clear,  N47 );
+
+F_CALC_CAN_NODESTATE ( N50_NodeState, ALARMS.Clear,  N50 );
+F_CALC_CAN_NODESTATE ( N51_NodeState, ALARMS.Clear,  N51 );
+F_CALC_CAN_NODESTATE ( N52_NodeState, ALARMS.Clear,  N52 );
+F_CALC_CAN_NODESTATE ( N53_NodeState, ALARMS.Clear,  N53 );
+F_CALC_CAN_NODESTATE ( N54_NodeState, ALARMS.Clear,  N54 );
+F_CALC_CAN_NODESTATE ( N55_NodeState, ALARMS.Clear,  N55 );
+F_CALC_CAN_NODESTATE ( N56_NodeState, ALARMS.Clear,  N56 );
+F_CALC_CAN_NODESTATE ( N57_NodeState, ALARMS.Clear,  N57 );
+F_CALC_CAN_NODESTATE ( N58_NodeState, ALARMS.Clear,  N58 );
+F_CALC_CAN_NODESTATE ( N59_NodeState, ALARMS.Clear,  N59 );
+F_CALC_CAN_NODESTATE ( N60_NodeState, ALARMS.Clear,  N60 );
+F_CALC_CAN_NODESTATE ( N61_NodeState, ALARMS.Clear,  N61 );
+F_CALC_CAN_NODESTATE ( N64_NodeState, ALARMS.Clear,  N64 );
+F_CALC_CAN_NODESTATE ( N70_NodeState, ALARMS.Clear,  N70 );
+F_CALC_CAN_NODESTATE ( N71_NodeState, ALARMS.Clear,  N71 );
+F_CALC_CAN_NODESTATE ( N72_NodeState, ALARMS.Clear,  N72 );
+F_CALC_CAN_NODESTATE ( N73_NodeState, ALARMS.Clear,  N73 );
+F_CALC_CAN_NODESTATE ( N74_NodeState, ALARMS.Clear,  N74 );
+
+F_CALC_CAN_NODESTATE ( N102_NodeState, ALARMS.Clear,  N102 );
+F_CALC_CAN_NODESTATE ( N103_NodeState, ALARMS.Clear,  N103 );
+F_CALC_CAN_NODESTATE ( N104_NodeState, ALARMS.Clear,  N104 );
+F_CALC_CAN_NODESTATE ( N105_NodeState, ALARMS.Clear,  N105 );
+F_CALC_CAN_NODESTATE ( N106_NodeState, ALARMS.Clear,  N106 );
+F_CALC_CAN_NODESTATE ( N107_NodeState, ALARMS.Clear,  N107 );
+F_CALC_CAN_NODESTATE ( N108_NodeState, ALARMS.Clear,  N108 );
+F_CALC_CAN_NODESTATE ( N109_NodeState, ALARMS.Clear,  N109 );
+F_CALC_CAN_NODESTATE ( N110_NodeState, ALARMS.Clear,  N110 );
+F_CALC_CAN_NODESTATE ( N111_NodeState, ALARMS.Clear,  N111 );
+F_CALC_CAN_NODESTATE ( N112_NodeState, ALARMS.Clear,  N112 );
+F_CALC_CAN_NODESTATE ( N113_NodeState, ALARMS.Clear,  N113 );
+F_CALC_CAN_NODESTATE ( N114_NodeState, ALARMS.Clear,  N114 );
+F_CALC_CAN_NODESTATE ( N115_NodeState, ALARMS.Clear,  N115 );
+F_CALC_CAN_NODESTATE ( N116_NodeState, ALARMS.Clear,  N116 );
+F_CALC_CAN_NODESTATE ( N117_NodeState, ALARMS.Clear,  N117 );
+F_CALC_CAN_NODESTATE ( N118_NodeState, ALARMS.Clear,  N118 );
+F_CALC_CAN_NODESTATE ( N119_NodeState, ALARMS.Clear,  N119 );
+
+F_CALC_CAN_NODESTATE ( N10_NodeState, ALARMS.Clear,  N10 );
+F_CALC_CAN_NODESTATE ( N11_NodeState, ALARMS.Clear,  N11 );
+F_CALC_CAN_NODESTATE ( N12_NodeState, ALARMS.Clear,  N12 );
+F_CALC_CAN_NODESTATE ( N13_NodeState, ALARMS.Clear,  N13 );
+F_CALC_CAN_NODESTATE ( N20_2_NodeState, ALARMS.Clear,  N20_2 );
+
+
+(***************)
+(* System Time *)
+(***************)
+fbLocalTime( bEnable := TRUE );
+
+(*
+tsTime  := fbLocalTime.systemTime;
+sDate   := DWORD_TO_STRING( tsTime.wYear * 10000 + tsTime.wMonth * 100 + tsTime.wDay );
+sLocal  := REAL_TO_STRING ( tsTime.wHour * 10000.0 + tsTime.wMinute * 100.0 + tsTime.wSecond + tsTime.wMilliseconds / 1000.0 );
+sDaySec := REAL_TO_STRING ( tsTime.wHour * 3600.0  + tsTime.wMinute * 60.0  + tsTime.wSecond + tsTime.wMilliseconds / 1000.0 );
+*)
+
+sLocal    := SYSTEMTIME_TO_STRING(fbLocalTime.systemTime); (*YYYY-MM-DD-hh:mm:ss.sss*)
+sLocal    := DELETE (sLocal, 11, 1); (*hh:mm:ss.sss*)
+sVisuTime := DELETE (sLocal,  4, 9); (*hh:mm:ss*)
+
+END_PROGRAM

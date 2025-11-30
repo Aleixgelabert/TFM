@@ -1,0 +1,233 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_LP_FUNC_SF
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	Perc : REAL;
+
+	IN_1   : BOOL;
+	IN_2   : BOOL;
+
+	IN_SF1 : BOOL;
+	IN_SF2 : BOOL;
+
+END_VAR
+VAR_IN_OUT
+	CFG : ST_LP_FUNC_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_TWC : INT;
+	OUT_LP  : BYTE;
+END_VAR
+VAR
+	State : WORD;
+
+	IN_Hmi_1 : BOOL;
+	IN_Hmi_2 : BOOL;
+	IN_SFA   : BOOL;
+	IN_SFB   : BOOL;
+
+	SI_A : FB_SMART_INPUT;
+	SI_B : FB_SMART_INPUT;
+	SI_Hmi_A : FB_SMART_INPUT;
+	SI_Hmi_B : FB_SMART_INPUT;
+
+	Spd_Tgt  : REAL;
+	SoftStop : BOOL;
+
+	CyclCnt : REAL;
+	TimeOut : BOOL;
+
+	SpdA : INT;
+	SpdB : INT;
+	Out_1: BOOL;
+	Out_2: BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF Cfg.A_Spd1 THEN
+	SpdA := 1;
+	SpdB := 2;
+
+	SI_A(In:= IN_1, T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B(In:= IN_2, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+	SI_Hmi_A(In:= IN_Hmi_1, T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_Hmi_B(In:= IN_Hmi_2, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+	IN_SFA := IN_SF1 AND Cfg.SF1_Limit;
+	IN_SFB := IN_SF2 AND Cfg.SF2_Limit;
+ELSE
+	SpdA := 2;
+	SpdB := 1;
+
+	SI_A(In:= IN_2, T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B(In:= IN_1, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+	SI_Hmi_A(In:= IN_Hmi_2, T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_Hmi_B(In:= IN_Hmi_1, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+	IN_SFA := IN_SF2 AND Cfg.SF2_Limit;
+	IN_SFB := IN_SF1 AND Cfg.SF1_Limit;
+END_IF
+
+IF NOT Enable THEN
+	OUT_TWC := 0;
+	OUT_LP  := 0;
+
+	CyclCnt := 0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR (CFG.TimeMax > 0 AND CyclCnt > CFG.TimeMax);
+CyclCnt := CyclCnt + CFG.Cycle;
+
+CASE State OF
+0: (*INIT*)
+	OUT_TWC := 0;
+	CyclCnt := 0;
+
+	SoftStop := FALSE;
+
+	IF Ready THEN
+		IF (SI_A.Event = INIT_CONTINUOUS OR SI_Hmi_A.Event = INIT_CONTINUOUS) THEN
+			Spd_Tgt := CFG.SpdA_Min;
+			OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+			TimeOut := FALSE;
+			State   := 10;
+
+		ELSIF (SI_B.Event = INIT_CONTINUOUS OR SI_Hmi_B.Event = INIT_CONTINUOUS) THEN
+			Spd_Tgt := CFG.SpdB_Min;
+			OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+			TimeOut := FALSE;
+			State   := 20;
+
+		END_IF
+	END_IF
+
+10: (*A*)
+	IF TimeOut OR IN_SFA THEN
+		OUT_TWC := 0;
+		State   := 0;
+
+	(*ELSIF SI_B.Event = INIT_CONTINUOUS OR SI_Hmi_B.Event = INIT_CONTINUOUS THEN
+		Spd_Tgt := CFG.SpdB_Min;
+		OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+		TimeOut := FALSE;
+		State   := 20;*)
+
+	ELSE
+		IF SI_A.Event = END_CONTINUOUS  OR SI_Hmi_A.Event = END_CONTINUOUS
+		OR SI_B.Event = INIT_CONTINUOUS OR SI_Hmi_B.Event = INIT_CONTINUOUS
+		THEN
+			IF SoftStop THEN
+				OUT_TWC  := 0;
+				OUT_LP   := 0;
+				State    := 0;
+				RETURN;
+			ELSE
+				SoftStop := TRUE;
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			Spd_Tgt := Spd_Tgt - CFG.Spd_Dec * CFG.Cycle;
+			Spd_Tgt := MIN(Spd_Tgt, CFG.SpdA_Max);
+			Spd_Tgt := MAX(Spd_Tgt, CFG.SpdA_Min);
+
+			IF Spd_Tgt = CFG.SpdA_Min OR CFG.Spd_Dec <= 0
+			THEN OUT_TWC := 0;
+			ELSE OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+			END_IF
+
+		ELSE
+			Spd_Tgt := Spd_Tgt + CFG.Spd_Inc * CFG.Cycle;
+			Spd_Tgt := MIN(Spd_Tgt, CFG.SpdA_Max);
+			Spd_Tgt := MAX(Spd_Tgt, CFG.SpdA_Min);
+
+			OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF OUT_TWC = 0 THEN
+			State    := 0; (*Next State*)
+		END_IF
+
+		(*OUT_TWC := REAL_TO_INT(CFG.SpdA * Perc * 10.0);*)
+
+	END_IF
+
+20: (*B*)
+	IF TimeOut OR IN_SFB THEN
+		OUT_TWC := 0;
+		State   := 0;
+
+	(*ELSIF SI_A.Event = INIT_CONTINUOUS OR SI_Hmi_A.Event = INIT_CONTINUOUS THEN
+		Spd_Tgt := CFG.SpdA_Min;
+		OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+		TimeOut := FALSE;
+		State   := 10;*)
+
+	ELSE
+		IF SI_B.Event = END_CONTINUOUS  OR SI_Hmi_B.Event = END_CONTINUOUS
+		OR SI_A.Event = INIT_CONTINUOUS OR SI_Hmi_A.Event = INIT_CONTINUOUS
+		THEN
+			IF SoftStop THEN
+				OUT_TWC  := 0;
+				OUT_LP   := 0;
+				State    := 0;
+				RETURN;
+			ELSE
+				SoftStop := TRUE;
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			Spd_Tgt := Spd_Tgt - CFG.Spd_Dec * CFG.Cycle;
+			Spd_Tgt := MIN(Spd_Tgt, CFG.SpdB_Max);
+			Spd_Tgt := MAX(Spd_Tgt, CFG.SpdB_Min);
+
+			IF Spd_Tgt = CFG.SpdB_Min OR CFG.Spd_Dec <= 0
+			THEN OUT_TWC := 0;
+			ELSE OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+			END_IF
+
+		ELSE
+			Spd_Tgt := Spd_Tgt + CFG.Spd_Inc * CFG.Cycle;
+			Spd_Tgt := MIN(Spd_Tgt, CFG.SpdB_Max);
+			Spd_Tgt := MAX(Spd_Tgt, CFG.SpdB_Min);
+
+			OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF OUT_TWC = 0 THEN
+			State    := 0; (*Next State*)
+		END_IF
+
+		(*OUT_TWC := REAL_TO_INT(-CFG.SpdB * Perc * 10.0);*)
+
+	END_IF
+
+END_CASE
+
+IF Cfg.A_Spd1 THEN
+	Out_1 := OUT_TWC > 0;
+	Out_2 := OUT_TWC < 0;
+ELSE
+	Out_1 := OUT_TWC < 0;
+	Out_2 := OUT_TWC > 0;
+END_IF
+
+IF OUT_TWC = 0 THEN
+	OUT_LP := 0;
+ELSE
+	OUT_LP := 1; (*How Many*)
+END_IF
+END_FUNCTION_BLOCK

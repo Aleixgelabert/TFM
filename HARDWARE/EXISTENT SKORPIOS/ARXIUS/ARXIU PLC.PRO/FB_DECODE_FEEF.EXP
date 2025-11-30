@@ -1,0 +1,35 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/PGN FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_DECODE_FEEF (*Engine Fluid Level/Pressure 1 EFL/P1*)
+VAR_IN_OUT
+	IN: ARRAY [0..7] OF USINT;
+END_VAR
+VAR_OUTPUT
+	FuelDeliveryPressure : REAL;
+	EngineOilLevel       : REAL;
+	EngineOilPressure    : REAL;
+	CrankcasePressure    : REAL;
+	CoolantPressure      : REAL;
+	CoolantLevel         : REAL;
+
+	Count : DWORD;
+END_VAR
+VAR
+	Debug : BOOL;
+	Buffer: ARRAY [0..7] OF USINT;
+END_VAR
+(* @END_DECLARATION := '0' *)
+FuelDeliveryPressure := BUFFER_TO_REAL( pBuffer:= ADR(IN[0]), ByteSize := 1, Scale:= 4.0,       Offset := 0.0 );
+EngineOilLevel       := BUFFER_TO_REAL( pBuffer:= ADR(IN[2]), ByteSize := 1, Scale:= 0.4,       Offset := 0.0 );
+EngineOilPressure    := BUFFER_TO_REAL( pBuffer:= ADR(IN[3]), ByteSize := 1, Scale:= 4.0,       Offset := 0.0 );
+CrankcasePressure    := BUFFER_TO_REAL( pBuffer:= ADR(IN[4]), ByteSize := 2, Scale:= 0.0078125, Offset := -250.0 );
+CoolantPressure      := BUFFER_TO_REAL( pBuffer:= ADR(IN[6]), ByteSize := 1, Scale:= 2.0,       Offset := 0.0 );
+CoolantLevel         := BUFFER_TO_REAL( pBuffer:= ADR(IN[7]), ByteSize := 1, Scale:= 0.4,       Offset := 0.0 );
+
+Count := Count + 1;
+
+IF Debug THEN MEMCPY(destAddr := ADR(Buffer), srcAddr := ADR(IN), n := 8); END_IF
+END_FUNCTION_BLOCK

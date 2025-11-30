@@ -1,0 +1,344 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM TOFARO
+VAR CONSTANT
+	UDP_BUF_SIZE  : WORD := 4096;
+
+END_VAR
+VAR
+	fbUdpSend        : FB_UDP_SEND;
+	fbUdpRecv        : FB_UDP_RECV;
+	fbSocketCloseAll : FB_SocketCloseAll;
+    bCloseAll 	     : BOOL := TRUE;
+
+	Send_Id          : DWORD;
+	Send_NumberOfVars: WORD;
+	Send_Offset      : WORD;
+	Send_Buffer      : ARRAY[0..UDP_BUF_SIZE] OF BYTE;
+
+	AuxVar : REAL;
+
+	Recv_Id          : DWORD;
+	Recv_NumberOfVars: WORD;
+	Recv_Offset      : WORD;
+	Recv_Buffer      : ARRAY[0..UDP_BUF_SIZE] OF BYTE;
+	Recv_ToggleOLD   : BOOL;
+	Recv_OldId       : DWORD;
+	NoRecv_Cnt       : REAL;
+	Recv_Live        : BOOL;
+
+	rBar1 : REAL;
+	rBar2 : REAL;
+	rHeel : REAL;
+
+	rRunP : REAL;
+	rPriP : REAL;
+	rMain : REAL;
+	rRunS : REAL;
+	rPriS : REAL;
+	rSecP : REAL;
+	rSecS : REAL;
+
+
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*UDP STREAMING*)
+IF bCloseAll THEN (*On PLC reset or program download close all old connections *)
+	bCloseAll := FALSE;
+	fbUdpSend( bEnable:= FALSE );
+	fbSocketCloseAll( bExecute:= TRUE, tTimeout:= T#10s );
+
+	Recv_Live := FALSE;
+ELSE
+	fbSocketCloseAll( bExecute:= FALSE );
+END_IF
+
+IF NOT fbSocketCloseAll.bBusy THEN
+
+(* UDP Inputs *)
+	fbUdpRecv(
+		bEnable    := TRUE,
+		nLocalPort := PARAMS.nUDPRecvPort,
+		pBuffer    := ADR(Recv_Buffer),
+		wBufLen    := UDP_BUF_SIZE,
+	);
+
+	IF fbUdpRecv.bRecToggle <> Recv_ToggleOLD THEN
+		Recv_ToggleOLD := fbUdpRecv.bRecToggle;
+
+		IF fbUdpRecv.nRecBytes >= 48 THEN (* 10*4 + 8 Check size*)
+			MEMCPY( ADR(Recv_Id          ), ADR(Recv_Buffer[0]), 4);
+			MEMCPY( ADR(Recv_NumberOfVars), ADR(Recv_Buffer[4]), 2);
+			MEMCPY( ADR(Recv_Offset      ), ADR(Recv_Buffer[6]), 2);
+
+			(* 1*) MEMCPY( ADR(rBar1) , ADR(Recv_Buffer[ 8]), 4);
+			(* 2*) MEMCPY( ADR(rBar2) , ADR(Recv_Buffer[12]), 4);
+			(* 3*) MEMCPY( ADR(rHeel) , ADR(Recv_Buffer[16]), 4);
+			(* 4*) MEMCPY( ADR(rRunP) , ADR(Recv_Buffer[20]), 4);
+			(* 5*) MEMCPY( ADR(rPriP) , ADR(Recv_Buffer[24]), 4);
+			(* 6*) MEMCPY( ADR(rMain) , ADR(Recv_Buffer[28]), 4);
+			(* 7*) MEMCPY( ADR(rRunS) , ADR(Recv_Buffer[32]), 4);
+			(* 8*) MEMCPY( ADR(rPriS) , ADR(Recv_Buffer[36]), 4);
+			(* 9*) MEMCPY( ADR(rSecP) , ADR(Recv_Buffer[40]), 4);
+			(*10*) MEMCPY( ADR(rSecS) , ADR(Recv_Buffer[44]), 4);
+
+		END_IF
+	END_IF
+
+	IF Recv_Id <> Recv_OldId THEN
+		NoRecv_Cnt := 0;
+		Recv_OldId := Recv_Id;
+		Recv_Live  := TRUE;
+	ELSE
+		NoRecv_Cnt := NoRecv_Cnt + MAIN.Cycle_Time;
+	END_IF
+
+	IF NoRecv_Cnt > 1 THEN
+		Recv_Live := FALSE;
+	END_IF
+
+	IF NoRecv_Cnt > 10 THEN
+		bCloseAll  := TRUE;
+		NoRecv_Cnt := 0;
+	END_IF
+
+(*UDP Outputs*)
+	IF fbUdpSend.eStep = UDP_STATE_SEND_START AND PARAMS.nUDPSendTime > 0 THEN
+
+		(*Press Sensors*)
+		(* 1*)MEMCPY( ADR(Send_Buffer[  8]), ADR(  P010.Bar ), 4); (*Tank*)
+		(* 2*)MEMCPY( ADR(Send_Buffer[ 12]), ADR(  P101.Bar ), 4); (*PowerPack Low Press. Line*)
+		(* 3*)MEMCPY( ADR(Send_Buffer[ 16]), ADR(  P103.Bar ), 4); (*Main High Press. Line*)
+		(* 4*)MEMCPY( ADR(Send_Buffer[ 20]), ADR(  P201.Bar ), 4); (*Main Low Press. Line*)
+
+		(* 5*)MEMCPY( ADR(Send_Buffer[ 24]), ADR(  P301.Bar ), 4); (*A3 Tack*)
+		(* 6*)MEMCPY( ADR(Send_Buffer[ 28]), ADR(  P303.Bar ), 4); (*FRO Tack*)
+		(* 7*)MEMCPY( ADR(Send_Buffer[ 32]), ADR(  P305.Bar ), 4); (*J5*)
+		(* 8*)MEMCPY( ADR(Send_Buffer[ 36]), ADR(  P307.Bar ), 4); (*J4*)
+		(* 9*)MEMCPY( ADR(Send_Buffer[ 40]), ADR(  P309.Bar ), 4); (*Forastay*)
+		(*10*)MEMCPY( ADR(Send_Buffer[ 44]), ADR(  P311.Bar ), 4); (*J2*)
+
+		(*11*)MEMCPY( ADR(Send_Buffer[ 48]), ADR(  P501.Bar ), 4); (*Jib InOut*)
+		(*12*)MEMCPY( ADR(Send_Buffer[ 52]), ADR(  P503.Bar ), 4); (*Jib UpDw*)
+		(*13*)MEMCPY( ADR(Send_Buffer[ 56]), ADR(  P505.Bar ), 4); (*Vang*)
+
+		(*14*)MEMCPY( ADR(Send_Buffer[ 60]), ADR(  P601.Bar ), 4); (*Propulsion Dw*)
+		(*15*)MEMCPY( ADR(Send_Buffer[ 64]), ADR(  P603.Bar ), 4); (*Propulsion Up*)
+		(*16*)MEMCPY( ADR(Send_Buffer[ 68]), ADR(  P605.Bar ), 4); (*Trim Tab Out*)
+		(*17*)MEMCPY( ADR(Send_Buffer[ 72]), ADR(  P607.Bar ), 4); (*Trim Tab In*)
+
+		(*18*)MEMCPY( ADR(Send_Buffer[ 76]), ADR(  P701.Bar ), 4); (*Inner Staysail*)
+		(*19*)MEMCPY( ADR(Send_Buffer[ 80]), ADR(  P703.Bar ), 4); (*Outhau*)
+		(*20*)MEMCPY( ADR(Send_Buffer[ 84]), ADR(  P705.Bar ), 4); (*Main Cunningham*)
+		(*21*)MEMCPY( ADR(Send_Buffer[ 88]), ADR(  P707.Bar ), 4); (*Bottom Deflectorl*)
+		(*22*)MEMCPY( ADR(Send_Buffer[ 92]), ADR(  P709.Bar ), 4); (*Top Deflector*)
+
+		(*23*)MEMCPY( ADR(Send_Buffer[ 96]), ADR(  P802.Bar ), 4); (*Daggerborad Port Pump*)
+		(*24*)MEMCPY( ADR(Send_Buffer[100]), ADR(  P804.Bar ), 4); (*Daggerborad Stbd Pump*)
+
+		(*25*)MEMCPY( ADR(Send_Buffer[104]), ADR(  P901.Bar ), 4); (*Backstay Tail Port*)
+		(*26*)MEMCPY( ADR(Send_Buffer[108]), ADR(  P903.Bar ), 4); (*Backstay Tail Stbd*)
+
+		(*27*)MEMCPY( ADR(Send_Buffer[112]), ADR( P1001.Bar ), 4); (*Keel IN*)
+		(*28*)MEMCPY( ADR(Send_Buffer[116]), ADR( P1002.Bar ), 4); (*Keel OUT*)
+
+		(*29*)MEMCPY( ADR(Send_Buffer[120]), ADR( P1101.Bar ), 4); (*Propulsion*)
+		(*30*)MEMCPY( ADR(Send_Buffer[124]), ADR( P1102.Bar ), 4); (*Propulsion*)
+
+		(*31*)MEMCPY( ADR(Send_Buffer[128]), ADR( P1202.Bar ), 4); (*Primary Winch Stbd A*)
+		(*32*)MEMCPY( ADR(Send_Buffer[132]), ADR( P1203.Bar ), 4); (*Primary Winch Stbd B*)
+		(*33*)MEMCPY( ADR(Send_Buffer[136]), ADR( P1204.Bar ), 4); (*Pit Winch Stbd A*)
+		(*34*)MEMCPY( ADR(Send_Buffer[140]), ADR( P1205.Bar ), 4); (*Pit Winch Stbd B*)
+		(*35*)MEMCPY( ADR(Send_Buffer[144]), ADR( P1206.Bar ), 4); (*Mainsheet Winch A*)
+		(*36*)MEMCPY( ADR(Send_Buffer[148]), ADR( P1207.Bar ), 4); (*Mainsheet Winch B*)
+		(*37*)MEMCPY( ADR(Send_Buffer[152]), ADR( P1208.Bar ), 4); (*Runner Winch Port A*)
+		(*38*)MEMCPY( ADR(Send_Buffer[156]), ADR( P1209.Bar ), 4); (*Runner Winch Port B*)
+		(*39*)MEMCPY( ADR(Send_Buffer[160]), ADR( P1210.Bar ), 4); (*Primary Winch Port A*)
+		(*40*)MEMCPY( ADR(Send_Buffer[164]), ADR( P1211.Bar ), 4); (*Primary Winch Port B*)
+		(*41*)MEMCPY( ADR(Send_Buffer[168]), ADR( P1212.Bar ), 4); (*Secondary Winch Port A*)
+		(*42*)MEMCPY( ADR(Send_Buffer[172]), ADR( P1213.Bar ), 4); (*Secondary Winch Port B*)
+		(*43*)MEMCPY( ADR(Send_Buffer[176]), ADR( P1214.Bar ), 4); (*Pit Winch Port	A*)
+		(*44*)MEMCPY( ADR(Send_Buffer[180]), ADR( P1215.Bar ), 4); (*Pit Winch Port	B*)
+		(*45*)MEMCPY( ADR(Send_Buffer[184]), ADR( P1216.Bar ), 4); (*Daggerborad Port Ease*)
+		(*46*)MEMCPY( ADR(Send_Buffer[188]), ADR( P1219.Bar ), 4); (*Daggerborad Stbd Ease*)
+
+		(*47*)MEMCPY( ADR(Send_Buffer[192]), ADR( P1301.Bar ), 4); (*Traveller A*)
+		(*48*)MEMCPY( ADR(Send_Buffer[196]), ADR( P1302.Bar ), 4); (*Traveller B*)
+
+		(*49*)MEMCPY( ADR(Send_Buffer[200]), ADR( P1602.Bar ), 4); (*Runner Winch Stbd A*)
+		(*50*)MEMCPY( ADR(Send_Buffer[204]), ADR( P1603.Bar ), 4); (*Runner Winch Stbd B*)
+		(*51*)MEMCPY( ADR(Send_Buffer[208]), ADR( P1604.Bar ), 4); (*Secondary Winch Stbd A*)
+		(*52*)MEMCPY( ADR(Send_Buffer[212]), ADR( P1605.Bar ), 4); (*Secondary Winch Stbd B*)
+
+		(*Position Sensors*)
+		(*53*)MEMCPY( ADR(Send_Buffer[216]), ADR(  LS301.Pos ), 4); (*A3 Tack*)
+		(*54*)MEMCPY( ADR(Send_Buffer[220]), ADR(  LS303.Pos ), 4); (*FRO Tack*)
+		(*55*)MEMCPY( ADR(Send_Buffer[224]), ADR(  LS305.Pos ), 4); (*J5*)
+		(*56*)MEMCPY( ADR(Send_Buffer[228]), ADR(  LS307.Pos ), 4); (*J4*)
+		(*57*)MEMCPY( ADR(Send_Buffer[232]), ADR(  LS309.Pos ), 4); (*Forastay*)
+		(*58*)MEMCPY( ADR(Send_Buffer[236]), ADR(  LS311.Pos ), 4); (*J2*)
+
+		(*59*)MEMCPY( ADR(Send_Buffer[240]), ADR(  LS601.Pos ), 4); (*Propulsion*)
+		(*60*)MEMCPY( ADR(Send_Buffer[244]), ADR(  LS605.Pos ), 4); (*Trim Tab*)
+
+		(*61*)MEMCPY( ADR(Send_Buffer[248]), ADR(  LS707.Pos ), 4); (*Bottom Deflector*)
+		(*62*)MEMCPY( ADR(Send_Buffer[252]), ADR(  LS709.Pos ), 4); (*Top Deflector*)
+
+		(*63*)MEMCPY( ADR(Send_Buffer[256]), ADR(  LS801.Pos ), 4); (*Daggerboard Port*)
+		(*64*)MEMCPY( ADR(Send_Buffer[260]), ADR(  LS803.Pos ), 4); (*Daggerboard Stbd*)
+
+		(*65*)MEMCPY( ADR(Send_Buffer[264]), ADR(  LS901.Pos ), 4); (*Backstay Tail Port*)
+		(*66*)MEMCPY( ADR(Send_Buffer[268]), ADR(  LS903.Pos ), 4); (*Backstay Tail Stbd*)
+
+		(*67*)MEMCPY( ADR(Send_Buffer[272]), ADR( LS1001.Pos ), 4); (*Keel Main*)
+		(*68*)MEMCPY( ADR(Send_Buffer[276]), ADR( LS1002.Pos ), 4); (*Keel Recovery*)
+
+		(*69*)MEMCPY( ADR(Send_Buffer[280]), ADR( LS1303.Pos ), 4); (*Traveller*)
+
+		(*Water Ballast*)
+		(*70*)MEMCPY( ADR(Send_Buffer[284]), ADR( LS021.Pos ), 4); (*Aft. Tank (Port)*)
+		(*71*)MEMCPY( ADR(Send_Buffer[288]), ADR( LS022.Pos ), 4); (*Fwd. Tank (Port)*)
+		(*72*)MEMCPY( ADR(Send_Buffer[292]), ADR( LS023.Pos ), 4); (*Aft. Tank (Stbd)*)
+		(*73*)MEMCPY( ADR(Send_Buffer[296]), ADR( LS024.Pos ), 4); (*Fwd. Tank (Stbd)*)
+
+		(*Engine*)
+		(*74*)MEMCPY( ADR(Send_Buffer[300]), ADR( RECV_J1939.F004.EngineActualSpeed        ), 4); (*Engine Speed RPM*)
+			  AuxVar := SINT_TO_REAL( RECV_J1939.F004.EngineActualTorque );
+		(*75*)MEMCPY( ADR(Send_Buffer[304]), ADR( AuxVar                                   ), 4); (*Engine Torque %*)
+		(*76*)MEMCPY( ADR(Send_Buffer[308]), ADR( RECV_J1939.FEEE.EngineCoolantTemperature ), 4); (*Engine Coolant Temp*)
+		(*77*)MEMCPY( ADR(Send_Buffer[312]), ADR( RECV_J1939.FEEF.EngineOilPressure        ), 4); (*Engine Oil Press kPa*)
+		(*78*)MEMCPY( ADR(Send_Buffer[316]), ADR( Prop_RPM                                 ), 4); (*Propulsion RPM*)
+
+		(*Tank*)
+		(*79*)MEMCPY( ADR(Send_Buffer[320]), ADR( S011.Deg ), 4); (*Oil Tank Temp*)
+
+			  IF    MAIN.fbBowThrUpDw.IN_SF1 THEN AuxVar :=   0.0;
+			  ELSIF MAIN.fbBowThrUpDw.IN_SF2 THEN AuxVar := 100.0;
+			  ELSE                                AuxVar :=  50.0;
+			  END_IF
+
+		(*80*)MEMCPY( ADR(Send_Buffer[324]), ADR( AuxVar ), 4); (*BowThrUpDw*)
+
+		(*HP VALVES*)
+		(*81*)MEMCPY( ADR(Send_Buffer[328]), ADR( MAIN.fbSE301.ToFaroValue ), 4);
+		(*82*)MEMCPY( ADR(Send_Buffer[332]), ADR( MAIN.fbSE303.ToFaroValue ), 4);
+		(*83*)MEMCPY( ADR(Send_Buffer[336]), ADR( MAIN.fbSE305.ToFaroValue ), 4);
+		(*84*)MEMCPY( ADR(Send_Buffer[340]), ADR( MAIN.fbSE307.ToFaroValue ), 4);
+		(*85*)MEMCPY( ADR(Send_Buffer[344]), ADR( MAIN.fbSE309.ToFaroValue ), 4);
+		(*86*)MEMCPY( ADR(Send_Buffer[348]), ADR( MAIN.fbSE311.ToFaroValue ), 4);
+
+		(*87*)MEMCPY( ADR(Send_Buffer[352]), ADR( MAIN.fbSE501.ToFaroValue ), 4);
+		(*88*)MEMCPY( ADR(Send_Buffer[356]), ADR( MAIN.fbSE503.ToFaroValue ), 4);
+		(*89*)MEMCPY( ADR(Send_Buffer[360]), ADR( MAIN.fbSE505.ToFaroValue ), 4);
+
+		(*90*)MEMCPY( ADR(Send_Buffer[364]), ADR( MAIN.fbDE601.ToFaroValue ), 4);
+		(*91*)MEMCPY( ADR(Send_Buffer[368]), ADR( MAIN.fbDE605.ToFaroValue ), 4);
+
+		(*92*)MEMCPY( ADR(Send_Buffer[372]), ADR( MAIN.fbSE701.ToFaroValue ), 4);
+		(*93*)MEMCPY( ADR(Send_Buffer[376]), ADR( MAIN.fbSE703.ToFaroValue ), 4);
+		(*94*)MEMCPY( ADR(Send_Buffer[380]), ADR( MAIN.fbSE705.ToFaroValue ), 4);
+		(*95*)MEMCPY( ADR(Send_Buffer[384]), ADR( MAIN.fbSE707.ToFaroValue ), 4);
+		(*96*)MEMCPY( ADR(Send_Buffer[388]), ADR( MAIN.fbSE709.ToFaroValue ), 4);
+
+		(*97*)MEMCPY( ADR(Send_Buffer[392]), ADR( MAIN.fbBSY.ToFaroValueP ), 4);
+		(*98*)MEMCPY( ADR(Send_Buffer[396]), ADR( MAIN.fbBSY.ToFaroValueS ), 4);
+
+		(*99*)MEMCPY( ADR(Send_Buffer[400]), ADR( MAIN.fbTraveller.ToFaroValue ), 4);
+
+		(*LP VALVES*)
+		(*100*)AuxVar := UINT_TO_REAL(EVP001); MEMCPY( ADR(Send_Buffer[404]), ADR( AuxVar ), 4);
+		(*101*)AuxVar := UINT_TO_REAL(EVP002); MEMCPY( ADR(Send_Buffer[408]), ADR( AuxVar ), 4);
+
+		(*102*)AuxVar := INT_TO_REAL(EVP1202_3); MEMCPY( ADR(Send_Buffer[412]), ADR( AuxVar ), 4);
+		(*103*)AuxVar := INT_TO_REAL(EVP1204_5); MEMCPY( ADR(Send_Buffer[416]), ADR( AuxVar ), 4);
+		(*104*)AuxVar := INT_TO_REAL(EVP1206_7); MEMCPY( ADR(Send_Buffer[420]), ADR( AuxVar ), 4);
+		(*105*)AuxVar := INT_TO_REAL(EVP1208_9); MEMCPY( ADR(Send_Buffer[424]), ADR( AuxVar ), 4);
+		(*106*)AuxVar := INT_TO_REAL(EVP1210_1); MEMCPY( ADR(Send_Buffer[428]), ADR( AuxVar ), 4);
+		(*107*)AuxVar := INT_TO_REAL(EVP1212_3); MEMCPY( ADR(Send_Buffer[432]), ADR( AuxVar ), 4);
+		(*108*)AuxVar := INT_TO_REAL(EVP1214_5); MEMCPY( ADR(Send_Buffer[436]), ADR( AuxVar ), 4);
+		(*109*)AuxVar := INT_TO_REAL(EVP1216_7); MEMCPY( ADR(Send_Buffer[440]), ADR( AuxVar ), 4);
+		(*110*)AuxVar := INT_TO_REAL(EVP1218_9); MEMCPY( ADR(Send_Buffer[444]), ADR( AuxVar ), 4);
+		(*111*)AuxVar := INT_TO_REAL(EVP1220_1); MEMCPY( ADR(Send_Buffer[448]), ADR( AuxVar ), 4);
+
+		(*112*)AuxVar := INT_TO_REAL(EVP402_3); MEMCPY( ADR(Send_Buffer[452]), ADR( AuxVar ), 4);
+		(*113*)AuxVar := INT_TO_REAL(EVP404_5); MEMCPY( ADR(Send_Buffer[456]), ADR( AuxVar ), 4);
+		(*114*)AuxVar := INT_TO_REAL(EVP406_7); MEMCPY( ADR(Send_Buffer[460]), ADR( AuxVar ), 4);
+
+		(*115*)AuxVar := INT_TO_REAL(EVP1602_3); MEMCPY( ADR(Send_Buffer[464]), ADR( AuxVar ), 4);
+		(*116*)AuxVar := INT_TO_REAL(EVP1604_5); MEMCPY( ADR(Send_Buffer[468]), ADR( AuxVar ), 4);
+		(*117*)AuxVar := INT_TO_REAL(EVP1606_7); MEMCPY( ADR(Send_Buffer[472]), ADR( AuxVar ), 4);
+		(*118*)AuxVar := INT_TO_REAL(EVP1608_9); MEMCPY( ADR(Send_Buffer[476]), ADR( AuxVar ), 4);
+		(*119*)AuxVar := INT_TO_REAL(EVP1610_1); MEMCPY( ADR(Send_Buffer[480]), ADR( AuxVar ), 4);
+
+		(*FUNCTIONS IN USE*)
+		(*120*)AuxVar := UINT_TO_REAL(POWERPACK.NHP); MEMCPY( ADR(Send_Buffer[484]), ADR( AuxVar ), 4);
+		(*121*)AuxVar := UINT_TO_REAL(POWERPACK.NLP); MEMCPY( ADR(Send_Buffer[488]), ADR( AuxVar ), 4);
+		(*122*)AuxVar := UINT_TO_REAL(POWERPACK.NW ); MEMCPY( ADR(Send_Buffer[492]), ADR( AuxVar ), 4);
+
+		(*123*)MEMCPY( ADR(Send_Buffer[496]), ADR( POWERPACK.LP_Perc ), 4); (*Flow Percentage*)
+
+		(*WINCHES INPUTS*)
+		(*124*)MEMCPY( ADR(Send_Buffer[500]), ADR( MAIN.fbW1202.ToFaroInput ), 4); (*Primary Winch Stbd*)
+		(*125*)MEMCPY( ADR(Send_Buffer[504]), ADR( MAIN.fbW1204.ToFaroInput ), 4); (*Pit Winch Stbd*)
+		(*126*)MEMCPY( ADR(Send_Buffer[508]), ADR( MAIN.fbW1206.ToFaroInput ), 4); (*Mainsheet Winch*)
+		(*127*)MEMCPY( ADR(Send_Buffer[512]), ADR( MAIN.fbW1208.ToFaroInput ), 4); (*Runner Winch Port*)
+		(*128*)MEMCPY( ADR(Send_Buffer[516]), ADR( MAIN.fbW1210.ToFaroInput ), 4); (*Primary Winch Port*)
+		(*129*)MEMCPY( ADR(Send_Buffer[520]), ADR( MAIN.fbW1212.ToFaroInput ), 4); (*Secondary Winch Port*)
+		(*130*)MEMCPY( ADR(Send_Buffer[524]), ADR( MAIN.fbW1214.ToFaroInput ), 4); (*Pit Winch Port*)
+
+		(*131*)MEMCPY( ADR(Send_Buffer[528]), ADR( MAIN.fbW1602.ToFaroInput ), 4); (*Runner Winch Stbd*)
+		(*132*)MEMCPY( ADR(Send_Buffer[532]), ADR( MAIN.fbW1604.ToFaroInput ), 4); (*Secondary Winch Stbd*)
+
+		(*WINCHES OUTPUS*)
+		(*133*)MEMCPY( ADR(Send_Buffer[536]), ADR( MAIN.fbW1202.ToFaroOutput ), 4); (*Primary Winch Stbd*)
+		(*134*)MEMCPY( ADR(Send_Buffer[540]), ADR( MAIN.fbW1204.ToFaroOutput ), 4); (*Pit Winch Stbd*)
+		(*135*)MEMCPY( ADR(Send_Buffer[544]), ADR( MAIN.fbW1206.ToFaroOutput ), 4); (*Mainsheet Winch*)
+		(*136*)MEMCPY( ADR(Send_Buffer[548]), ADR( MAIN.fbW1208.ToFaroOutput ), 4); (*Runner Winch Port*)
+		(*137*)MEMCPY( ADR(Send_Buffer[552]), ADR( MAIN.fbW1210.ToFaroOutput ), 4); (*Primary Winch Port*)
+		(*138*)MEMCPY( ADR(Send_Buffer[556]), ADR( MAIN.fbW1212.ToFaroOutput ), 4); (*Secondary Winch Port*)
+		(*139*)MEMCPY( ADR(Send_Buffer[560]), ADR( MAIN.fbW1214.ToFaroOutput ), 4); (*Pit Winch Port*)
+
+		(*140*)MEMCPY( ADR(Send_Buffer[564]), ADR( MAIN.fbW1602.ToFaroOutput ), 4); (*Runner Winch Stbd*)
+		(*141*)MEMCPY( ADR(Send_Buffer[568]), ADR( MAIN.fbW1604.ToFaroOutput ), 4); (*Secondary Winch Stbd*)
+
+		(*Extra Variables*)
+		(*142*)AuxVar := UINT_TO_REAL(MAIN.fbMastSetup.Selected_MS); MEMCPY( ADR(Send_Buffer[572]), ADR( AuxVar ), 4);
+		(*143*)AuxVar := UINT_TO_REAL(MAIN.fbMastSetup.Selected_HS); MEMCPY( ADR(Send_Buffer[576]), ADR( AuxVar ), 4);
+
+		(*144*)MEMCPY( ADR(Send_Buffer[580]), ADR( S1100.Deg ), 4);
+
+		(*145*)MEMCPY( ADR(Send_Buffer[584]), ADR( ENGINE.fbEngine.Engine_RPM), 4); (*TargetRPM*)
+		(*146*)MEMCPY( ADR(Send_Buffer[588]), ADR( SEND_J1939.PedalPerc), 4); (*TagetRPM_Perc*)
+
+		(*147*)MEMCPY( ADR(Send_Buffer[592]), ADR( P003.Bar ), 4); (*TagetRPM_Perc*)
+
+(*
+*)
+
+		Send_ID           := Send_ID + 1;
+		Send_NumberOfVars := 147;
+		Send_Offset       := 0;
+
+		MEMCPY( ADR(Send_Buffer[ 0]), ADR(Send_Id           ), 4);
+		MEMCPY( ADR(Send_Buffer[ 4]), ADR(Send_NumberOfVars ), 2);
+		MEMCPY( ADR(Send_Buffer[ 6]), ADR(Send_Offset       ), 2);
+
+	END_IF
+
+	fbUdpSend(
+		bEnable    := PARAMS.nUDPSendTime > 0,
+		sRemoteHost:= PARAMS.sUDPSendHost,
+		nRemotePort:= PARAMS.nUDPSendPort,
+		nTime      := PARAMS.nUDPSendTime,
+
+		pBuffer:= ADR(Send_Buffer),
+		wBufLen:= 596, (*8 + 147*4*)
+		nCycle := 20,
+	);
+
+END_IF
+END_PROGRAM

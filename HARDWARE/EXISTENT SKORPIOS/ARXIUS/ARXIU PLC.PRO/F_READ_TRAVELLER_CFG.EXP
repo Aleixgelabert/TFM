@@ -1,0 +1,46 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_TRAVELLER_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_TRAVELLER_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.MaxEVPA := F_IDLIST_GETREAL( CONCAT(sHead, '_MaxEVPA' ), fbIdList );
+stConfig.MaxEVPB := F_IDLIST_GETREAL( CONCAT(sHead, '_MaxEVPB' ), fbIdList );
+stConfig.MinEVPA := F_IDLIST_GETREAL( CONCAT(sHead, '_MinEVPA' ), fbIdList );
+stConfig.MinEVPB := F_IDLIST_GETREAL( CONCAT(sHead, '_MinEVPB' ), fbIdList );
+
+stConfig.Spd_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd_Inc' ), fbIdList );
+stConfig.Spd_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd_Dec' ), fbIdList );
+
+stConfig.TgtLS_Max  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Max'  ), fbIdList );
+stConfig.TgtLS_Zero := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Zero' ), fbIdList );
+stConfig.TgtLS_Min  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Min'  ), fbIdList );
+
+stConfig.TgtLS_Tack_Off := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Tack_Off' ), fbIdList );
+
+stConfig.LS_DB    := F_IDLIST_GETREAL( CONCAT(sHead, '_LS_DB'    ), fbIdList );
+stConfig.LS_Dist  := F_IDLIST_GETREAL( CONCAT(sHead, '_LS_Dist'  ), fbIdList );
+stConfig.LS_Limit := F_IDLIST_GETBOOL( CONCAT(sHead, '_LS_Limit' ), fbIdList );
+
+stConfig.TimeMax  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax'  ), fbIdList );
+stConfig.Cycle    := rTime;
+
+stConfig.Hyst_HP := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_HP' ), fbIdList );
+stConfig.Hyst_LP := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_LP' ), fbIdList );
+stConfig.Hyst_TM := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_TM' ), fbIdList );
+
+
+stConfig.HP  := F_IDLIST_GETBYTE( CONCAT(sHead, '_HP'  ), fbIdList );
+stConfig.LP  := F_IDLIST_GETBYTE( CONCAT(sHead, '_LP'  ), fbIdList );
+END_FUNCTION

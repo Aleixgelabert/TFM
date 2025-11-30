@@ -1,0 +1,24 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_TACK_VALVE_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_TACK_VALVE_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.Cycle    := rTime;
+stConfig.TimeMax  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax'   ), fbIdList );
+
+stConfig.Hyst_HeelH := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_HeelH' ), fbIdList );
+stConfig.Hyst_HeelL := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_HeelL' ), fbIdList );
+stConfig.Hyst_Time  := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_Time'  ), fbIdList );
+END_FUNCTION

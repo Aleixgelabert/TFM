@@ -1,0 +1,33 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK CobIdDataVisualize
+VAR_INPUT
+	rxData : POINTER TO ARRAY [0..7] OF USINT;
+END_VAR
+VAR_OUTPUT
+	strRxData:STRING;
+END_VAR
+VAR
+	f0 : FB_FormatString;
+END_VAR
+(* @END_DECLARATION := '0' *)
+
+f0(
+	sFormat:='%0.2X %0.2X %0.2X %0.2X %0.2X %0.2X %0.2X %0.2X ' ,
+	arg1:=F_USINT(rxData^[0]),
+	arg2:=F_USINT(rxData^[1]) ,
+	arg3:=F_USINT(rxData^[2]) ,
+	arg4:= F_USINT(rxData^[3]),
+	arg5:=F_USINT(rxData^[4]) ,
+	arg6:= F_USINT(rxData^[5]),
+	arg7:=F_USINT(rxData^[6]) ,
+	arg8:= F_USINT(rxData^[7]),
+	arg9:= , 
+	arg10:= , 
+	bError=> , 
+	nErrId=> , 
+	sOut=>strRxData );
+END_FUNCTION_BLOCK

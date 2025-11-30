@@ -1,0 +1,24 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_LIFT_PROP_CFG :
+STRUCT
+	TgtP_Up  : REAL;
+	TgtP_Dw  : REAL;
+	TgtLS_Up : REAL;
+	TgtLS_Dw : REAL;
+
+	P_DB	 : REAL;
+	LS_DB    : REAL;
+
+	Cycle    : REAL; (*Seconds*)
+	TimeMax  : REAL; (*Seconds*)
+	Delay_Up : REAL;
+	Delay_Dw : REAL;
+
+	HP_Up : BYTE;
+	HP_Dw : BYTE;
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

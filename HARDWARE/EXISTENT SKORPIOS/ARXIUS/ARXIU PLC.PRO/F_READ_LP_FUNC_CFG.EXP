@@ -1,0 +1,36 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_LP_FUNC_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_LP_FUNC_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.SpdA_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_SpdA_Min' ), fbIdList );
+stConfig.SpdA_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_SpdA_Max' ), fbIdList );
+stConfig.SpdB_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_SpdB_Min' ), fbIdList );
+stConfig.SpdB_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_SpdB_Max' ), fbIdList );
+
+stConfig.Spd_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd_Inc' ), fbIdList );
+stConfig.Spd_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd_Dec' ), fbIdList );
+
+stConfig.A_Spd1 := F_IDLIST_GETBOOL( CONCAT(sHead, '_A_Spd1' ), fbIdList );
+
+stConfig.SF1_Limit := F_IDLIST_GETBOOL( CONCAT(sHead, '_SF1_Limit' ), fbIdList );
+stConfig.SF2_Limit := F_IDLIST_GETBOOL( CONCAT(sHead, '_SF2_Limit' ), fbIdList );
+
+stConfig.TimeMax := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax' ), fbIdList );
+stConfig.Cycle   := rTime;
+
+(*stConfig.PP  := F_IDLIST_GETBYTE( CONCAT(sHead, '_PP' ), fbIdList );*)
+
+END_FUNCTION

@@ -1,0 +1,1097 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_KEEL
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	EngReady : BOOL;
+	Latching : BOOL;
+
+	AutoEase : BOOL;
+
+	IN_I : ARRAY[1..4] OF BOOL;
+	IN_O : ARRAY[1..4] OF BOOL;
+	IN_C : ARRAY[1..4] OF BOOL;
+	IN_F : ARRAY[1..4] OF BOOL;
+	IN_T : ARRAY[1..2] OF BOOL;
+END_VAR
+VAR_IN_OUT
+	LS_BOARD_P : ST_SENSOR_POS;
+	LS_BOARD_S : ST_SENSOR_POS;
+
+	P_I  : ST_SENSOR_BAR;
+	P_O  : ST_SENSOR_BAR;
+	LS1  : ST_SENSOR_POS;
+	LS2  : ST_SENSOR_POS;
+
+	CFG  : ST_KEEL_CFG;
+END_VAR
+VAR_OUTPUT
+	EV_Eng_PI : BOOL;
+	EV_Eng_EI : BOOL;
+	EV_Eng_PO : BOOL;
+	EV_Eng_EO : BOOL;
+	EV_PP_I  : BOOL;
+	EV_PP_O  : BOOL;
+
+	EVP_Eng_I : UINT;
+	EVP_Eng_O : UINT;
+
+	EVP_SE_I  : UINT; (*mA*)
+	EVP_SE_O  : UINT;
+	EVP_FE_I  : UINT;
+	EVP_FE_O  : UINT;
+
+	P_Fill  : REAL; (*Bar*)
+	P_Empty : REAL;
+
+	EVP_Fill : INT; (*%*)
+
+	OUT_LP   : BYTE;
+END_VAR
+VAR
+	State   : WORD;
+
+	IN_Hmi_I : BOOL;
+	IN_Hmi_O : BOOL;
+	IN_Hmi_C : BOOL;
+	IN_Hmi_F : BOOL;
+	IN_Hmi_T : BOOL;
+	IN_Hmi_fill : BOOL;
+
+	SI_I : ARRAY[1..5] OF FB_SMART_INPUT;
+	SI_O : ARRAY[1..5] OF FB_SMART_INPUT;
+	SI_C : ARRAY[1..5] OF FB_SMART_INPUT;
+	SI_F : ARRAY[1..5] OF FB_SMART_INPUT;
+	SI_T : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	SI_Hmi_fill : FB_SMART_INPUT;
+	IN_Hmi_fill_Perc : INT := 20;
+
+	Event_I : EN_SMART_INPUT_STATE;
+	Event_O : EN_SMART_INPUT_STATE;
+	Event_C : EN_SMART_INPUT_STATE;
+	Event_F : EN_SMART_INPUT_STATE;
+	Event_T : EN_SMART_INPUT_STATE;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+	KEEL_I : BOOL;
+	KEEL_SI : BOOL;
+	KEEL_C : BOOL;
+	KEEL_SO : BOOL;
+	KEEL_O : BOOL;
+
+	MOVING_I : BOOL;
+	MOVING_O : BOOL;
+	MOVING_C : BOOL;
+	MOVING_F : BOOL;
+	MOVING_T : BOOL;
+
+	EnableFill : BOOL;
+	BypassSF   : BOOL;
+
+	P_Alarm: BOOL;
+	LS_Pos : REAL;
+	LS_Err : BOOL;
+
+	EVP_In_SE_Tgt  : REAL; (*mA*)
+	EVP_In_FE_Tgt  : REAL;
+	EVP_Out_SE_Tgt : REAL;
+	EVP_Out_FE_Tgt : REAL;
+
+	EVP_In_Eng_Tgt  : REAL;
+	EVP_Out_Eng_Tgt : REAL;
+
+	EVP_Out_Fill_Tgt : REAL;
+
+	TgtLS   : REAL;
+	DeltaLS : REAL;
+
+	(*Anadir alrmas al keel*)
+	SoftStop: BOOL;
+END_VAR
+VAR PERSISTENT
+	Manual AT %Q*: BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*
+IN  = keel to STBD
+OUT = Keel to PORT
+*)
+
+P_Alarm := P_I.AlMax OR P_O.AlMax;
+
+(*Evaluo los LS1 y LS2*)
+IF NOT LS1.Err THEN
+	LS_Pos := LS1.Pos;
+	LS_Err := FALSE;
+ELSIF NOT LS2.Err THEN
+	LS_Pos := LS2.Pos;
+	LS_Err := FALSE;
+ELSE
+	LS_Pos := 0;
+	LS_Err := TRUE;
+END_IF
+
+KEEL_I := NOT LS_Err AND LS_Pos < CFG.TgtLS_In  + CFG.LS_DB;
+KEEL_O := NOT LS_Err AND LS_Pos > CFG.TgtLS_Out - CFG.LS_DB;
+
+KEEL_SI := NOT LS_Err AND LS_Pos < CFG.TgtLS_Safe_In  + CFG.LS_DB;
+KEEL_SO := NOT LS_Err AND LS_Pos > CFG.TgtLS_Safe_Out - CFG.LS_DB;
+
+KEEL_C := NOT LS_Err AND CFG.LS_DB > ABS(CFG.TgtLS_Mid - LS_Pos);
+
+(*Check Inputs*)
+SI_I[1](In:= IN_I[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_I[2](In:= IN_I[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_I[3](In:= IN_I[3],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_I[4](In:= IN_I[4],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_I[5](In:= IN_Hmi_I, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_O[1](In:= IN_O[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_O[2](In:= IN_O[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_O[3](In:= IN_O[3],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_O[4](In:= IN_O[4],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_O[5](In:= IN_Hmi_O, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_C[1](In:= IN_C[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_C[2](In:= IN_C[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_C[3](In:= IN_C[3],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_C[4](In:= IN_C[4],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_C[5](In:= IN_Hmi_C, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_F[1](In:= IN_F[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_F[2](In:= IN_F[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_F[3](In:= IN_F[3],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_F[4](In:= IN_F[4],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_F[5](In:= IN_Hmi_F, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_T[1](In:= IN_T[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_T[2](In:= IN_T[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_T[3](In:= IN_Hmi_T, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_Hmi_fill(In:= IN_Hmi_fill, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	EV_Eng_PI := FALSE;
+	EV_Eng_EI := FALSE;
+	EV_Eng_PO := FALSE;
+	EV_Eng_EO := FALSE;
+	EV_PP_I  := FALSE;
+	EV_PP_O  := FALSE;
+
+	EVP_Eng_I := 0; (*mA*)
+	EVP_Eng_O := 0;
+
+	EVP_FE_I  := 0;
+	EVP_FE_O  := 0;
+	EVP_SE_I  := 0; (*mA*)
+	EVP_SE_O  := 0;
+
+	P_Fill  := 0; (*bar*)
+	P_Empty := 0;
+
+	EVP_Fill := 0; (*%*)
+
+	OUT_LP  := 0;
+
+	EnableFill := FALSE;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	RETURN;
+END_IF
+
+IF NOT Manual THEN
+	EnableFill := FALSE;
+	BypassSF   := FALSE;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );
+TimeCnt := TimeCnt + CFG.Cycle;
+
+IF    SI_I[1].Event <> NONE THEN Event_I := SI_I[1].Event;
+ELSIF SI_I[2].Event <> NONE THEN Event_I := SI_I[2].Event;
+ELSIF SI_I[3].Event <> NONE THEN Event_I := SI_I[3].Event;
+ELSIF SI_I[4].Event <> NONE THEN Event_I := SI_I[4].Event;
+ELSIF SI_I[5].Event <> NONE THEN Event_I := SI_I[5].Event;
+ELSE
+	Event_I := NONE;
+END_IF
+
+IF    SI_O[1].Event <> NONE THEN Event_O := SI_O[1].Event;
+ELSIF SI_O[2].Event <> NONE THEN Event_O := SI_O[2].Event;
+ELSIF SI_O[3].Event <> NONE THEN Event_O := SI_O[3].Event;
+ELSIF SI_O[4].Event <> NONE THEN Event_O := SI_O[4].Event;
+ELSIF SI_O[5].Event <> NONE THEN Event_O := SI_O[5].Event;
+ELSE
+	Event_O := NONE;
+END_IF
+
+IF    SI_C[1].Event <> NONE THEN Event_C := SI_C[1].Event;
+ELSIF SI_C[2].Event <> NONE THEN Event_C := SI_C[2].Event;
+ELSIF SI_C[3].Event <> NONE THEN Event_C := SI_C[3].Event;
+ELSIF SI_C[4].Event <> NONE THEN Event_C := SI_C[4].Event;
+ELSIF SI_C[5].Event <> NONE THEN Event_C := SI_C[5].Event;
+ELSE
+	Event_C := NONE;
+END_IF
+
+IF    SI_F[1].Event <> NONE THEN Event_F := SI_F[1].Event;
+ELSIF SI_F[2].Event <> NONE THEN Event_F := SI_F[2].Event;
+ELSIF SI_F[3].Event <> NONE THEN Event_F := SI_F[3].Event;
+ELSIF SI_F[4].Event <> NONE THEN Event_F := SI_F[4].Event;
+ELSIF SI_F[5].Event <> NONE THEN Event_F := SI_F[5].Event;
+ELSE
+	Event_F := NONE;
+END_IF
+
+IF    SI_T[1].Event <> NONE THEN Event_T := SI_T[1].Event;
+ELSIF SI_T[2].Event <> NONE THEN Event_T := SI_T[2].Event;
+ELSIF SI_T[3].Event <> NONE THEN Event_T := SI_T[3].Event;
+ELSE
+	Event_T := NONE;
+END_IF
+
+(*Working States*)
+CASE State OF
+
+(*Init State*)
+0:
+	EV_Eng_PI := FALSE;
+	EV_Eng_EI := FALSE;
+	EV_Eng_PO := FALSE;
+	EV_Eng_EO := FALSE;
+	EV_PP_I   := FALSE;
+	EV_PP_O   := FALSE;
+	EVP_Eng_I := 0; (*mA*)
+	EVP_Eng_O := 0;
+	EVP_SE_I := 0; (*mA*)
+	EVP_SE_O := 0;
+	EVP_FE_I := 0;
+	EVP_FE_O := 0;
+	P_Fill   := 0; (*bar*)
+	P_Empty  := 0;
+	EVP_Fill := 0; (*%*)
+	OUT_LP   := 0;
+
+	TimeCnt  := 0.0;
+
+	MOVING_I := FALSE;
+	MOVING_O := FALSE;
+	MOVING_C := FALSE;
+	MOVING_F := FALSE;
+
+	SoftStop := FALSE;
+
+	(*Start IN*)
+	IF Event_I = INIT_CONTINUOUS AND Ready AND NOT P_I.AlMax THEN
+		TimeOut  := FALSE;
+		MOVING_I := TRUE;
+
+		(*Next State*)
+		IF Manual (*OR LS_Err*) THEN
+			State := 100;
+		ELSE
+			TgtLS := CFG.TgtLS_In;
+			State := 1000;
+		END_IF
+
+		EVP_In_Eng_Tgt := CFG.EVP_In_Eng_Min;
+
+	(*Start OUT*)
+	ELSIF Event_O = INIT_CONTINUOUS AND Ready AND NOT P_O.AlMax THEN
+		TimeOut  := FALSE;
+		MOVING_O := TRUE;
+
+		(*Next State*)
+		IF Manual (*OR LS_Err*) THEN
+			State := 200;
+		ELSE
+			TgtLS := CFG.TgtLS_OUT;
+			State := 2000;
+		END_IF
+
+		EVP_Out_Eng_Tgt := CFG.EVP_Out_Eng_Min;
+
+	(*Start CENTER*)
+	ELSIF Event_C = INIT_CONTINUOUS AND Ready AND NOT LS_Err AND NOT Manual AND NOT KEEL_C THEN
+		TimeOut  := FALSE;
+		MOVING_C := TRUE;
+
+		IF LS_Pos > CFG.TgtLS_Mid AND NOT P_I.AlMax THEN
+			MOVING_I := TRUE;
+			TgtLS    := CFG.TgtLS_Mid;
+			State    := 1100;  (*Next State*)
+
+			EVP_In_Eng_Tgt := CFG.EVP_In_Eng_Min;
+
+		ELSIF LS_Pos < CFG.TgtLS_Mid AND NOT P_O.AlMax THEN
+			MOVING_O := TRUE;
+			TgtLS    := CFG.TgtLS_Mid;
+			State    := 2100;  (*Next State*)
+
+			EVP_Out_Eng_Tgt := CFG.EVP_Out_Eng_Min;
+
+		END_IF
+
+	(*Start Tack*)
+	ELSIF Event_T = INIT_CONTINUOUS AND EngReady AND Latching AND Ready AND NOT LS_Err AND NOT Manual AND NOT KEEL_C THEN
+		TimeOut  := FALSE;
+		MOVING_T := TRUE;
+
+		IF LS_Pos + CFG.TgtLS_Tack_Off > CFG.TgtLS_Mid AND NOT P_I.AlMax THEN
+			MOVING_I := TRUE;
+			TgtLS    := CFG.TgtLS_In + CFG.TgtLS_Out - LS_Pos - CFG.TgtLS_Tack_Off;
+			State    := 1200;  (*Next State*)
+
+			EVP_In_Eng_Tgt := CFG.EVP_In_Eng_Min;
+
+		ELSIF LS_Pos - CFG.TgtLS_Tack_Off < CFG.TgtLS_Mid AND NOT P_O.AlMax THEN
+			MOVING_O := TRUE;
+			TgtLS    := CFG.TgtLS_Out + CFG.TgtLS_In - LS_Pos + CFG.TgtLS_Tack_Off;
+			State    := 2200;  (*Next State*)
+
+			EVP_Out_Eng_Tgt := CFG.EVP_Out_Eng_Min;
+
+		END_IF
+
+	(*Start FLOAT*)
+	ELSIF Event_F = INIT_CONTINUOUS AND Ready THEN
+		TimeOut  := FALSE;
+		MOVING_F := TRUE;
+
+		IF Manual (*OR LS_Err*)  THEN
+			State := 300;
+
+			EVP_In_SE_Tgt := CFG.EVP_In_SE_Min;
+			EVP_In_FE_Tgt := CFG.EVP_In_FE_Min;
+			EVP_Out_SE_Tgt := CFG.EVP_Out_SE_Min;
+			EVP_Out_FE_Tgt := CFG.EVP_Out_FE_Min;
+
+		ELSE
+			IF LS_Pos > CFG.TgtLS_Mid + CFG.LS_DB AND P_O.Bar > P_I.Bar THEN (*Ease Out, Then Moving In*)
+				State := 3000;
+
+				EVP_Out_SE_Tgt := CFG.EVP_Out_SE_Min;
+				EVP_Out_FE_Tgt := CFG.EVP_Out_FE_Min;
+
+			ELSIF LS_Pos < CFG.TgtLS_Mid - CFG.LS_DB AND P_I.Bar > P_O.Bar THEN (*Ease In, Then Moving Out*)
+				State := 4000;
+
+				EVP_In_SE_Tgt := CFG.EVP_In_SE_Min;
+				EVP_In_FE_Tgt := CFG.EVP_In_FE_Min;
+
+			END_IF
+		END_IF
+
+	(*Start Fill*)
+	ELSIF SI_Hmi_fill.Event = INIT_CONTINUOUS AND Manual AND EnableFill THEN
+		TimeOut := FALSE;
+		State   := 500;
+
+	(*Auto Ease*)
+	ELSIF AutoEase THEN
+		(*On Port - Cyl Out, Release IN*)
+		IF KEEL_SO AND P_O.Bar > CFG.MinLoadSide_Bar AND P_I.Bar > CFG.MaxUnloadSide_Bar THEN
+			EVP_SE_I := REAL_TO_UINT( CFG.EVP_In_SE_Man );
+
+		(*On Stbd - Cyl In, Release OUT*)
+		ELSIF KEEL_SI AND P_I.Bar > CFG.MinLoadSide_Bar AND P_O.Bar > CFG.MaxUnloadSide_Bar THEN
+			EVP_SE_O := REAL_TO_UINT( CFG.EVP_Out_SE_Man );
+
+		END_IF
+
+	END_IF
+
+(*Manual IN*)
+100:
+	IF TimeOut OR P_I.AlMax THEN
+		Out_LP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF EngReady THEN
+		(*Activate SoftStop*)
+		IF Event_I <> NONE
+		OR Event_O = INIT_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS
+		THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_LP   := 0;
+				State    := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_In_Eng_Tgt := EVP_In_Eng_Tgt - CFG.EVP_In_Eng_Dec * CFG.Cycle;
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Max);
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Man);
+			EVP_In_Eng_Tgt := MAX(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Min);
+
+			IF EVP_In_Eng_Tgt = CFG.EVP_In_Eng_Min OR CFG.EVP_In_Eng_Dec <= 0
+			THEN EVP_Eng_I := 0;
+			ELSE EVP_Eng_I := REAL_TO_UINT(EVP_In_Eng_Tgt);
+			END_IF
+
+		ELSE
+			EVP_In_Eng_Tgt := EVP_In_Eng_Tgt + CFG.EVP_In_Eng_Inc * CFG.Cycle;
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Max);
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Man);
+			EVP_In_Eng_Tgt := MAX(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Min);
+
+			EVP_Eng_I := REAL_TO_UINT(EVP_In_Eng_Tgt);
+
+		END_IF
+
+		IF EVP_Eng_I = 0 THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EV_Eng_PI := TRUE;
+			EV_Eng_EO := TRUE;
+			EV_PP_I   := FALSE;
+		(*	EVP_Eng_I*)
+			EVP_SE_O  := REAL_TO_UINT(CFG.EVP_Out_SE_Empty);
+			P_Empty   := CFG.EVP_In_P_Empty; (*bar*)
+			OUT_LP    := 1;
+
+		END_IF
+
+	ELSE
+		IF Event_I <> NONE
+		OR Event_O = INIT_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS
+		THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EV_Eng_PI := FALSE;
+			EV_Eng_EO := FALSE;
+			EV_PP_I   := TRUE;
+			EVP_Eng_I := 0; (*mA*)
+			EVP_SE_O  := 0;
+			P_Empty   := 0;
+			OUT_LP    := 1;
+
+		END_IF
+	END_IF
+
+(*Manual out*)
+200:
+	IF TimeOut OR P_O.AlMax THEN
+		Out_LP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF EngReady THEN
+
+		IF Event_I = INIT_CONTINUOUS
+		OR Event_O <> NONE
+		OR Event_C = INIT_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS
+		THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_LP   := 0;
+				State    := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_Out_Eng_Tgt := EVP_Out_Eng_Tgt - CFG.EVP_Out_Eng_Dec * CFG.Cycle;
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Max);
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Man);
+			EVP_Out_Eng_Tgt := MAX(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Min);
+
+			IF EVP_Out_Eng_Tgt = CFG.EVP_Out_Eng_Min OR CFG.EVP_Out_Eng_Dec <= 0
+			THEN EVP_Eng_O := 0;
+			ELSE EVP_Eng_O := REAL_TO_UINT(EVP_Out_Eng_Tgt);
+			END_IF
+
+		ELSE
+			EVP_Out_Eng_Tgt := EVP_Out_Eng_Tgt + CFG.EVP_Out_Eng_Inc * CFG.Cycle;
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Max);
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Man);
+			EVP_Out_Eng_Tgt := MAX(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Min);
+
+			EVP_Eng_O := REAL_TO_UINT(EVP_Out_Eng_Tgt);
+
+		END_IF
+
+		IF EVP_Eng_O = 0 THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EVP_Out_Fill_Tgt := EVP_Out_Eng_Tgt * CFG.EVP_Out_Fill_K + CFg.EVP_Out_Fill_Off;
+			EVP_Out_Fill_Tgt := MIN(EVP_Out_Fill_Tgt, CFG.EVP_Out_Fill_Max);
+			EVP_Out_Fill_Tgt := MAX(EVP_Out_Fill_Tgt, CFG.EVP_Out_Fill_Min);
+	
+			EV_Eng_EI := TRUE;
+			EV_Eng_PO := TRUE;
+			EV_PP_O   := FALSE;
+		(*	EVP_Eng_O*)
+			P_Fill    := CFG.EVP_Out_P_Fill; (*bar*)
+			EVP_Fill  := REAL_TO_INT(EVP_Out_Fill_Tgt * 10.0); (*%*)
+			OUT_LP    := 1;
+
+		END_IF
+
+	ELSE
+		IF Event_I = INIT_CONTINUOUS
+		OR Event_O <> NONE
+		OR Event_C = INIT_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS
+		THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EV_Eng_EI := FALSE;
+			EV_Eng_PO := FALSE;
+			EV_PP_O   := TRUE;
+			EVP_Eng_O := 0;  (*mA*)
+			P_Fill    := 0; (*bar*)
+			EVP_Fill  := 0; (*%*)
+			OUT_LP    := 1;
+
+		END_IF
+	END_IF
+
+(*Manual FLOAT*)
+300:
+	IF TimeOut THEN
+		Out_LP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSE
+		(*Activate SoftStop*)
+		IF Event_F <> NONE
+		OR Event_I = INIT_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS
+		OR Event_O = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS
+		THEN
+
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_LP    := 0;
+				State     := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_In_FE_Tgt := EVP_In_FE_Tgt - CFG.EVP_In_FE_Dec * CFG.Cycle;
+			EVP_In_FE_Tgt := MIN(EVP_In_FE_Tgt, CFG.EVP_In_FE_Max);
+			EVP_In_FE_Tgt := MIN(EVP_In_FE_Tgt, CFG.EVP_In_FE_Man);
+			EVP_In_FE_Tgt := MAX(EVP_In_FE_Tgt, CFG.EVP_In_FE_Min);
+
+			EVP_Out_FE_Tgt := EVP_Out_FE_Tgt - CFG.EVP_Out_FE_Dec * CFG.Cycle;
+			EVP_Out_FE_Tgt := MIN(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Max);
+			EVP_Out_FE_Tgt := MIN(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Man);
+			EVP_Out_FE_Tgt := MAX(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Min);
+
+			IF EVP_In_FE_Tgt = CFG.EVP_In_FE_Min THEN
+				EVP_In_SE_Tgt := EVP_In_SE_Tgt - CFG.EVP_In_SE_Dec * CFG.Cycle;
+				EVP_In_SE_Tgt := MIN(EVP_In_SE_Tgt, CFG.EVP_In_SE_Max);
+				EVP_In_SE_Tgt := MIN(EVP_In_SE_Tgt, CFG.EVP_In_SE_Man);
+				EVP_In_SE_Tgt := MAX(EVP_In_SE_Tgt, CFG.EVP_In_SE_Min);
+			END_IF
+
+			IF EVP_Out_FE_Tgt = CFG.EVP_Out_FE_Min THEN
+				EVP_Out_SE_Tgt := EVP_Out_SE_Tgt - CFG.EVP_Out_SE_Dec * CFG.Cycle;
+				EVP_Out_SE_Tgt := MIN(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Max);
+				EVP_Out_SE_Tgt := MIN(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Man);
+				EVP_Out_SE_Tgt := MAX(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Min);
+			END_IF
+
+
+			IF EVP_In_SE_Tgt = CFG.EVP_In_SE_Min OR CFG.EVP_In_SE_Dec <= 0
+			THEN EVP_SE_I := 0;
+			ELSE EVP_SE_I := REAL_TO_UINT(EVP_In_SE_Tgt );
+			END_IF
+
+			IF EVP_Out_SE_Tgt = CFG.EVP_Out_SE_Min OR CFG.EVP_Out_SE_Dec <= 0
+			THEN EVP_SE_O := 0;
+			ELSE EVP_SE_O := REAL_TO_UINT(EVP_Out_SE_Tgt );
+			END_IF
+
+			IF EVP_In_FE_Tgt = CFG.EVP_In_FE_Min OR CFG.EVP_In_FE_Dec <= 0
+			THEN EVP_FE_I := 0;
+			ELSE EVP_FE_I := REAL_TO_UINT(EVP_In_FE_Tgt );
+			END_IF
+
+			IF EVP_Out_FE_Tgt = CFG.EVP_Out_FE_Min OR CFG.EVP_Out_FE_Dec <= 0
+			THEN EVP_FE_O := 0;
+			ELSE EVP_FE_O := REAL_TO_UINT(EVP_Out_FE_Tgt );
+			END_IF
+
+		ELSE
+			EVP_In_SE_Tgt := EVP_In_SE_Tgt + CFG.EVP_In_SE_Inc * CFG.Cycle;
+			EVP_In_SE_Tgt := MIN(EVP_In_SE_Tgt, CFG.EVP_In_SE_Max);
+			EVP_In_SE_Tgt := MIN(EVP_In_SE_Tgt, CFG.EVP_In_SE_Man);
+			EVP_In_SE_Tgt := MAX(EVP_In_SE_Tgt, CFG.EVP_In_SE_Min);
+	
+			EVP_Out_SE_Tgt := EVP_Out_SE_Tgt + CFG.EVP_Out_SE_Inc * CFG.Cycle;
+			EVP_Out_SE_Tgt := MIN(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Max);
+			EVP_Out_SE_Tgt := MIN(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Man);
+			EVP_Out_SE_Tgt := MAX(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Min);
+
+			IF EVP_In_SE_Tgt = CFG.EVP_In_SE_Man OR EVP_In_SE_Tgt = CFG.EVP_In_SE_Max THEN
+				EVP_In_FE_Tgt := EVP_In_FE_Tgt + CFG.EVP_In_FE_Inc * CFG.Cycle;
+				EVP_In_FE_Tgt := MIN(EVP_In_FE_Tgt, CFG.EVP_In_FE_Max);
+				EVP_In_FE_Tgt := MIN(EVP_In_FE_Tgt, CFG.EVP_In_FE_Man);
+				EVP_In_FE_Tgt := MAX(EVP_In_FE_Tgt, CFG.EVP_In_FE_Min);
+			END_IF
+	
+			IF EVP_Out_SE_Tgt = CFG.EVP_Out_SE_Man OR EVP_Out_SE_Tgt = CFG.EVP_Out_SE_Max THEN
+				EVP_Out_FE_Tgt := EVP_Out_FE_Tgt + CFG.EVP_Out_FE_Inc * CFG.Cycle;
+				EVP_Out_FE_Tgt := MIN(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Max);
+				EVP_Out_FE_Tgt := MIN(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Man);
+				EVP_Out_FE_Tgt := MAX(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Min);
+			END_IF
+
+			EVP_SE_I  := REAL_TO_UINT(EVP_In_SE_Tgt );
+			EVP_SE_O  := REAL_TO_UINT(EVP_Out_SE_Tgt);
+			EVP_FE_I  := REAL_TO_UINT(EVP_In_FE_Tgt );
+			EVP_FE_O  := REAL_TO_UINT(EVP_Out_FE_Tgt);
+
+		END_IF
+
+		(*If ALL stopped go to Init State*)
+		IF EVP_SE_I = 0 AND EVP_SE_O = 0 AND EVP_FE_I = 0 AND EVP_FE_O = 0 THEN
+			Out_LP := 0;
+			State  := 0;  (*Next State*)
+
+		END_IF
+	END_IF
+
+(*Manual Fill*)
+500:
+	IF SI_Hmi_fill.Event = END_CONTINUOUS OR TimeOut OR NOT Manual OR NOT EnableFill THEN
+		Out_LP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSE
+		EV_Eng_PI := FALSE;
+		EV_Eng_EI := FALSE;
+		EV_Eng_PO := FALSE;
+		EV_Eng_EO := FALSE;
+		EV_PP_I   := FALSE;
+		EV_PP_O   := FALSE;
+		EVP_Eng_I := 0; (*mA*)
+		EVP_Eng_O := 0;
+		EVP_SE_I  := 0;
+		EVP_SE_O  := 0;
+		EVP_FE_I  := 0;
+		EVP_FE_O  := 0;
+		P_Fill    := 0; (*bar*)
+		P_Empty   := 0;
+		EVP_Fill  := REAL_TO_INT(IN_Hmi_fill_Perc * 10.0); (*%*)
+		OUT_LP    := 1;
+
+	END_IF
+
+(*Auto IN*)
+1000,1100,1200:
+	IF TgtLS < CFG.TgtLS_Safe_In AND (LS_BOARD_S.Err OR LS_BOARD_S.Pos < CFG.Board_S_Min_Out) THEN
+		DeltaLS := LS_Pos - CFG.TgtLS_Safe_In; 			(*Positive*)
+
+	ELSE
+		DeltaLS := LS_Pos - MAX(TgtLS, CFG.TgtLS_In); 	(*Positive*)
+
+	END_IF
+
+	IF Manual OR NOT Ready OR LS_Err OR P_Alarm OR TimeOut THEN
+		EV_Eng_PI := FALSE;
+		EV_Eng_EO := FALSE;
+		EV_PP_I   := FALSE;
+		EVP_Eng_I := 0; (*mA*)
+		EVP_SE_O  := 0;
+		P_Empty   := 0; (*bar*)
+		Out_LP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF DeltaLS <= 0.0 THEN
+		EV_Eng_PI := FALSE;
+		EV_Eng_EO := FALSE;
+		EV_PP_I   := FALSE;
+		EVP_Eng_I := 0; (*mA*)
+		EVP_SE_O  := 0;
+		P_Empty   := 0;	(*bar*)
+		Out_LP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF EngReady THEN
+		(*Activate SoftStop*)
+		IF Event_I = INIT_CONTINUOUS OR State = 1000 AND NOT Latching AND Event_I = END_CONTINUOUS
+		OR Event_O = INIT_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS OR State = 1100 AND NOT Latching AND Event_C = END_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS OR State = 1200 AND NOT Latching AND Event_T = END_CONTINUOUS
+		THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_LP   := 0;
+				State    := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_In_Eng_Tgt := EVP_In_Eng_Tgt - CFG.EVP_In_Eng_Dec * CFG.Cycle;
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Max);
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Min + DeltaLS * CFG.EVP_In_Eng_K);
+			EVP_In_Eng_Tgt := MAX(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Min);
+
+			IF EVP_In_Eng_Tgt = CFG.EVP_In_Eng_Min OR CFG.EVP_In_Eng_Dec <= 0
+			THEN EVP_Eng_I := 0;
+			ELSE EVP_Eng_I := REAL_TO_UINT(EVP_In_Eng_Tgt);
+			END_IF
+
+		ELSE
+			EVP_In_Eng_Tgt := EVP_In_Eng_Tgt + CFG.EVP_In_Eng_Inc * CFG.Cycle;
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Max);
+			EVP_In_Eng_Tgt := MIN(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Min + DeltaLS * CFG.EVP_In_Eng_K);
+			EVP_In_Eng_Tgt := MAX(EVP_In_Eng_Tgt, CFG.EVP_In_Eng_Min);
+
+			EVP_Eng_I := REAL_TO_UINT(EVP_In_Eng_Tgt);
+
+		END_IF
+
+		IF EVP_Eng_I = 0 THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EV_Eng_PI := TRUE;
+			EV_Eng_EO := TRUE;
+			EV_PP_I   := FALSE;
+		(*	EVP_Eng_I*)
+			EVP_SE_O  := REAL_TO_UINT(CFG.EVP_Out_SE_Empty);
+			P_Empty   := CFG.EVP_In_P_Empty; (*bar*)
+			OUT_LP    := 1;
+
+		END_IF
+
+	ELSE
+		IF Event_I = INIT_CONTINUOUS OR State = 1000 AND Event_I = END_CONTINUOUS
+		OR Event_O = INIT_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS OR State = 1100 AND Event_C = END_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS OR State = 1200 AND Event_T = END_CONTINUOUS
+		THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EV_Eng_PI := FALSE;
+			EV_Eng_EO := FALSE;
+			EV_PP_I   := TRUE;
+			EVP_Eng_I := 0; (*mA*)
+			EVP_SE_O  := 0;
+			P_Empty   := 0;
+			OUT_LP    := 1;
+
+		END_IF
+	END_IF
+
+(*Auto OUT*)
+2000,2100,2200:
+	IF TgtLS > CFG.TgtLS_Safe_Out AND (LS_BOARD_P.Err OR LS_BOARD_P.Pos < CFG.Board_P_Min_Out) THEN
+		DeltaLS := LS_Pos - CFG.TgtLS_Safe_Out; 		(*Negative*)
+
+	ELSE
+		DeltaLS := LS_Pos - MIN(TgtLS, CFG.TgtLS_Out); 	(*Negative*)
+
+	END_IF
+
+	IF Manual OR NOT Ready OR LS_Err OR P_Alarm OR TimeOut THEN
+		EV_Eng_EI := FALSE;
+		EV_Eng_PO := FALSE;
+		EV_PP_O   := FALSE;
+		EVP_Eng_O := 0; (*mA*)
+		P_Fill    := 0; (*bar*)
+		EVP_Fill  := 0; (*%*)
+		OUT_LP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF DeltaLS >= 0.0 THEN
+		EV_Eng_EI := FALSE;
+		EV_Eng_PO := FALSE;
+		EV_PP_O   := FALSE;
+		EVP_Eng_O := 0; (*mA*)
+		P_Fill    := 0; (*bar*)
+		EVP_Fill  := 0; (*%*)
+		OUT_LP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF EngReady THEN
+		(*Activate SoftStop*)
+		IF Event_I = INIT_CONTINUOUS
+		OR Event_O = INIT_CONTINUOUS OR State = 2000 AND NOT Latching AND Event_O = END_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS OR State = 2100 AND NOT Latching AND Event_C = END_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS OR State = 2200 AND NOT Latching AND Event_T = END_CONTINUOUS
+		THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_LP   := 0;
+				State    := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_Out_Eng_Tgt := EVP_Out_Eng_Tgt - CFG.EVP_Out_Eng_Dec * CFG.Cycle;
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Max);
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Min - DeltaLS * CFG.EVP_Out_Eng_K);
+			EVP_Out_Eng_Tgt := MAX(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Min);
+
+			IF EVP_Out_Eng_Tgt = CFG.EVP_Out_Eng_Min OR CFG.EVP_Out_Eng_Dec <= 0
+			THEN EVP_Eng_O := 0;
+			ELSE EVP_Eng_O := REAL_TO_UINT(EVP_Out_Eng_Tgt);
+			END_IF
+
+		ELSE
+			EVP_Out_Eng_Tgt := EVP_Out_Eng_Tgt + CFG.EVP_Out_Eng_Inc * CFG.Cycle;
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Max);
+			EVP_Out_Eng_Tgt := MIN(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Min - DeltaLS * CFG.EVP_Out_Eng_K);
+			EVP_Out_Eng_Tgt := MAX(EVP_Out_Eng_Tgt, CFG.EVP_Out_Eng_Min);
+
+			EVP_Eng_O := REAL_TO_UINT(EVP_Out_Eng_Tgt);
+
+		END_IF
+
+		IF EVP_Eng_O = 0 THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EVP_Out_Fill_Tgt := EVP_Out_Eng_Tgt * CFG.EVP_Out_Fill_K + CFg.EVP_Out_Fill_Off;
+			EVP_Out_Fill_Tgt := MIN(EVP_Out_Fill_Tgt, CFG.EVP_Out_Fill_Max);
+			EVP_Out_Fill_Tgt := MAX(EVP_Out_Fill_Tgt, CFG.EVP_Out_Fill_Min);
+	
+			EV_Eng_EI := TRUE;
+			EV_Eng_PO := TRUE;
+			EV_PP_O   := FALSE;
+		(*	EVP_Eng_O*)
+			P_Fill    := CFG.EVP_Out_P_Fill; (*bar*)
+			EVP_Fill  := REAL_TO_INT(EVP_Out_Fill_Tgt * 10.0); (*%*)
+			OUT_LP    := 1;
+
+		END_IF
+
+	ELSE
+		IF Event_I = INIT_CONTINUOUS
+		OR Event_O = INIT_CONTINUOUS OR State = 2000 AND Event_O = END_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS OR State = 2100 AND Event_C = END_CONTINUOUS
+		OR Event_F = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS OR State = 2200 AND Event_T = END_CONTINUOUS
+
+		THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+
+		ELSE
+			EV_Eng_EI := FALSE;
+			EV_Eng_PO := FALSE;
+			EV_PP_O   := TRUE;
+			EVP_Eng_O := 0; (*mA*)
+			P_Fill    := 0; (*bar*)
+			EVP_Fill  := 0; (*%*)
+			OUT_LP    := 1;
+
+		END_IF
+	END_IF
+
+(*Float IN - Easing OUT*)
+3000:
+	IF TimeOut OR LS_Err OR LS_Pos < CFG.TgtLS_In OR (LS_BOARD_S.Err OR LS_BOARD_S.Pos < CFG.Board_S_Min_Out) AND LS_Pos < CFG.TgtLS_Safe_In THEN
+		Out_LP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSE
+		(*Activate SoftStop*)
+		IF Event_F <> NONE
+		OR Event_I = INIT_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS
+		OR Event_O = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS
+		THEN
+
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_LP    := 0;
+				State     := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_Out_FE_Tgt := EVP_Out_FE_Tgt - CFG.EVP_Out_FE_Dec * CFG.Cycle;
+			EVP_Out_FE_Tgt := MIN(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Max);
+			EVP_Out_FE_Tgt := MAX(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Min);
+
+			IF EVP_Out_FE_Tgt = CFG.EVP_Out_FE_Min THEN
+				EVP_Out_SE_Tgt := EVP_Out_SE_Tgt - CFG.EVP_Out_SE_Dec * CFG.Cycle;
+				EVP_Out_SE_Tgt := MIN(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Max);
+				EVP_Out_SE_Tgt := MAX(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Min);
+			END_IF
+
+			IF EVP_Out_SE_Tgt = CFG.EVP_Out_SE_Min OR CFG.EVP_Out_SE_Dec <= 0
+			THEN EVP_SE_O := 0;
+			ELSE EVP_SE_O := REAL_TO_UINT(EVP_Out_SE_Tgt );
+			END_IF
+
+			IF EVP_Out_FE_Tgt = CFG.EVP_Out_FE_Min OR CFG.EVP_Out_FE_Dec <= 0
+			THEN EVP_FE_O := 0;
+			ELSE EVP_FE_O := REAL_TO_UINT(EVP_Out_FE_Tgt );
+			END_IF
+
+		ELSE
+			EVP_Out_SE_Tgt := EVP_Out_SE_Tgt + CFG.EVP_Out_SE_Inc * CFG.Cycle;
+			EVP_Out_SE_Tgt := MIN(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Max);
+			EVP_Out_SE_Tgt := MAX(EVP_Out_SE_Tgt, CFG.EVP_Out_SE_Min);
+
+			IF EVP_Out_SE_Tgt = CFG.EVP_Out_SE_Man OR EVP_Out_SE_Tgt = CFG.EVP_Out_SE_Max THEN
+				EVP_Out_FE_Tgt := EVP_Out_FE_Tgt + CFG.EVP_Out_FE_Inc * CFG.Cycle;
+				EVP_Out_FE_Tgt := MIN(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Max);
+				EVP_Out_FE_Tgt := MAX(EVP_Out_FE_Tgt, CFG.EVP_Out_FE_Min);
+			END_IF
+
+			EVP_SE_O  := REAL_TO_UINT(EVP_Out_SE_Tgt);
+			EVP_FE_O  := REAL_TO_UINT(EVP_Out_FE_Tgt);
+
+		END_IF
+
+		(*If ALL stopped go to Init State*)
+		IF EVP_SE_O = 0 AND EVP_FE_O = 0 THEN
+			Out_LP := 0;
+			State  := 0;  (*Next State*)
+
+		END_IF
+	END_IF
+
+(*Float OUT - Easing IN*)
+4000:
+	IF TimeOut OR LS_Err OR LS_Pos > CFG.TgtLS_Out OR (LS_BOARD_P.Err OR LS_BOARD_P.Pos < CFG.Board_P_Min_Out) AND LS_Pos > CFG.TgtLS_Safe_Out THEN
+		Out_LP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSE
+		(*Activate SoftStop*)
+		IF Event_F <> NONE
+		OR Event_I = INIT_CONTINUOUS
+		OR Event_C = INIT_CONTINUOUS
+		OR Event_O = INIT_CONTINUOUS
+		OR Event_T = INIT_CONTINUOUS
+		THEN
+
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_LP    := 0;
+				State     := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_In_FE_Tgt := EVP_In_FE_Tgt - CFG.EVP_In_FE_Dec * CFG.Cycle;
+			EVP_In_FE_Tgt := MIN(EVP_In_FE_Tgt, CFG.EVP_In_FE_Max);
+			EVP_In_FE_Tgt := MAX(EVP_In_FE_Tgt, CFG.EVP_In_FE_Min);
+
+			IF EVP_In_FE_Tgt = CFG.EVP_In_FE_Min THEN
+				EVP_In_SE_Tgt := EVP_In_SE_Tgt - CFG.EVP_In_SE_Dec * CFG.Cycle;
+				EVP_In_SE_Tgt := MIN(EVP_In_SE_Tgt, CFG.EVP_In_SE_Max);
+				EVP_In_SE_Tgt := MAX(EVP_In_SE_Tgt, CFG.EVP_In_SE_Min);
+			END_IF
+
+			IF EVP_In_SE_Tgt = CFG.EVP_In_SE_Min OR CFG.EVP_In_SE_Dec <= 0
+			THEN EVP_SE_I := 0;
+			ELSE EVP_SE_I := REAL_TO_UINT(EVP_In_SE_Tgt );
+			END_IF
+
+			IF EVP_In_FE_Tgt = CFG.EVP_In_FE_Min OR CFG.EVP_In_FE_Dec <= 0
+			THEN EVP_FE_I := 0;
+			ELSE EVP_FE_I := REAL_TO_UINT(EVP_In_FE_Tgt );
+			END_IF
+
+		ELSE
+			EVP_In_SE_Tgt := EVP_In_SE_Tgt + CFG.EVP_In_SE_Inc * CFG.Cycle;
+			EVP_In_SE_Tgt := MIN(EVP_In_SE_Tgt, CFG.EVP_In_SE_Max);
+			EVP_In_SE_Tgt := MAX(EVP_In_SE_Tgt, CFG.EVP_In_SE_Min);
+	
+			IF EVP_In_SE_Tgt = CFG.EVP_In_SE_Man OR EVP_In_SE_Tgt = CFG.EVP_In_SE_Max THEN
+				EVP_In_FE_Tgt := EVP_In_FE_Tgt + CFG.EVP_In_FE_Inc * CFG.Cycle;
+				EVP_In_FE_Tgt := MIN(EVP_In_FE_Tgt, CFG.EVP_In_FE_Max);
+				EVP_In_FE_Tgt := MAX(EVP_In_FE_Tgt, CFG.EVP_In_FE_Min);
+			END_IF
+	
+			EVP_SE_I  := REAL_TO_UINT(EVP_In_SE_Tgt );
+			EVP_FE_I  := REAL_TO_UINT(EVP_In_FE_Tgt );
+
+		END_IF
+
+		(*If ALL stopped go to Init State*)
+		IF EVP_SE_I = 0 AND EVP_FE_I = 0 THEN
+			Out_LP := 0;
+			State  := 0;  (*Next State*)
+
+		END_IF
+	END_IF
+
+END_CASE
+
+
+
+(*hacer float antes de empezar a pompar cuando mueve de un lado al otro.*)
+(*El float antes de mover tendra que ser en funcion de la velocidad, es decir delta de la posicion.*)
+
+END_FUNCTION_BLOCK

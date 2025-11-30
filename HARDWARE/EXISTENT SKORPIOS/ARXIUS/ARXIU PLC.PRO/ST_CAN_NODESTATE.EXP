@@ -1,0 +1,13 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_CAN_NODESTATE :
+STRUCT
+	Desc : STRING;
+
+	(*Alarm*)
+	Alarm  : ST_ALARM;
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

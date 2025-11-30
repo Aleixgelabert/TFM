@@ -1,0 +1,79 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_PSX_VALVE
+VAR_INPUT
+	SP : INT;
+END_VAR
+VAR_IN_OUT
+	IN  : ST_PSX_VALVE_IN;
+	OUT : ST_PSX_VALVE_OUT;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	State : WORD;
+
+END_VAR
+(*
+  CONTROL				STATUS
+0 Disable 				Disabled
+1 Hold Enable 			Hold Enabled
+2 Device Mode Active 	Device Mode Active
+3 Reset Fault 			Ready
+14 Second Ramp Set
+15 floating position
+*)
+(* ERROR
+
+0 Internal error (Selftest)
+1 Error Buscommand (Timeout, SP value)
+2 Coil ressitance, current control
+3 Overheating, limited functionallity
+4 Spool position too far out
+5 Spool position can NOT reach target
+6 Setpoint after restart != 0
+7 Supply voltage too high/low
+8 Temperature too low
+9 Temperature too high
+10 Parameter/Valve data invalid
+11 Sticky spool movement
+12 -
+13 -
+14 Position detectiuon failure
+15 Status message, System alive
+*)
+(* @END_DECLARATION := '0' *)
+CASE IN.Status OF
+
+16#01:
+	IF IN.Error = 16#8000 THEN
+		OUT.Control  := 16#01;
+		OUT.SetPoint := 16#00;
+	ELSE
+		OUT.Control  := 16#08;
+		OUT.SetPoint := 16#00;
+	END_IF
+
+16#09:
+	OUT.Control  := 16#07;
+	OUT.SetPoint := 16#00;
+
+16#0F:
+	OUT.Control  := 16#07;
+	OUT.SetPoint := SP;
+
+ELSE
+	IF IN.Error = 16#8000 THEN
+		OUT.Control  := 16#01;
+		OUT.SetPoint := 16#00;
+	ELSE
+		OUT.Control  := 16#08;
+		OUT.SetPoint := 16#00;
+	END_IF
+
+END_CASE
+
+END_FUNCTION_BLOCK

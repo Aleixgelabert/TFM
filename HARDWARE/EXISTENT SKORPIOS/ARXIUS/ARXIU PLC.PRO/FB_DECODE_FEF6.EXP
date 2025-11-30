@@ -1,0 +1,27 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/PGN FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_DECODE_FEF6
+VAR_IN_OUT
+	IN: ARRAY [0..7] OF USINT;
+END_VAR
+VAR_OUTPUT
+	EngineIntakeMF1Pressure    : REAL;
+	EngineIntakeMF1Temperature : REAL;
+
+	Count : DWORD;
+END_VAR
+VAR
+	Debug : BOOL;
+	Buffer: ARRAY [0..7] OF USINT;
+END_VAR
+(* @END_DECLARATION := '0' *)
+EngineIntakeMF1Pressure    := BUFFER_TO_REAL( pBuffer:= ADR(IN[1]), ByteSize := 1, Scale:= 2.0, Offset :=   0.0 );
+EngineIntakeMF1Temperature := BUFFER_TO_REAL( pBuffer:= ADR(IN[2]), ByteSize := 1, Scale:= 1.0, Offset := -40.0 );
+
+Count := Count + 1;
+
+IF Debug THEN MEMCPY(destAddr := ADR(Buffer), srcAddr := ADR(IN), n := 8); END_IF
+END_FUNCTION_BLOCK

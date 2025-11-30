@@ -1,0 +1,20 @@
+LIBRARY
+C:\PLC_FARO\BIN\TcpIp.lib 9.1.14 14:33:22
+(* @LIBRARYSYMFILEINFO := '0' *)
+NumOfPOUs: 13
+F_GetVersionTcpIp: 2048
+FB_SocketAccept: 2048
+FB_SocketClose: 2048
+FB_SocketCloseAll: 2048
+FB_SocketConnect: 2048
+FB_SocketListen: 2048
+FB_SocketReceive: 2048
+FB_SocketSend: 2048
+FB_SocketUdpAddMulticastAddress: 2048
+FB_SocketUdpCreate: 2048
+FB_SocketUdpDropMulticastAddress: 2048
+FB_SocketUdpReceiveFrom: 2048
+FB_SocketUdpSendTo: 2048
+NumOfGVLs: 1
+Global_Variables: 2048
+END_LIBRARY

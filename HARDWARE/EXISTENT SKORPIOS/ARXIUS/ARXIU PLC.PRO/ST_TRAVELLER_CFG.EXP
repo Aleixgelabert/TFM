@@ -1,0 +1,36 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_TRAVELLER_CFG :
+STRUCT
+	MaxEVPA : REAL;
+	MinEVPA : REAL;
+	MaxEVPB : REAL;
+	MinEVPB : REAL;
+
+	Spd_Inc : REAL;
+	Spd_Dec : REAL;
+
+	TgtLS_Min  : REAL;
+	TgtLS_Zero : REAL;
+	TgtLS_Max  : REAL;
+
+	TgtLS_Tack_Off : REAL;
+
+	LS_DB    : REAL;
+	LS_Dist  : REAL;
+
+	LS_Limit : BOOL;
+
+	Cycle    : REAL; (*Seconds*)
+	TimeMax  : REAL; (*Seconds*)
+
+	Hyst_HP : REAL;
+	Hyst_LP : REAL;
+	Hyst_TM : REAL;	(*Seconds*)
+
+	HP      : BYTE; (*Num. Pumps*)
+	LP      : BYTE;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

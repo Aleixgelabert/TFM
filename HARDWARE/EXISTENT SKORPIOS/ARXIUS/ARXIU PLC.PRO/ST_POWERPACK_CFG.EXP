@@ -1,0 +1,16 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_POWERPACK_CFG :
+STRUCT
+	Hyst_HP : REAL;
+	Hyst_LP : REAL;
+	Hyst_TM : REAL;	(*Seconds*)
+
+	Thr_HP : REAL;
+	Thr_LP : REAL;
+
+	Cycle : REAL;	(*Second*)
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

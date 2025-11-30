@@ -1,0 +1,55 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_PROPULSION_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	wSize   :DWORD;
+	pBuffer :POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wBufPos         : DWORD;
+	stPropulsionCfg : ST_PROPULSION_CFG;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX3_TO_BUFFER( S1:= '$n#', S2:= sHead, S3:=' - Parameters:$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Thrt0_V' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aThrt_V[0]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Thrt4_V' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aThrt_V[4]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Thrt5_V' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aThrt_V[5]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Thrt6_V' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aThrt_V[6]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Thrt10_V'), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aThrt_V[10] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_ThrDB_V' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.IdleDB_V    ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM_K'    ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.PropRPM_K ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Delay_Off'), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.Delay_Off ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM0' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[0]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM1' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[1]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM2' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[2]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM3' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[3]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM4' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[4]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM5' ), S2:='$t', S3:= REAL_TO_STRING( 0.0                          ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM6' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[6]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM7' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[7]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM8' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[8]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM9' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[9]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_RPM10'), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEng_RPM[10] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP0_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[0]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP1_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[1]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP2_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[2]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP3_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[3]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP4_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[4]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP5_mA' ), S2:='$t', S3:= REAL_TO_STRING( 0.0                         ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP6_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[6]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP7_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[7]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP8_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[8]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP9_mA' ), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[9]  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP10_mA'), S2:='$t', S3:= REAL_TO_STRING( stPropulsionCfg.aEVP_mA[10] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+END_FUNCTION

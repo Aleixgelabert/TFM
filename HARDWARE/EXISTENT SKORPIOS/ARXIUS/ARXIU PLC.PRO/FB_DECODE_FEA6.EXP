@@ -1,0 +1,31 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/PGN FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_DECODE_FEA6
+VAR_IN_OUT
+	IN: ARRAY [0..7] OF USINT;
+END_VAR
+VAR_OUTPUT
+	FuelTurbocharger1BoostPressure : REAL;
+	FuelTurbocharger2BoostPressure : REAL;
+	FuelTurbocharger3BoostPressure : REAL;
+	FuelTurbocharger4BoostPressure : REAL;
+
+	Count : DWORD;
+END_VAR
+VAR
+	Debug : BOOL;
+	Buffer: ARRAY [0..7] OF USINT;
+END_VAR
+(* @END_DECLARATION := '0' *)
+FuelTurbocharger1BoostPressure := BUFFER_TO_REAL( pBuffer:= ADR(IN[0]), ByteSize := 2, Scale:= 0.125, Offset := 0.0 );
+FuelTurbocharger2BoostPressure := BUFFER_TO_REAL( pBuffer:= ADR(IN[2]), ByteSize := 2, Scale:= 0.125, Offset := 0.0 );
+FuelTurbocharger3BoostPressure := BUFFER_TO_REAL( pBuffer:= ADR(IN[4]), ByteSize := 2, Scale:= 0.125, Offset := 0.0 );
+FuelTurbocharger4BoostPressure := BUFFER_TO_REAL( pBuffer:= ADR(IN[6]), ByteSize := 2, Scale:= 0.125, Offset := 0.0 );
+
+Count := Count + 1;
+
+IF Debug THEN MEMCPY(destAddr := ADR(Buffer), srcAddr := ADR(IN), n := 8); END_IF
+END_FUNCTION_BLOCK

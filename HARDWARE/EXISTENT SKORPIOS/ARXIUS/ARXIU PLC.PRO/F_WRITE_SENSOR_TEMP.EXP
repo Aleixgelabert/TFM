@@ -1,0 +1,25 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_SENSOR_TEMP : BOOL
+VAR_INPUT
+	wSize   :DWORD;
+	pBuffer :POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wPos     : DWORD;
+	stSensor : ST_SENSOR_TEMP;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_K'   ), S2:='$t', S3:= REAL_TO_STRING( stSensor.Cal_K  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_Off' ), S2:='$t', S3:= REAL_TO_STRING( stSensor.Cal_Off  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_Mild' ), S2:='$t', S3:= REAL_TO_STRING( stSensor.LowDeg ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_High' ), S2:='$t', S3:= REAL_TO_STRING( stSensor.HigDeg ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_Max'  ), S2:='$t', S3:= REAL_TO_STRING( stSensor.MaxDeg ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(stSensor.Name, '_Dly'  ), S2:='$t', S3:= REAL_TO_STRING( stSensor.Delay  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+END_FUNCTION

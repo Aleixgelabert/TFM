@@ -1,0 +1,219 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_POWERPACK
+VAR_INPUT
+	Enable : BOOL;
+
+	IN_HP : BOOL;
+	IN_LP : BOOL;
+END_VAR
+VAR_IN_OUT
+	HP_P : ST_SENSOR_BAR;
+	LP_P : ST_SENSOR_BAR;
+	CFG  : ST_POWERPACK_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_EV_HP : BOOL;
+	OUT_EV_LP : BOOL;
+	OUT_EV_LNK: BOOL;
+	OUT_KEY   : BOOL;
+	OUT_THR   : REAL;
+END_VAR
+VAR
+	State    : WORD;
+	Hyst_Cnt : REAL;
+	Hyst_ON  : BOOL;
+	Thr_Cnt  : REAL;
+
+END_VAR
+
+(* @END_DECLARATION := '0' *)
+IF NOT Enable THEN
+	OUT_EV_HP  := FALSE;
+	OUT_EV_LP  := FALSE;
+	OUT_EV_LNK := FALSE;
+	OUT_KEY    := FALSE;
+	OUT_THR    := 0.0;
+
+	State := 0;
+	RETURN;
+END_IF
+
+IF LP_P.AlMax THEN IN_LP := FALSE; END_IF
+IF HP_P.AlMax THEN IN_HP := FALSE; END_IF
+
+CASE State OF
+0: (*Init*)
+	IF IN_LP AND IN_HP THEN
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := TRUE;
+		OUT_EV_LNK:= FALSE;
+		OUT_KEY   := TRUE;
+
+		State := 30;
+
+	ELSIF IN_LP THEN
+		OUT_EV_HP := TRUE; (*Only LP Go with HP too*)
+		OUT_EV_LP := TRUE;
+		OUT_EV_LNK:= TRUE; (*Only LP Go with HP too*)
+		OUT_KEY   := TRUE;
+
+		Hyst_cnt := CFG.Hyst_TM + CFG.Cycle;
+		State    := 10;
+
+	ELSIF IN_HP THEN
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+		OUT_KEY   := TRUE;
+
+		State    := 20;
+
+	ELSE
+		OUT_EV_HP := FALSE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+		OUT_KEY   := FALSE;
+
+	END_IF
+
+	Thr_Cnt := 0.0;
+
+10: (*LOW PRESS*)
+	IF NOT IN_LP AND NOT IN_HP THEN
+		OUT_EV_HP := FALSE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+		OUT_KEY   := FALSE;
+
+		State := 0;
+
+	ELSIF NOT IN_LP THEN (*Go to HP*)
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+
+		State := 20;
+
+	ELSIF IN_HP THEN
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := TRUE;
+		OUT_EV_LNK:= FALSE;
+
+		State := 30;
+
+	ELSE
+		IF Hyst_Cnt > CFG.Hyst_TM THEN
+			Hyst_ON := TRUE;
+		ELSE
+			Hyst_ON  := FALSE;
+			Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+		END_IF
+
+		IF LP_P.Bar > CFG.Hyst_HP AND Hyst_ON OR LP_P.Err THEN
+			OUT_EV_HP  := FALSE;
+			OUT_EV_LP  := TRUE;
+			OUT_EV_LNK := FALSE;
+
+			Hyst_cnt   := 0.0;
+
+		ELSIF LP_P.Bar < CFG.Hyst_LP AND Hyst_ON THEN
+			OUT_EV_HP  := TRUE; (*Only LP Go with HP too*)
+			OUT_EV_LP  := TRUE;
+			OUT_EV_LNK := TRUE; (*Only LP Go with HP too*)
+
+			Hyst_cnt := 0.0;
+
+		END_IF
+
+	END_IF
+
+20: (*HIGH PRESS*)
+	IF NOT IN_LP AND NOT IN_HP THEN
+		OUT_EV_HP := FALSE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+		OUT_KEY   := FALSE;
+
+		State     := 0;
+
+	ELSIF NOT IN_HP THEN
+		OUT_EV_HP  := TRUE; (*Only LP Go with HP too*)
+		OUT_EV_LP  := TRUE;
+		OUT_EV_LNK := TRUE; (*Only LP Go with HP too*)
+
+		Hyst_cnt := CFG.Hyst_TM + CFG.Cycle;
+		State    := 10;
+
+	ELSIF IN_LP THEN
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := TRUE;
+		OUT_EV_LNK:= FALSE;
+
+		State := 30;
+
+	ELSE
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+
+	END_IF
+
+30: (*HP & LP*)
+	IF NOT IN_LP AND NOT IN_HP THEN
+		OUT_EV_HP := FALSE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+		OUT_KEY   := FALSE;
+
+		State     := 0;
+
+	ELSIF NOT IN_HP THEN (*Go to LP*)
+		OUT_EV_HP  := TRUE; (*Only LP Go with HP too*)
+		OUT_EV_LP  := TRUE;
+		OUT_EV_LNK := TRUE; (*Only LP Go with HP too*)
+
+		Hyst_cnt := CFG.Hyst_TM + CFG.Cycle;
+		State    := 10;
+
+	ELSIF NOT IN_LP THEN (*Go to HP*)
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := FALSE;
+		OUT_EV_LNK:= FALSE;
+
+		State := 20;
+
+	ELSE
+		OUT_EV_HP := TRUE;
+		OUT_EV_LP := TRUE;
+		OUT_EV_LNK:= FALSE;
+
+	END_IF
+
+END_CASE
+
+IF OUT_KEY THEN
+	IF Thr_Cnt > 0.2 THEN
+		IF OUT_EV_HP AND OUT_EV_LP THEN
+			OUT_Thr := MAX(CFG.Thr_HP,CFG.Thr_LP);
+		ELSIF OUT_EV_LP THEN
+			OUT_Thr := CFG.Thr_LP;
+		ELSE
+			OUT_Thr := CFG.Thr_HP;
+		END_IF
+
+	ELSE
+		Thr_Cnt := Thr_Cnt + CFG.Cycle;
+		OUT_Thr := 0.0;
+	END_IF
+
+ELSE
+	OUT_THR := 0.0;
+
+END_IF
+
+
+END_FUNCTION_BLOCK

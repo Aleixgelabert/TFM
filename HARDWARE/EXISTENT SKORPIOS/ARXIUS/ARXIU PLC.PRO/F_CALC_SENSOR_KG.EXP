@@ -1,0 +1,19 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_SENSOR_KG : BOOL
+VAR_INPUT
+	IN  : REAL;
+END_VAR
+VAR_IN_OUT
+	Sensor : ST_SENSOR_KG;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+Sensor.Raw := IN * Sensor.Cal_K;
+Sensor.Kg  := Sensor.Raw * (Sensor.Cal_C / 100.0);
+
+END_FUNCTION

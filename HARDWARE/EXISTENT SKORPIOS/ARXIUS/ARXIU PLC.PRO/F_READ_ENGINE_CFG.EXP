@@ -1,0 +1,52 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_ENGINE_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stEngineCfg : ST_ENGINE_CFG;
+	fbParamList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stEngineCfg.Min_RPM    := F_IDLIST_GETREAL( CONCAT(sHead, '_Min_RPM'   ), fbParamList );
+stEngineCfg.Max_RPM    := F_IDLIST_GETREAL( CONCAT(sHead, '_Max_RPM'   ), fbParamList );
+stEngineCfg.Boost_RPM  := F_IDLIST_GETREAL( CONCAT(sHead, '_Boost_RPM' ), fbParamList );
+stEngineCfg.Stop_RPM   := F_IDLIST_GETREAL( CONCAT(sHead, '_Stop_RPM'  ), fbParamList );
+stEngineCfg.MaxInc_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_MaxInc_RPM'), fbParamList );
+stEngineCfg.MaxDec_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_MaxDec_RPM'), fbParamList );
+stEngineCfg.DlyDec_sec := F_IDLIST_GETREAL( CONCAT(sHead, '_DlyDec_sec'), fbParamList );
+
+stEngineCfg.HP_Nx_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_HP_Nx_RPM'), fbParamList );
+stEngineCfg.HP_SF_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_HP_SF_RPM'), fbParamList );
+
+stEngineCfg.LP_CK_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_LP_CK_RPM'), fbParamList );
+stEngineCfg.LP_1x_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_LP_1x_RPM'), fbParamList );
+stEngineCfg.LP_2x_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_LP_2x_RPM'), fbParamList );
+stEngineCfg.LP_3x_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_LP_3x_RPM'), fbParamList );
+stEngineCfg.LP_Nx_RPM := F_IDLIST_GETREAL( CONCAT(sHead, '_LP_Nx_RPM'), fbParamList );
+
+stEngineCfg.N_Winch_WOP := F_IDLIST_GETINT( CONCAT(sHead, '_N_WinchWOP'), fbParamList );
+stEngineCfg.N_Winch_WK  := F_IDLIST_GETINT( CONCAT(sHead, '_N_WinchWK' ), fbParamList );
+stEngineCfg.N_Winch_WP  := F_IDLIST_GETINT( CONCAT(sHead, '_N_WinchWP' ), fbParamList );
+
+stEngineCfg.Max_Torque := F_IDLIST_GETREAL( CONCAT(sHead, '_Max_Torque'), fbParamList );
+stEngineCfg.Min_Torque := F_IDLIST_GETREAL( CONCAT(sHead, '_Min_Torque'), fbParamList );
+
+stEngineCfg.Inc_RMP_Perc_WOP := F_IDLIST_GETREAL( CONCAT(sHead, '_Inc_RMP_Perc_WOP'), fbParamList );
+stEngineCfg.Dec_Flow_Perc_WP := F_IDLIST_GETREAL( CONCAT(sHead, '_Dec_Flow_Perc_WP'), fbParamList );
+
+stEngineCfg.Max_HeatExch_P := F_IDLIST_GETREAL( CONCAT(sHead, '_Max_HeatExch_P' ), fbParamList );
+
+stEngineCfg.EnForceRPM := F_IDLIST_GETBOOL( CONCAT(sHead, '_EnForceRPM' ), fbParamList );
+stEngineCfg.EnForceTHR := F_IDLIST_GETBOOL( CONCAT(sHead, '_EnForceTHR' ), fbParamList );
+
+stEngineCfg.Cycle := rTime;
+
+END_FUNCTION

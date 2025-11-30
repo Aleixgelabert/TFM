@@ -1,0 +1,12 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_PSX_VALVE_IN :
+STRUCT
+	Status : UINT;
+	Actual : INT;
+	Error  : UINT;
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

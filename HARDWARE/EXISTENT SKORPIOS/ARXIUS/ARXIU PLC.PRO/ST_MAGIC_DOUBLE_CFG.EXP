@@ -1,0 +1,38 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_MAGIC_DOUBLE_CFG :
+STRUCT
+	P4Max : REAL; (*Alarm only*)
+	P2Max : REAL; (*Alarm only*)
+
+	EVPA4  : INT;
+	EVPA2  : INT;
+	EVPB4  : INT;
+	EVPB2  : INT;
+	EVPFA4 : INT;
+	EVPFA2 : INT;
+	EVPFB4 : INT;
+	EVPFB2 : INT;
+
+	EVPRA2 : INT;
+	EVPRAD : INT;
+
+	TgtLS4_Out : REAL;
+	TgtLS4_In  : REAL;
+	TgtLS2_Out : REAL;
+	TgtLS2_In  : REAL;
+
+	P_DB     : REAL;
+	LS_DB    : REAL;
+
+	Cycle    : REAL; (*Seconds*)
+	TimeMax  : REAL; (*Seconds*)
+	OutDelay : REAL; (*Seconds Pumping 2 & 4*)
+	EVTDelay : REAL; (*Seconds before EVT*)
+
+	PP1 : BOOL;
+	PP2 : BOOL;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

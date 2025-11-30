@@ -1,0 +1,65 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM TANK
+VAR
+	Enable : BOOL;
+	Buzzer : BOOL;
+
+	Reduced: BOOL; (*Fuerza a las funcones  atrabajar de modo reducido de flujo, Limitacion sobre winches  y sobre el motor?*)
+				   (*Solo propulsion o solo hidraulica, y ademas, solo 1 PP*)
+
+	SF002_Mute : BOOL;
+	 P010_Mute : BOOL;
+	 S011_Mute : BOOL;
+
+	BypassLevel : BOOL;
+
+	TankEnable: BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+
+SF002_Mute := SF002_Mute AND SF002.Alarm.Alarm;
+ P010_Mute := P010_Mute  AND (P010.AlMax OR P010.AlMin);
+ S011_Mute := S011_Mute  AND  S011.AlLow;
+
+IF NOT MAIN.aSys_Enable[2] AND NOT MAIN.aSys_Enable[3] THEN
+	BypassLevel := FALSE;
+END_IF
+
+(*Conclusion*)
+Enable := PARAMS.Loaded
+	AND NOT SF000.Alarm.Alarm							(*Emergency button*)
+	AND NOT SF001.Alarm.Alarm							(*Main Return*)
+	AND (NOT SF009.Alarm.Alarm OR  BypassLevel)			(*Level*)
+	AND NOT (SF003.Alarm.Alarm AND SF004.Alarm.Alarm) 	(*Return1*)
+	AND NOT (SF005.Alarm.Alarm AND SF006.Alarm.Alarm) 	(*Return2*)
+	AND NOT (SF007.Alarm.Alarm AND SF008.Alarm.Alarm)	(*Suction*)
+	AND NOT (SF007.Alarm.Alarm AND (SF004.Alarm.Alarm OR SF006.Alarm.Alarm))
+	AND NOT (SF008.Alarm.Alarm AND (SF003.Alarm.Alarm OR SF005.Alarm.Alarm))
+	AND NOT S011.AlMax
+;
+
+Enable := Enable AND MAIN.aSys_Enable[1];
+
+Reduced := Enable AND
+	 ( SF003.Alarm.Alarm
+	OR SF004.Alarm.Alarm
+	OR SF005.Alarm.Alarm
+	OR SF006.Alarm.Alarm
+	OR SF007.Alarm.Alarm
+	OR SF008.Alarm.Alarm
+);
+
+Buzzer := MAIN.aSys_Enable[1] AND (
+	   NOT SF002_Mute AND SF002.Alarm.Alarm
+	OR NOT  P010_Mute AND (P010.AlMax OR P010.AlMin)
+	OR NOT  S011_Mute AND  S011.AlHig
+	OR S011.AlMax
+);
+
+(*Enable := TRUE; *)
+
+END_PROGRAM

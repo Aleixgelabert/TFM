@@ -1,0 +1,26 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_WB_CFG :
+STRUCT
+	Cycle   : REAL; (*Seconds*)
+	TimeMax_Idle    : REAL;
+	TimeMax_Init    : REAL;
+	TimeMax_DumpAft : REAL; (*Seconds*)
+	TimeMax_DumpFwd : REAL; (*Seconds*)
+	TimeMax_MoveAft : REAL; (*Seconds*)
+	TimeMax_MoveFwd : REAL; (*Seconds*)
+
+	(*Pump*)
+	EVP_Pump_Min : REAL;
+	EVP_Pump_Max : REAL;
+
+	EVP_Pump_Inc : REAL;
+	EVP_Pump_Dec : REAL;
+
+	EnScoopAF : BOOL;
+
+	LP      : BYTE; (*Num. Pumps*)
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

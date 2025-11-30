@@ -1,0 +1,50 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_PROPULSION_COEF : BOOL
+VAR_IN_OUT
+	Cfg : ST_PROPULSION_CFG;
+END_VAR
+VAR
+	i : INT;
+	d : REAL;
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+d := (Cfg.aThrt_V[4] - Cfg.aThrt_V[0]) / 4.0; (*REVERSE*)
+
+Cfg.aThrt_V[1] := Cfg.aThrt_V[0] + d;
+Cfg.aThrt_V[2] := Cfg.aThrt_V[1] + d;
+Cfg.aThrt_V[3] := Cfg.aThrt_V[2] + d;
+
+d := (Cfg.aThrt_V[10] - Cfg.aThrt_V[6]) / 4.0; (*FORWARD*)
+
+Cfg.aThrt_V[7] := Cfg.aThrt_V[6] + d;
+Cfg.aThrt_V[8] := Cfg.aThrt_V[7] + d;
+Cfg.aThrt_V[9] := Cfg.aThrt_V[8] + d;
+
+FOR i := 0 TO 9 BY 1 DO
+
+	IF Cfg.aThrt_V[i+1] <> Cfg.aThrt_V[i] THEN
+
+		Cfg.aEng_K[i] := (Cfg.aEng_RPM[i+1] - Cfg.aEng_RPM[i]) / (Cfg.aThrt_V[i+1] - Cfg.aThrt_V[i]);
+		Cfg.aEVP_K[i] := (Cfg.aEVP_mA [i+1] - Cfg.aEVP_mA [i]) / (Cfg.aThrt_V[i+1] - Cfg.aThrt_V[i]);
+
+		Cfg.aEng_Off[i] := Cfg.aEng_RPM[i] - Cfg.aThrt_V[i] * Cfg.aEng_K[i];
+		Cfg.aEVP_Off[i] := Cfg.aEVP_mA [i] - Cfg.aThrt_V[i] * Cfg.aEVP_K[i];
+
+	ELSE
+
+		Cfg.aEng_K[i] := 0.0;
+		Cfg.aEVP_K[i] := 0.0;
+
+		Cfg.aEng_Off[i] := 0.0;
+		Cfg.aEVP_Off[i] := 0.0;
+
+	END_IF
+
+END_FOR
+
+END_FUNCTION

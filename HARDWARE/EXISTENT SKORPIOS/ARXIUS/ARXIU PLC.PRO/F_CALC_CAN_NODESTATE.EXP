@@ -1,0 +1,51 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_CAN_NODESTATE : BOOL
+VAR_INPUT
+	State : USINT;
+	Clear : BOOL;
+END_VAR
+VAR_IN_OUT
+	Node : ST_CAN_NODESTATE;
+END_VAR
+
+(* @END_DECLARATION := '0' *)
+IF Clear THEN
+	Node.Alarm.Alarm := FALSE;
+	Node.Alarm.Adver := FALSE;
+	Node.Alarm.AlCnt := 0;
+	Node.Alarm.AlLen := 0.0;
+END_IF
+
+IF State <> 0 AND State <> 23 THEN
+	IF NOT Node.Alarm.Alarm THEN
+		Node.Alarm.AlCnt  := Node.Alarm.AlCnt + 1;
+		Node.Alarm.AlLen  := 0.0;
+		Node.Alarm.TimeInit := INPUTS.sLocal;
+		Node.Alarm.AlInit   := TRUE;
+
+	ELSE
+		Node.Alarm.AlLen  := Node.Alarm.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Node.Alarm.Adver := TRUE;
+	Node.Alarm.Alarm := TRUE;
+
+	Node.Alarm.Text  := CONCAT( Node.Desc  , ' error ' );
+	Node.Alarm.Text  := CONCAT( Node.Alarm.Text  , USINT_TO_STRING(State) );
+
+ELSE
+	IF Node.Alarm.Alarm THEN
+		Node.Alarm.TimeEnd := INPUTS.sLocal;
+		Node.Alarm.AlEnd   := TRUE;
+
+	END_IF
+
+	Node.Alarm.Alarm := FALSE;
+END_IF
+
+END_FUNCTION

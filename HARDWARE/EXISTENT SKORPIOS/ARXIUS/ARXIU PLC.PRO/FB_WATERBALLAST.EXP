@@ -1,0 +1,2245 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_WATERBALLAST
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	Perc : REAL;
+
+	IN_P_Fwd : ARRAY[1..2] OF BOOL;
+	IN_P_Aft : ARRAY[1..2] OF BOOL;
+	IN_S_Fwd : ARRAY[1..2] OF BOOL;
+	IN_S_Aft : ARRAY[1..2] OF BOOL;
+	IN_Fill  : ARRAY[1..2] OF BOOL;
+	IN_12    : ARRAY[1..2] OF BOOL;
+	IN_Dump  : ARRAY[1..2] OF BOOL;
+	IN_Move  : ARRAY[1..2] OF BOOL;
+	IN_Stop  : ARRAY[1..2] OF BOOL;
+
+	SF_P_Fwd : BOOL;
+	SF_P_Aft : BOOL;
+	SF_S_Fwd : BOOL;
+	SF_S_Aft : BOOL;
+END_VAR
+VAR_IN_OUT
+
+	WB_A : FB_WB_VALVE;
+	WB_B : FB_WB_VALVE_LS;
+	WB_C : FB_WB_VALVE_LS;
+	WB_D : FB_WB_VALVE;
+	WB_E : FB_WB_VALVE;
+	WB_F : FB_WB_VALVE;
+	WB_G : FB_WB_VALVE;
+	WB_H : FB_WB_VALVE;
+	WB_I : FB_WB_VALVE_LS;
+	WB_J : FB_WB_VALVE;
+	WB_K : FB_WB_VALVE;
+	WB_L : FB_WB_VALVE;
+	WB_M : FB_WB_VALVE;
+	WB_N : FB_WB_VALVE_LS;
+	WB_R : FB_WB_VALVE_LS;
+	WB_S : FB_WB_VALVE_LS;
+
+	WB_PUD : FB_WB_VALVE_LS;
+    WB_PAF : FB_WB_VALVE_LS;
+	WB_SUD : FB_WB_VALVE_LS;
+    WB_SAF : FB_WB_VALVE_LS;
+
+	CFG : ST_WB_CFG;
+END_VAR
+VAR_OUTPUT
+	EVP_Pump : INT; (*%*)
+	OUT_LP   : BYTE;
+
+	OUT_P_Fwd : BOOL;
+	OUT_P_Aft : BOOL;
+	OUT_S_Fwd : BOOL;
+	OUT_S_Aft : BOOL;
+	OUT_Fill  : BOOL;
+	OUT_12    : BOOL;
+	OUT_Dump  : BOOL;
+	OUT_Move  : BOOL;
+	OUT_Stop  : BOOL;
+	OUT_Pump  : BOOL;
+END_VAR
+VAR
+	State : WORD;
+	Next  : WORD;
+	Error : WORD;
+
+	IN_Hmi_P_Fwd : BOOL;
+	IN_Hmi_P_Aft : BOOL;
+	IN_Hmi_S_Fwd : BOOL;
+	IN_Hmi_S_Aft : BOOL;
+	IN_Hmi_Fill  : BOOL;
+	IN_Hmi_12    : BOOL;
+	IN_Hmi_Dump  : BOOL;
+	IN_Hmi_Move  : BOOL;
+	IN_Hmi_Stop  : BOOL;
+
+	IN_Hmi_Pump  : BOOL;
+	IN_Hmi_Pump_Perc  : INT := 20;
+
+
+	SI_P_Fwd : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_P_Aft : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_S_Fwd : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_S_Aft : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_Fill  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_12    : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_Dump  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_Move  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_Stop  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_Break : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	SI_Pump : FB_SMART_INPUT;
+
+	Event_P_Fwd : EN_SMART_INPUT_STATE;
+	Event_P_Aft : EN_SMART_INPUT_STATE;
+	Event_S_Fwd : EN_SMART_INPUT_STATE;
+	Event_S_Aft : EN_SMART_INPUT_STATE;
+	Event_Fill  : EN_SMART_INPUT_STATE;
+	Event_12    : EN_SMART_INPUT_STATE;
+	Event_Dump  : EN_SMART_INPUT_STATE;
+	Event_Move  : EN_SMART_INPUT_STATE;
+	Event_Stop  : EN_SMART_INPUT_STATE;
+    Event_Break : EN_SMART_INPUT_STATE;
+
+	NewEvent : BOOL;
+	TimeCnt  : REAL;
+	TimeDump : REAL;
+	TimeMove : REAL;
+
+	EVP_Pump_Tgt  : REAL;
+	SoftStop      : BOOL;
+
+	Init          : BOOL;
+	Pause         : BOOL;
+
+END_VAR
+VAR PERSISTENT
+	Manual AT %Q*: BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*Check Inputs*)
+SI_P_Fwd[1](In:= IN_P_Fwd[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_Fwd[2](In:= IN_P_Fwd[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_Fwd[3](In:= IN_Hmi_P_Fwd, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_P_Aft[1](In:= IN_P_Aft[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_Aft[2](In:= IN_P_Aft[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_Aft[3](In:= IN_Hmi_P_Aft, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_S_Fwd[1](In:= IN_S_Fwd[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_Fwd[2](In:= IN_S_Fwd[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_Fwd[3](In:= IN_Hmi_S_Fwd, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_S_Aft[1](In:= IN_S_Aft[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_Aft[2](In:= IN_S_Aft[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_Aft[3](In:= IN_Hmi_S_Aft, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_12[1](In:= IN_12[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_12[2](In:= IN_12[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_12[3](In:= IN_Hmi_12, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_Fill[1](In:= IN_Fill[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Fill[2](In:= IN_Fill[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Fill[3](In:= IN_Hmi_Fill, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_Dump[1](In:= IN_Dump[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Dump[2](In:= IN_Dump[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Dump[3](In:= IN_Hmi_Dump, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_Move[1](In:= IN_Move[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Move[2](In:= IN_Move[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Move[3](In:= IN_Hmi_Move, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_Stop[1](In:= IN_Stop[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Stop[2](In:= IN_Stop[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Stop[3](In:= IN_Hmi_Stop, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_Break[1](In:= IN_Stop[1],  T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_Break[2](In:= IN_Stop[2],  T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_Break[3](In:= IN_Hmi_Stop, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+
+SI_Pump(In:= IN_Hmi_Pump, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	EVP_Pump := 0;
+	OUT_LP   := 0;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	RETURN;
+END_IF
+
+IF    SI_P_Fwd[1].Event <> NONE THEN Event_P_Fwd := SI_P_Fwd[1].Event;
+ELSIF SI_P_Fwd[2].Event <> NONE THEN Event_P_Fwd := SI_P_Fwd[2].Event;
+ELSIF SI_P_Fwd[3].Event <> NONE THEN Event_P_Fwd := SI_P_Fwd[3].Event;
+ELSE
+	Event_P_Fwd := NONE;
+END_IF
+
+IF    SI_P_Aft[1].Event <> NONE THEN Event_P_Aft := SI_P_Aft[1].Event;
+ELSIF SI_P_Aft[2].Event <> NONE THEN Event_P_Aft := SI_P_Aft[2].Event;
+ELSIF SI_P_Aft[3].Event <> NONE THEN Event_P_Aft := SI_P_Aft[3].Event;
+ELSE
+	Event_P_Aft := NONE;
+END_IF
+
+IF    SI_S_Fwd[1].Event <> NONE THEN Event_S_Fwd := SI_S_Fwd[1].Event;
+ELSIF SI_S_Fwd[2].Event <> NONE THEN Event_S_Fwd := SI_S_Fwd[2].Event;
+ELSIF SI_S_Fwd[3].Event <> NONE THEN Event_S_Fwd := SI_S_Fwd[3].Event;
+ELSE
+	Event_S_Fwd := NONE;
+END_IF
+
+IF    SI_S_Aft[1].Event <> NONE THEN Event_S_Aft := SI_S_Aft[1].Event;
+ELSIF SI_S_Aft[2].Event <> NONE THEN Event_S_Aft := SI_S_Aft[2].Event;
+ELSIF SI_S_Aft[3].Event <> NONE THEN Event_S_Aft := SI_S_Aft[3].Event;
+ELSE
+	Event_S_Aft := NONE;
+END_IF
+
+IF    SI_Fill[1].Event <> NONE THEN Event_Fill := SI_Fill[1].Event;
+ELSIF SI_Fill[2].Event <> NONE THEN Event_Fill := SI_Fill[2].Event;
+ELSIF SI_Fill[3].Event <> NONE THEN Event_Fill := SI_Fill[3].Event;
+ELSE
+	Event_Fill := NONE;
+END_IF
+
+IF    SI_12[1].Event <> NONE THEN Event_12 := SI_12[1].Event;
+ELSIF SI_12[2].Event <> NONE THEN Event_12 := SI_12[2].Event;
+ELSIF SI_12[3].Event <> NONE THEN Event_12 := SI_12[3].Event;
+ELSE
+	Event_12 := NONE;
+END_IF
+
+IF    SI_Dump[1].Event <> NONE THEN Event_Dump := SI_Dump[1].Event;
+ELSIF SI_Dump[2].Event <> NONE THEN Event_Dump := SI_Dump[2].Event;
+ELSIF SI_Dump[3].Event <> NONE THEN Event_Dump := SI_Dump[3].Event;
+ELSE
+	Event_Dump := NONE;
+END_IF
+
+IF    SI_Move[1].Event <> NONE THEN Event_Move := SI_Move[1].Event;
+ELSIF SI_Move[2].Event <> NONE THEN Event_Move := SI_Move[2].Event;
+ELSIF SI_Move[3].Event <> NONE THEN Event_Move := SI_Move[3].Event;
+ELSE
+	Event_Move := NONE;
+END_IF
+
+IF    SI_Stop[1].Event <> NONE THEN Event_Stop := SI_Stop[1].Event;
+ELSIF SI_Stop[2].Event <> NONE THEN Event_Stop := SI_Stop[2].Event;
+ELSIF SI_Stop[3].Event <> NONE THEN Event_Stop := SI_Stop[3].Event;
+ELSE
+	Event_Stop := NONE;
+END_IF
+
+IF    SI_Break[1].Event <> NONE THEN Event_Break := SI_Break[1].Event;
+ELSIF SI_Break[2].Event <> NONE THEN Event_Break := SI_Break[2].Event;
+ELSIF SI_Break[3].Event <> NONE THEN Event_Break := SI_Break[3].Event;
+ELSE
+	Event_Break := NONE;
+END_IF
+
+(*Check Time*)
+(*TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );*)
+TimeCnt := TimeCnt  + CFG.Cycle;
+
+(*Working States*)
+CASE State OF
+
+(*Init State*)
+0:
+	EVP_Pump_Tgt := CFG.EVP_Pump_Min;
+	EVP_Pump := 0;
+	OUT_LP   := 0;
+
+    OUT_Fill := FALSE;
+    OUT_Dump := FALSE;
+    OUT_Move := FALSE;
+    OUT_Stop := FALSE;
+
+	Pause    := FALSE;
+	SoftStop := FALSE;
+
+	WB_A.B_Close := FALSE;
+	WB_B.B_Close := FALSE;
+	WB_C.B_Close := FALSE;
+	WB_D.B_Close := FALSE;
+	WB_E.B_Close := FALSE;
+	WB_F.B_Close := FALSE;
+	WB_G.B_Close := FALSE;
+	WB_H.B_Close := FALSE;
+	WB_I.B_Close := FALSE;
+	WB_J.B_Close := FALSE;
+	WB_K.B_Close := FALSE;
+	WB_L.B_Close := FALSE;
+	WB_M.B_Close := FALSE;
+	WB_N.B_Close := FALSE;
+	WB_R.B_Close := FALSE;
+	WB_S.B_Close := FALSE;
+
+	WB_PUD.B_Close := FALSE;
+	WB_PAF.B_Close := FALSE;
+	WB_SUD.B_Close := FALSE;
+	WB_SAF.B_Close := FALSE;
+
+	WB_A.B_Open := FALSE;
+	WB_B.B_Open := FALSE;
+	WB_C.B_Open := FALSE;
+	WB_D.B_Open := FALSE;
+	WB_E.B_Open := FALSE;
+	WB_F.B_Open := FALSE;
+	WB_G.B_Open := FALSE;
+	WB_H.B_Open := FALSE;
+	WB_I.B_Open := FALSE;
+	WB_J.B_Open := FALSE;
+	WB_K.B_Open := FALSE;
+	WB_L.B_Open := FALSE;
+	WB_M.B_Open := FALSE;
+	WB_N.B_Open := FALSE;
+	WB_R.B_Open := FALSE;
+	WB_S.B_Open := FALSE;
+
+	WB_PUD.B_Open := FALSE;
+	WB_PAF.B_Open := FALSE;
+	WB_SUD.B_Open := FALSE;
+	WB_SAF.B_Open := FALSE;
+
+	WB_PUD.B_Half := FALSE;
+	WB_SUD.B_Half := FALSE;
+
+	(*Manual*)
+	IF Manual THEN
+		OUT_P_Fwd := FALSE;
+		OUT_P_Aft := FALSE;
+		OUT_S_Fwd := FALSE;
+		OUT_S_Aft := FALSE;
+		OUT_12    := FALSE;
+		TimeCnt   := 0.0;
+
+		IF SI_Pump.Event = INIT_CONTINUOUS AND Ready THEN
+			EVP_Pump_Tgt := CFG.EVP_Pump_Min;
+
+			EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+			OUT_LP   := 1;
+			State    := 100;   (*Next State*)
+
+		END_IF
+
+	(*Automatico*)
+	ELSE
+		IF Event_P_Fwd = INIT_CONTINUOUS THEN
+			OUT_P_Fwd := TRUE;
+			OUT_P_Aft := FALSE;
+			OUT_S_Fwd := FALSE;
+			OUT_S_Aft := FALSE;
+			TimeCnt   := 0.0;
+		ELSIF Event_P_Aft = INIT_CONTINUOUS THEN
+			OUT_P_Fwd := FALSE;
+			OUT_P_Aft := TRUE;
+			OUT_S_Fwd := FALSE;
+			OUT_S_Aft := FALSE;
+			TimeCnt   := 0.0;
+		ELSIF Event_S_Fwd = INIT_CONTINUOUS THEN
+			OUT_P_Fwd := FALSE;
+			OUT_P_Aft := FALSE;
+			OUT_S_Fwd := TRUE;
+			OUT_S_Aft := FALSE;
+			TimeCnt   := 0.0;
+		ELSIF Event_S_Aft = INIT_CONTINUOUS THEN
+			OUT_P_Fwd := FALSE;
+			OUT_P_Aft := FALSE;
+			OUT_S_Fwd := FALSE;
+			OUT_S_Aft := TRUE;
+			TimeCnt   := 0.0;
+		END_IF
+
+		IF Event_12 = INIT_CONTINUOUS THEN
+			OUT_12  := NOT OUT_12;
+			TimeCnt := 0.0;
+		END_IF
+
+		IF Event_Stop = INIT_CONTINUOUS OR TimeCnt > CFG.TimeMax_Idle THEN
+			OUT_P_Fwd := FALSE;
+			OUT_P_Aft := FALSE;
+			OUT_S_Fwd := FALSE;
+			OUT_S_Aft := FALSE;
+			OUT_12    := FALSE;
+		END_IF
+
+		IF Event_Fill = INIT_CONTINUOUS THEN
+
+			IF    Out_P_Fwd THEN State := 5000; Next := 1010;
+			ELSIF Out_P_Aft THEN State := 5000; Next := 1020;
+			ELSIF Out_S_Fwd THEN State := 5000; Next := 1030;
+			ELSIF Out_S_Aft THEN State := 5000; Next := 1040;
+			END_IF
+
+			OUT_Fill := TRUE;
+			Error    := 0;
+			TimeCnt  := 0.0;
+
+		ELSIF Event_Dump = INIT_CONTINUOUS THEN
+
+			IF    Out_P_Fwd THEN State := 5000; Next := 2010; TimeDump := CFG.TimeMax_DumpFwd;
+			ELSIF Out_P_Aft THEN State := 5000; Next := 2020; TimeDump := CFG.TimeMax_DumpAft;
+			ELSIF Out_S_Fwd THEN State := 5000; Next := 2030; TimeDump := CFG.TimeMax_DumpFwd;
+			ELSIF Out_S_Aft THEN State := 5000; Next := 2040; TimeDump := CFG.TimeMax_DumpAft;
+			END_IF
+
+			OUT_Dump := TRUE;
+			Error    := 0;
+			TimeCnt  := 0.0;
+
+		ELSIF Event_Move = INIT_CONTINUOUS THEN
+
+			IF    Out_P_Fwd THEN State := 5000; Next := 3010; TimeMove := CFG.TimeMax_MoveFwd;
+			ELSIF Out_P_Aft THEN State := 5000; Next := 3020; TimeMove := CFG.TimeMax_MoveAft;
+			ELSIF Out_S_Fwd THEN State := 5000; Next := 3030; TimeMove := CFG.TimeMax_MoveFwd;
+			ELSIF Out_S_Aft THEN State := 5000; Next := 3040; TimeMove := CFG.TimeMax_MoveAft;
+			END_IF
+
+			OUT_Move := TRUE;
+			Error    := 0;
+			TimeCnt  := 0.0;
+
+		ELSIF Event_Break = INIT_CONTINUOUS THEN
+
+			Error    := 0;
+			TimeCnt  := 0.0;
+			State    := 5000;
+			Next     := 0;
+
+		END_IF
+
+	END_IF
+
+(*Manual Pump*)
+100:
+	IF NOT Manual OR NOT Ready THEN
+		OUT_LP   := 0;
+		State    := 0;
+	ELSE
+		IF SI_Pump.Event = INIT_CONTINUOUS
+		OR Event_Stop = INIT_CONTINUOUS
+		THEN
+			IF SoftStop THEN
+				OUT_LP   := 0;
+				State    := 0;
+				RETURN;
+			ELSE
+				SoftStop := TRUE;
+			END_IF
+		END_IF
+
+		IF SoftStop THEN
+			EVP_Pump_Tgt := EVP_Pump_Tgt - CFG.EVP_Pump_Dec * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, IN_Hmi_Pump_Perc);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			IF EVP_Pump_Tgt = CFG.EVP_Pump_Min OR CFG.EVP_Pump_Dec <= 0
+			THEN EVP_Pump := 0;
+			ELSE EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+			END_IF
+
+		ELSE
+			EVP_Pump_Tgt := EVP_Pump_Tgt + CFG.EVP_Pump_Inc * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, IN_Hmi_Pump_Perc);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF EVP_Pump = 0 THEN
+			OUT_LP   := 0;
+			State    := 0; (*Next State*)
+		ELSE
+			OUT_LP   := 1;
+
+		END_IF
+	END_IF
+
+(*****************************************************************************)
+(** FILL                                                                    **)
+(*****************************************************************************)
+(*Port Fwd Fill - Open Valves*)
+1010:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_A.B_Open := FALSE;
+		WB_E.B_Open := FALSE;
+		WB_J.B_Open := FALSE;
+		WB_L.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Fill = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_A.SF_Open AND WB_A.State = 0) THEN WB_A.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_E.SF_Open AND WB_E.State = 0) THEN WB_E.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_J.SF_Open AND WB_J.State = 0) THEN WB_J.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Open AND WB_L.State = 0) THEN WB_L.B_Open := TRUE; Init := FALSE; END_IF
+	
+		IF Init THEN
+			WB_A.B_Open := FALSE;
+			WB_E.B_Open := FALSE;
+			WB_J.B_Open := FALSE;
+			WB_L.B_Open := FALSE;
+
+			State := 1100; (*Port Fill - Scoop Dw*)
+
+		END_IF
+	END_IF
+
+(*Port Aft Fill - Open Valves*)
+1020:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_D.B_Open := FALSE;
+		WB_E.B_Open := FALSE;
+		WB_J.B_Open := FALSE;
+		WB_L.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Fill = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_D.SF_Open AND WB_D.State = 0) THEN WB_D.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_E.SF_Open AND WB_E.State = 0) THEN WB_E.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_J.SF_Open AND WB_J.State = 0) THEN WB_J.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Open AND WB_L.State = 0) THEN WB_L.B_Open := TRUE; Init := FALSE; END_IF
+	
+		IF Init THEN
+			WB_D.B_Open := FALSE;
+			WB_E.B_Open := FALSE;
+			WB_J.B_Open := FALSE;
+			WB_L.B_Open := FALSE;
+
+			State := 1100; (*Port Fill - Scoop Dw*)
+
+		END_IF
+	END_IF
+
+(*Stbd Fwd Fill - Open Valves*)
+1030:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_F.B_Open := FALSE;
+		WB_G.B_Open := FALSE;
+		WB_H.B_Open := FALSE;
+		WB_K.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Fill = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_F.SF_Open AND WB_F.State = 0) THEN WB_F.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_G.SF_Open AND WB_G.State = 0) THEN WB_G.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_H.SF_Open AND WB_H.State = 0) THEN WB_H.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_K.SF_Open AND WB_K.State = 0) THEN WB_K.B_Open := TRUE; Init := FALSE; END_IF
+	
+		IF Init THEN
+			WB_F.B_Open := FALSE;
+			WB_G.B_Open := FALSE;
+			WB_H.B_Open := FALSE;
+			WB_K.B_Open := FALSE;
+
+			State := 1200; (*Stbd Fill - Scoop Dw*)
+
+		END_IF
+	END_IF
+
+(*Stbd Aft Fill - Open Valves*)
+1040:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_F.B_Open := FALSE;
+		WB_G.B_Open := FALSE;
+		WB_H.B_Open := FALSE;
+		WB_M.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Fill = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_F.SF_Open AND WB_F.State = 0) THEN WB_F.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_G.SF_Open AND WB_G.State = 0) THEN WB_G.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_H.SF_Open AND WB_H.State = 0) THEN WB_H.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_M.SF_Open AND WB_M.State = 0) THEN WB_M.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_F.B_Open := FALSE;
+			WB_G.B_Open := FALSE;
+			WB_H.B_Open := FALSE;
+			WB_M.B_Open := FALSE;
+
+			State := 1200; (*Stbd Fill - Scoop Dw*)
+
+		END_IF
+	END_IF
+
+(*Port Fill - Stbd Scoop Dw*)
+1100:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_SUD.B_Half := FALSE;
+		WB_SUD.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Fill = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+
+		IF OUT_12
+		THEN IF NOT (WB_SUD.SF_Half AND WB_SUD.State = 0) THEN WB_SUD.B_Half := TRUE; Init := FALSE; END_IF
+		ELSE IF NOT (WB_SUD.SF_Open AND WB_SUD.State = 0) THEN WB_SUD.B_Open := TRUE; Init := FALSE; END_IF
+		END_IF
+
+		IF Init THEN
+			WB_SUD.B_Half := FALSE;
+			WB_SUD.B_Open := FALSE;
+
+			EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+			OUT_LP   := 1;
+			TimeCnt  := 0.0;
+			State    := 1300;
+
+		END_IF
+	END_IF
+
+(*Stbd Fill - Port Scoop Dw*)
+1200:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_PUD.B_Half := FALSE;
+		WB_PUD.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Fill = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+
+		IF OUT_12
+		THEN IF NOT (WB_PUD.SF_Half AND WB_PUD.State = 0) THEN WB_PUD.B_Half := TRUE; Init := FALSE; END_IF
+		ELSE IF NOT (WB_PUD.SF_Open AND WB_PUD.State = 0) THEN WB_PUD.B_Open := TRUE; Init := FALSE; END_IF
+		END_IF
+
+		IF Init THEN
+			WB_PUD.B_Half := FALSE;
+			WB_PUD.B_Open := FALSE;
+
+			EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+			OUT_LP   := 1;
+			TimeCnt  := 0.0;
+			State    := 1300;
+
+		END_IF
+	END_IF
+
+(*Fill Pump*)
+1300:
+	IF Manual OR NOT Ready THEN
+		OUT_LP   := 0;
+		State    := 0;
+
+	ELSE
+		IF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+			SoftStop := TRUE;
+		END_IF
+
+		IF Event_Fill = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		IF SoftStop OR Pause THEN
+			EVP_Pump_Tgt := EVP_Pump_Tgt - CFG.EVP_Pump_Dec * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			IF EVP_Pump_Tgt = CFG.EVP_Pump_Min OR CFG.EVP_Pump_Dec <= 0
+			THEN EVP_Pump := 0;
+			ELSE EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+			END_IF
+
+		ELSE
+			EVP_Pump_Tgt := EVP_Pump_Tgt + CFG.EVP_Pump_Inc * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF EVP_Pump = 0 THEN
+			OUT_LP := 0;
+
+			IF SoftStop THEN
+				TimeCnt := 0.0;
+				State   := 5000;
+				Next    := 0;
+			END_IF
+
+		ELSE
+			OUT_LP := 1;
+
+		END_IF
+	END_IF
+
+(*****************************************************************************)
+(** DUMP                                                                    **)
+(*****************************************************************************)
+(*Port DUMP - Stbd Scoop Aft / Dw*)
+2010,2020:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_SAF.B_Open := FALSE;
+		WB_SUD.B_Half := FALSE;
+		WB_SUD.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Dump = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+
+		IF CFG.EnScoopAF
+		THEN IF NOT (WB_SAF.SF_Open AND WB_SAF.State = 0) THEN WB_SAF.B_Open := TRUE; Init := FALSE; END_IF
+		END_IF
+
+		IF OUT_12
+		THEN IF NOT (WB_SUD.SF_Half AND WB_SUD.State = 0) THEN WB_SUD.B_Half := TRUE; Init := FALSE; END_IF
+		ELSE IF NOT (WB_SUD.SF_Open AND WB_SUD.State = 0) THEN WB_SUD.B_Open := TRUE; Init := FALSE; END_IF
+		END_IF
+
+		IF Init THEN
+			WB_SAF.B_Open := FALSE;
+			WB_SUD.B_Half := FALSE;
+			WB_SUD.B_Open := FALSE;
+
+			State := State + 200; (*Dump Pump Valves*)
+
+		END_IF
+	END_IF
+
+(*Stbd DUMP - Port Scoop Aft / Dw*)
+2030,2040:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_PAF.B_Open := FALSE;
+		WB_PUD.B_Half := FALSE;
+		WB_PUD.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Dump = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF CFG.EnScoopAF
+		THEN IF NOT (WB_PAF.SF_Open AND WB_PAF.State = 0) THEN WB_PAF.B_Open := TRUE; Init := FALSE; END_IF
+		END_IF
+
+		IF OUT_12 (*Test3*)
+		THEN IF NOT (WB_PUD.SF_Half AND WB_PUD.State = 0) THEN WB_PUD.B_Half := TRUE; Init := FALSE; END_IF
+		ELSE IF NOT (WB_PUD.SF_Open AND WB_PUD.State = 0) THEN WB_PUD.B_Open := TRUE; Init := FALSE; END_IF
+		END_IF
+
+		IF Init THEN
+			WB_PAF.B_Open := FALSE;
+			WB_PUD.B_Half := FALSE;
+			WB_PUD.B_Open := FALSE;
+
+			State := State + 200; (*Dump Pump Valves*)
+
+		END_IF
+	END_IF
+
+(*Port Fwd Dump - Valves*)
+2210:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_A.B_Open := FALSE;
+		WB_F.B_Open := FALSE;
+		WB_H.B_Open := FALSE;
+		WB_J.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Dump = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_A.SF_Open AND WB_A.State = 0) THEN WB_A.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_F.SF_Open AND WB_F.State = 0) THEN WB_F.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_H.SF_Open AND WB_H.State = 0) THEN WB_H.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_J.SF_Open AND WB_J.State = 0) THEN WB_J.B_Open := TRUE; Init := FALSE; END_IF
+	
+		IF Init THEN
+			WB_A.B_Open := FALSE;
+			WB_F.B_Open := FALSE;
+			WB_H.B_Open := FALSE;
+			WB_J.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_P_Fwd THEN
+				State := State + 200; (*if already empty jump pump*)
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+(*Port Aft Dump - Valves*)
+2220:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_D.B_Open := FALSE;
+		WB_F.B_Open := FALSE;
+		WB_H.B_Open := FALSE;
+		WB_J.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Dump = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_D.SF_Open AND WB_D.State = 0) THEN WB_D.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_F.SF_Open AND WB_F.State = 0) THEN WB_F.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_H.SF_Open AND WB_H.State = 0) THEN WB_H.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_J.SF_Open AND WB_J.State = 0) THEN WB_J.B_Open := TRUE; Init := FALSE; END_IF
+	
+		IF Init THEN
+			WB_D.B_Open := FALSE;
+			WB_F.B_Open := FALSE;
+			WB_H.B_Open := FALSE;
+			WB_J.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_P_Aft THEN
+				State := State + 200; (*if already empty jumo pump*)
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+(*Stbd Fwd Dump - Valves*)
+2230:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_E.B_Open := FALSE;
+		WB_G.B_Open := FALSE;
+		WB_K.B_Open := FALSE;
+		WB_L.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Dump = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+
+		IF NOT (WB_E.SF_Open AND WB_E.State = 0) THEN WB_E.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_G.SF_Open AND WB_G.State = 0) THEN WB_G.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_K.SF_Open AND WB_K.State = 0) THEN WB_K.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Open AND WB_L.State = 0) THEN WB_L.B_Open := TRUE; Init := FALSE; END_IF
+	
+		IF Init THEN
+			WB_E.B_Open := FALSE;
+			WB_G.B_Open := FALSE;
+			WB_K.B_Open := FALSE;
+			WB_L.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_S_Fwd THEN
+				State := State + 200; (*if already empty jumo pump*)
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+
+(*Stbd Aft Dump - Valves*)
+2240:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_E.B_Open := FALSE;
+		WB_G.B_Open := FALSE;
+		WB_M.B_Open := FALSE;
+		WB_L.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Dump = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_E.SF_Open AND WB_E.State = 0) THEN WB_E.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_G.SF_Open AND WB_G.State = 0) THEN WB_G.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_M.SF_Open AND WB_M.State = 0) THEN WB_M.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Open AND WB_L.State = 0) THEN WB_L.B_Open := TRUE; Init := FALSE; END_IF
+	
+		IF Init THEN
+			WB_E.B_Open := FALSE;
+			WB_G.B_Open := FALSE;
+			WB_M.B_Open := FALSE;
+			WB_L.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_S_Aft THEN
+				State := State + 200; (*if already empty jump pump*)
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+(*DUMP Pump*)
+2310,2320,2330,2340:
+	IF Manual OR NOT Ready THEN
+		OUT_LP   := 0;
+		State    := 0;
+
+	ELSE
+		IF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS
+		OR State = 2310 AND SF_P_Fwd
+		OR State = 2320 AND SF_P_Aft
+		OR State = 2330 AND SF_S_Fwd
+		OR State = 2340 AND SF_S_Aft
+		THEN
+			SoftStop := TRUE;
+		END_IF
+
+		IF Event_Dump = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		IF SoftStop OR Pause THEN
+			EVP_Pump_Tgt := EVP_Pump_Tgt - CFG.EVP_Pump_Dec * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			IF EVP_Pump_Tgt = CFG.EVP_Pump_Min OR CFG.EVP_Pump_Dec <= 0
+			THEN EVP_Pump := 0;
+			ELSE EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+			END_IF
+
+		ELSE
+			EVP_Pump_Tgt := EVP_Pump_Tgt + CFG.EVP_Pump_Inc * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF EVP_Pump = 0 THEN
+			OUT_LP := 0;
+
+			IF SoftStop THEN
+				TimeCnt := 0.0;
+				State   := State + 100;
+			END_IF
+
+		ELSE
+			OUT_LP := 1;
+
+		END_IF
+	END_IF
+
+(*Port Dump - Valves2*)
+2410,2420:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_E.B_Open  := FALSE;
+		WB_F.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		Init := TRUE;
+	
+		IF NOT (WB_E.SF_Open  AND WB_E.State = 0) THEN WB_E.B_Open  := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_F.SF_Close AND WB_F.State = 0) THEN WB_F.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_E.B_Open  := FALSE;
+			WB_F.B_Close := FALSE;
+
+			TimeCnt  := 0.0;
+			State    := 2500; (*Port Dump*)
+
+		END_IF
+	END_IF
+
+(*Stbd Dump - Valves2*)
+2430,2440:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		WB_H.B_Open  := FALSE;
+		WB_L.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		Init := TRUE;
+	
+		IF NOT (WB_H.SF_Open  AND WB_H.State = 0) THEN WB_H.B_Open  := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Close AND WB_L.State = 0) THEN WB_L.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_H.B_Open  := FALSE;
+			WB_L.B_Close := FALSE;
+
+			TimeCnt  := 0.0;
+			State    := 2500; (*Port Dump*)
+
+		END_IF
+	END_IF
+
+(*DUMP - WAIT*)
+2500:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > TimeDump OR Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS THEN
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	END_IF
+
+(*****************************************************************************)
+(** MOVE                                                                    **)
+(*****************************************************************************)
+(*Port Fwd Move - Open Valves*)
+3010:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_C.B_Open := FALSE;
+		WB_S.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_C.SF_Open AND WB_C.State = 0) THEN WB_C.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_S.SF_Open AND WB_S.State = 0) THEN WB_S.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_C.B_Open := FALSE;
+			WB_S.B_Open := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Port Aft Move - Open Valves*)
+3020:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_B.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_B.SF_Open AND WB_B.State = 0) THEN WB_B.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_B.B_Open := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Fwd Move - Open Valves*)
+3030:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_N.B_Open := FALSE;
+		WB_R.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_N.SF_Open AND WB_N.State = 0) THEN WB_N.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_R.SF_Open AND WB_R.State = 0) THEN WB_R.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_N.B_Open := FALSE;
+			WB_R.B_Open := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Aft Move - Open Valves*)
+3040:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_I.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_I.SF_Open AND WB_I.State = 0) THEN WB_I.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_I.B_Open := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Port Fwd Move - Open Valves2*)
+3110:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_N.B_Open := FALSE;
+		WB_R.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_N.SF_Open AND WB_N.State = 0) THEN WB_N.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_R.SF_Open AND WB_R.State = 0) THEN WB_R.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_N.B_Open := FALSE;
+			WB_R.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Port Aft Move - Open Valves2*)
+3120:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_I.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_I.SF_Open AND WB_I.State = 0) THEN WB_I.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_I.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Fwd Move - Open Valves2*)
+3130:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_C.B_Open := FALSE;
+		WB_S.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_C.SF_Open AND WB_C.State = 0) THEN WB_C.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_S.SF_Open AND WB_S.State = 0) THEN WB_S.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_C.B_Open := FALSE;
+			WB_S.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Aft Move - Open Valves2*)
+3140:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_B.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_B.SF_Open AND WB_B.State = 0) THEN WB_B.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_B.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Move - WAIT BEFORE PUMP*)
+3210,3220,3230,3240:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		IF Event_Stop = INIT_CONTINUOUS OR TimeCnt > TimeMove THEN
+			TimeCnt := 0.0;
+			State   := State + 100;
+		END_IF
+
+	END_IF
+
+(*Port Fwd Move - Close Valves2*)
+3310:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_N.B_Close := FALSE;
+		WB_R.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+
+		IF NOT (WB_N.SF_Close AND WB_N.State = 0) THEN WB_N.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_R.SF_Close AND WB_R.State = 0) THEN WB_R.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_N.B_Close := FALSE;
+			WB_R.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Port Aft Move - Close Valves2*)
+3320:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_I.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_I.SF_Close AND WB_I.State = 0) THEN WB_I.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_I.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Fwd Move - Close Valves2*)
+3330:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_C.B_Close := FALSE;
+		WB_S.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_C.SF_Close AND WB_C.State = 0) THEN WB_C.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_S.SF_Close AND WB_S.State = 0) THEN WB_S.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_C.B_Close := FALSE;
+			WB_S.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Aft Move - Close Valves2*)
+3340:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_B.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_B.SF_Close AND WB_B.State = 0) THEN WB_B.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_B.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Port Fwd Move - Close Valves*)
+3410:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_C.B_Close := FALSE;
+		WB_S.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_C.SF_Close AND WB_C.State = 0) THEN WB_C.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_S.SF_Close AND WB_S.State = 0) THEN WB_S.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_C.B_Close := FALSE;
+			WB_S.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Port Aft Move - Close Valves*)
+3420:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_B.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_B.SF_Close AND WB_B.State = 0) THEN WB_B.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_B.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Fwd Move - Close Valves*)
+3430:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_N.B_Close := FALSE;
+		WB_R.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_N.SF_Close AND WB_N.State = 0) THEN WB_N.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_R.SF_Close AND WB_R.State = 0) THEN WB_R.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_N.B_Close := FALSE;
+			WB_R.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Stbd Aft Move - Close Valves*)
+3440:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_I.B_Close := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_I.SF_Close AND WB_I.State = 0) THEN WB_I.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_I.B_Close := FALSE;
+
+			State := State + 100;
+
+		END_IF
+	END_IF
+
+(*Port Fwd Move - Open Valves3*)
+3510:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_A.B_Open := FALSE;
+		WB_E.B_Open := FALSE;
+		WB_K.B_Open := FALSE;
+		WB_L.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+	
+		IF NOT (WB_A.SF_Open AND WB_A.State = 0) THEN WB_A.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_E.SF_Open AND WB_E.State = 0) THEN WB_E.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_K.SF_Open AND WB_K.State = 0) THEN WB_K.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Open AND WB_L.State = 0) THEN WB_L.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_A.B_Open := FALSE;
+			WB_E.B_Open := FALSE;
+			WB_K.B_Open := FALSE;
+			WB_L.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_S_Fwd THEN
+				TimeCnt := 0.0;
+				State   := 5000;
+				Next    := 0;
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+(*Port Aft Move - Open Valves3*)
+3520:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_D.B_Open := FALSE;
+		WB_E.B_Open := FALSE;
+		WB_M.B_Open := FALSE;
+		WB_L.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+		IF NOT (WB_D.SF_Open AND WB_D.State = 0) THEN WB_D.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_E.SF_Open AND WB_E.State = 0) THEN WB_E.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_M.SF_Open AND WB_M.State = 0) THEN WB_M.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Open AND WB_L.State = 0) THEN WB_L.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_D.B_Open := FALSE;
+			WB_E.B_Open := FALSE;
+			WB_M.B_Open := FALSE;
+			WB_L.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_S_Aft THEN
+				TimeCnt := 0.0;
+				State   := 5000;
+				Next    := 0;
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+(*Stbd Fwd Move - Open Valves3*)
+3530:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_A.B_Open := FALSE;
+		WB_F.B_Open := FALSE;
+		WB_H.B_Open := FALSE;
+		WB_K.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+
+		IF NOT (WB_A.SF_Open AND WB_A.State = 0) THEN WB_A.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_F.SF_Open AND WB_F.State = 0) THEN WB_F.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_H.SF_Open AND WB_H.State = 0) THEN WB_H.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_K.SF_Open AND WB_K.State = 0) THEN WB_K.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_A.B_Open := FALSE;
+			WB_F.B_Open := FALSE;
+			WB_H.B_Open := FALSE;
+			WB_K.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_P_Fwd THEN
+				TimeCnt := 0.0;
+				State   := 5000;
+				Next    := 0;
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+(*Stbd Aft Move - Open Valves3*)
+3540:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSIF Event_Stop = INIT_CONTINUOUS OR Event_Dump = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS THEN
+		WB_D.B_Open := FALSE;
+		WB_F.B_Open := FALSE;
+		WB_H.B_Open := FALSE;
+		WB_M.B_Open := FALSE;
+
+		TimeCnt := 0.0;
+		State   := 5000;
+		Next    := 0;
+
+	ELSE
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		Init := TRUE;
+
+		IF NOT (WB_D.SF_Open AND WB_D.State = 0) THEN WB_D.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_F.SF_Open AND WB_F.State = 0) THEN WB_F.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_H.SF_Open AND WB_H.State = 0) THEN WB_H.B_Open := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_M.SF_Open AND WB_M.State = 0) THEN WB_M.B_Open := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_D.B_Open := FALSE;
+			WB_F.B_Open := FALSE;
+			WB_H.B_Open := FALSE;
+			WB_M.B_Open := FALSE;
+
+			TimeCnt  := 0.0;
+
+			IF SF_P_Aft THEN
+				TimeCnt := 0.0;
+				State   := 5000;
+				Next    := 0;
+			ELSE
+				EVP_Pump := REAL_TO_INT(EVP_Pump_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				State    := State + 100; (*Port Fwd Dump - Pump*)
+			END_IF
+
+		END_IF
+	END_IF
+
+(*Move Pump*)
+3610,3620,3630,3640:
+	IF Manual OR NOT Ready THEN
+		OUT_LP   := 0;
+		State    := 0;
+
+	ELSE
+		IF Event_Stop = INIT_CONTINUOUS OR Event_Fill = INIT_CONTINUOUS OR Event_Move = INIT_CONTINUOUS
+		OR State = 3610 AND SF_S_Fwd
+		OR State = 3620 AND SF_S_Aft
+		OR State = 3630 AND SF_P_Fwd
+		OR State = 3640 AND SF_P_Aft
+		THEN
+			SoftStop := TRUE;
+		END_IF
+
+		IF Event_Move = INIT_CONTINUOUS THEN
+			Pause := NOT Pause;
+		END_IF
+
+		IF SoftStop OR Pause THEN
+			EVP_Pump_Tgt := EVP_Pump_Tgt - CFG.EVP_Pump_Dec * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			IF EVP_Pump_Tgt = CFG.EVP_Pump_Min OR CFG.EVP_Pump_Dec <= 0
+			THEN EVP_Pump := 0;
+			ELSE EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+			END_IF
+
+		ELSE
+			EVP_Pump_Tgt := EVP_Pump_Tgt + CFG.EVP_Pump_Inc * CFG.Cycle;
+			EVP_Pump_Tgt := MIN(EVP_Pump_Tgt, CFG.EVP_Pump_Max);
+			EVP_Pump_Tgt := MAX(EVP_Pump_Tgt, CFG.EVP_Pump_Min);
+
+			EVP_Pump := REAL_TO_UINT(EVP_Pump_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF EVP_Pump = 0 THEN
+			OUT_LP := 0;
+
+			IF SoftStop THEN
+				TimeCnt := 0.0;
+				State   := 5000;
+				Next    := 0;
+			END_IF
+
+		ELSE
+			OUT_LP := 1;
+
+		END_IF
+	END_IF
+
+
+(*****************************************************************************)
+(** INIT                                                                    **)
+(*****************************************************************************)
+(*Init Status - Valves*)
+5000:
+	OUT_Stop := TRUE;
+
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		TimeCnt := 0.0;
+		Error   := State;
+		State   := 5001; (*Siempre fuerzo el scoop*)
+
+	ELSE
+		Init := TRUE;
+	
+		IF NOT (WB_A.SF_Close AND WB_A.State = 0) THEN WB_A.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_B.SF_Close AND WB_B.State = 0) THEN WB_B.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_C.SF_Close AND WB_C.State = 0) THEN WB_C.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_D.SF_Close AND WB_D.State = 0) THEN WB_D.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_E.SF_Close AND WB_E.State = 0) THEN WB_E.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_F.SF_Close AND WB_F.State = 0) THEN WB_F.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_G.SF_Close AND WB_G.State = 0) THEN WB_G.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_H.SF_Close AND WB_H.State = 0) THEN WB_H.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_I.SF_Close AND WB_I.State = 0) THEN WB_I.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_J.SF_Close AND WB_J.State = 0) THEN WB_J.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_K.SF_Close AND WB_K.State = 0) THEN WB_K.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_L.SF_Close AND WB_L.State = 0) THEN WB_L.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_M.SF_Close AND WB_M.State = 0) THEN WB_M.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_N.SF_Close AND WB_N.State = 0) THEN WB_N.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_R.SF_Close AND WB_R.State = 0) THEN WB_R.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_S.SF_Close AND WB_S.State = 0) THEN WB_S.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_A.B_Close := FALSE;
+			WB_B.B_Close := FALSE;
+			WB_C.B_Close := FALSE;
+			WB_D.B_Close := FALSE;
+			WB_E.B_Close := FALSE;
+			WB_F.B_Close := FALSE;
+			WB_G.B_Close := FALSE;
+			WB_H.B_Close := FALSE;
+			WB_I.B_Close := FALSE;
+			WB_J.B_Close := FALSE;
+			WB_K.B_Close := FALSE;
+			WB_L.B_Close := FALSE;
+			WB_M.B_Close := FALSE;
+			WB_N.B_Close := FALSE;
+			WB_R.B_Close := FALSE;
+			WB_S.B_Close := FALSE;
+
+			State := 5001;
+
+		END_IF
+	END_IF
+
+(*Init Status - Scoop UP*)
+5001:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSE
+		Init := TRUE;
+	
+		IF NOT (WB_PUD.SF_Close AND WB_PUD.State = 0) THEN WB_PUD.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_SUD.SF_Close AND WB_SUD.State = 0) THEN WB_SUD.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF CFG.EnScoopAF THEN
+			IF NOT (WB_PAF.SF_Close AND WB_PAF.State = 0) THEN WB_PAF.B_Close := TRUE; Init := FALSE; END_IF (*test1*)
+			IF NOT (WB_SAF.SF_Close AND WB_SAF.State = 0) THEN WB_SAF.B_Close := TRUE; Init := FALSE; END_IF (*test2*)
+		END_IF
+
+		IF Init THEN
+			WB_PUD.B_Close := FALSE;
+			WB_SUD.B_Close := FALSE;
+
+			WB_PAF.B_Close := FALSE; (*test3*)
+			WB_SAF.B_Close := FALSE; (*test4*)
+
+			TimeCnt := 0.0;	 (*test5*)
+			State   := Next; (*test6*)
+
+			IF State = 0 THEN
+				OUT_P_Fwd := FALSE;
+				OUT_P_Aft := FALSE;
+				OUT_S_Fwd := FALSE;
+				OUT_S_Aft := FALSE;
+				OUT_12    := FALSE;
+			END_IF
+
+			(*State := 5002;*) (*test7*)
+
+		END_IF
+	END_IF
+
+(*Init Status - Scoop FWD*) (*No enta mas!*)
+(*5002:
+	IF Manual OR NOT Ready THEN
+		State := 0;
+
+	ELSIF TimeCnt > CFG.TimeMax_Init THEN
+		Error := State;
+		State := 0;
+
+	ELSE
+		Init := TRUE;
+	
+		IF NOT (WB_PAF.SF_Close AND WB_PAF.State = 0) THEN WB_PAF.B_Close := TRUE; Init := FALSE; END_IF
+		IF NOT (WB_SAF.SF_Close AND WB_SAF.State = 0) THEN WB_SAF.B_Close := TRUE; Init := FALSE; END_IF
+
+		IF Init THEN
+			WB_PAF.B_Close := FALSE;
+			WB_SAF.B_Close := FALSE;
+
+			TimeCnt := 0.0;
+			State   := Next;
+
+		END_IF
+	END_IF*)
+
+END_CASE
+
+OUT_Pump := EVP_Pump <> 0;
+
+(*
+	PAF y SAF disabled
+*)
+
+
+
+(*Recordar PUMP EV1608 multiplicar por 10.0*)
+
+(*	IF NOT (WB_A.SF_Close AND WB_A.State = 0) THEN WB_A.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_B.SF_Close AND WB_B.State = 0) THEN WB_B.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_C.SF_Close AND WB_C.State = 0) THEN WB_C.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_D.SF_Close AND WB_D.State = 0) THEN WB_D.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_E.SF_Close AND WB_E.State = 0) THEN WB_E.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_F.SF_Close AND WB_F.State = 0) THEN WB_F.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_G.SF_Close AND WB_G.State = 0) THEN WB_G.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_H.SF_Close AND WB_H.State = 0) THEN WB_H.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_I.SF_Close AND WB_I.State = 0) THEN WB_I.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_J.SF_Close AND WB_J.State = 0) THEN WB_J.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_K.SF_Close AND WB_K.State = 0) THEN WB_K.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_L.SF_Close AND WB_L.State = 0) THEN WB_L.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_M.SF_Close AND WB_M.State = 0) THEN WB_M.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_N.SF_Close AND WB_N.State = 0) THEN WB_N.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_R.SF_Close AND WB_R.State = 0) THEN WB_R.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_S.SF_Close AND WB_S.State = 0) THEN WB_S.B_Close := TRUE; Init := FALSE; END_IF
+
+	IF NOT (WB_PUD.SF_Close AND WB_PUD.State = 0) THEN WB_PUD.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_PAF.SF_Close AND WB_PAF.State = 0) THEN WB_PAF.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_SUD.SF_Close AND WB_SUD.State = 0) THEN WB_SUD.B_Close := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_SAF.SF_Close AND WB_SAF.State = 0) THEN WB_SAF.B_Close := TRUE; Init := FALSE; END_IF
+
+	WB_A.B_Close := FALSE;
+	WB_B.B_Close := FALSE;
+	WB_C.B_Close := FALSE;
+	WB_D.B_Close := FALSE;
+	WB_E.B_Close := FALSE;
+	WB_F.B_Close := FALSE;
+	WB_G.B_Close := FALSE;
+	WB_H.B_Close := FALSE;
+	WB_I.B_Close := FALSE;
+	WB_J.B_Close := FALSE;
+	WB_K.B_Close := FALSE;
+	WB_L.B_Close := FALSE;
+	WB_M.B_Close := FALSE;
+	WB_N.B_Close := FALSE;
+	WB_R.B_Close := FALSE;
+	WB_S.B_Close := FALSE;
+
+	WB_PUD.B_Close := FALSE;
+	WB_PAF.B_Close := FALSE;
+	WB_SUD.B_Close := FALSE;
+	WB_SAF.B_Close := FALSE;
+
+	IF NOT (WB_A.SF_Open AND WB_A.State = 0) THEN WB_A.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_B.SF_Open AND WB_B.State = 0) THEN WB_B.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_C.SF_Open AND WB_C.State = 0) THEN WB_C.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_D.SF_Open AND WB_D.State = 0) THEN WB_D.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_E.SF_Open AND WB_E.State = 0) THEN WB_E.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_F.SF_Open AND WB_F.State = 0) THEN WB_F.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_G.SF_Open AND WB_G.State = 0) THEN WB_G.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_H.SF_Open AND WB_H.State = 0) THEN WB_H.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_I.SF_Open AND WB_I.State = 0) THEN WB_I.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_J.SF_Open AND WB_J.State = 0) THEN WB_J.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_K.SF_Open AND WB_K.State = 0) THEN WB_K.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_L.SF_Open AND WB_L.State = 0) THEN WB_L.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_M.SF_Open AND WB_M.State = 0) THEN WB_M.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_N.SF_Open AND WB_N.State = 0) THEN WB_N.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_R.SF_Open AND WB_R.State = 0) THEN WB_R.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_S.SF_Open AND WB_S.State = 0) THEN WB_S.B_Open := TRUE; Init := FALSE; END_IF
+
+	IF NOT (WB_PUD.SF_Open AND WB_PUD.State = 0) THEN WB_PUD.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_PAF.SF_Open AND WB_PAF.State = 0) THEN WB_PAF.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_SUD.SF_Open AND WB_SUD.State = 0) THEN WB_SUD.B_Open := TRUE; Init := FALSE; END_IF
+	IF NOT (WB_SAF.SF_Open AND WB_SAF.State = 0) THEN WB_SAF.B_Open := TRUE; Init := FALSE; END_IF
+
+*)
+END_FUNCTION_BLOCK

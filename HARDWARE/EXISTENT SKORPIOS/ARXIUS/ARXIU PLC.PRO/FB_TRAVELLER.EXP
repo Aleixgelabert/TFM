@@ -1,0 +1,725 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_TRAVELLER
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+	Perc   : REAL;
+
+	IN_A : ARRAY[1..3] OF BOOL;
+	IN_B : ARRAY[1..3] OF BOOL;
+	IN_T : ARRAY[1..2] OF BOOL;
+	IN_D : ARRAY[1..2] OF BOOL;
+END_VAR
+VAR_IN_OUT
+	P_A : ST_SENSOR_BAR;
+	P_B : ST_SENSOR_BAR;
+	LS  : ST_SENSOR_POS;
+	CFG : ST_TRAVELLER_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_EVRA : BOOL;
+	OUT_EVRB : BOOL;
+	OUT_EVAB : BOOL;
+
+	OUT_EVPA : BOOL;
+	OUT_EVPB : BOOL;
+
+	OUT_TWC : INT;
+	OUT_LP  : BYTE;
+	OUT_HP  : BYTE;
+END_VAR
+VAR
+	State   : WORD;
+
+	IN_Hmi_A : BOOL;
+	IN_Hmi_B : BOOL;
+	IN_Hmi_T : BOOL;
+	IN_Hmi_D : BOOL;
+
+	SIA  : ARRAY[1..4] OF FB_SMART_INPUT;
+	SIB  : ARRAY[1..4] OF FB_SMART_INPUT;
+	SIT  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SID  : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	EventA  : EN_SMART_INPUT_STATE;
+	EventB  : EN_SMART_INPUT_STATE;
+	EventT  : EN_SMART_INPUT_STATE;
+	EventD  : EN_SMART_INPUT_STATE;
+
+	Spd_Tgt  : REAL;
+	SoftStop : BOOL;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+	P_Bypass  : BOOL;
+
+	Slow : BOOL;
+	LS_Dif : REAL;
+	LS_Tgt : REAL;
+
+	LS_Min : BOOL;
+	LS_Max : BOOL;
+	LS_Mid : BOOL;
+	P_Dw   : BOOL;
+
+	Hyst_Cnt : REAL;
+	Hyst_ON  : BOOL;
+
+	Move_A : BOOL;
+	Move_B : BOOL;
+
+	ToFaroValue : REAL;
+
+END_VAR
+
+
+(* @END_DECLARATION := '0' *)
+(*A->IN->Stbd*)
+
+LS_Max := NOT LS.Err AND LS.Pos > CFG.TgtLS_Max  - CFG.LS_DB;
+LS_Min := NOT LS.Err AND LS.Pos < CFG.TgtLS_Min  + CFG.LS_DB;
+LS_Mid := NOT LS.Err AND LS.Pos < CFG.TgtLS_Zero + CFG.LS_DB AND LS.Pos > CFG.TgtLS_Zero - CFG.LS_DB;
+
+(*Check Inputs*)
+SIA[1](In:= IN_A[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIA[2](In:= IN_A[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIA[3](In:= IN_A[3],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIA[4](In:= IN_Hmi_A, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SIB[1](In:= IN_B[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIB[2](In:= IN_B[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIB[3](In:= IN_B[3],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIB[4](In:= IN_Hmi_B, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SIT[1](In:= IN_T[1],  T_Cont:= T#200ms, T_DClk:= T#0ms);
+SIT[2](In:= IN_T[2],  T_Cont:= T#200ms, T_DClk:= T#0ms);
+SIT[3](In:= IN_Hmi_T, T_Cont:= T#200ms, T_DClk:= T#0ms);
+
+SID[1](In:= IN_D[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SID[2](In:= IN_D[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SID[3](In:= IN_Hmi_D, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	OUT_EVRA := FALSE;
+	OUT_EVRB := FALSE;
+	OUT_EVAB := FALSE;
+
+	OUT_EVPA := FALSE;
+	OUT_EVPB := FALSE;
+
+	ToFaroValue := 0.0;
+
+	OUT_TWC  := 0;
+	OUT_LP   := 0;
+	OUT_HP   := 0;
+
+	TimeCnt  := 0.0;
+	State    := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );
+TimeCnt := TimeCnt + CFG.Cycle;
+
+IF    SIA[1].Event <> NONE THEN EventA := SIA[1].Event;
+ELSIF SIA[2].Event <> NONE THEN EventA := SIA[2].Event;
+ELSIF SIA[3].Event <> NONE THEN EventA := SIA[3].Event;
+ELSIF SIA[4].Event <> NONE THEN EventA := SIA[4].Event;
+ELSE							EventA := NONE;
+END_IF
+
+IF    SIB[1].Event <> NONE THEN EventB := SIB[1].Event;
+ELSIF SIB[2].Event <> NONE THEN EventB := SIB[2].Event;
+ELSIF SIB[3].Event <> NONE THEN EventB := SIB[3].Event;
+ELSIF SIB[4].Event <> NONE THEN EventB := SIB[4].Event;
+ELSE							EventB := NONE;
+END_IF
+
+IF    SIT[1].Event <> NONE THEN EventT := SIT[1].Event;
+ELSIF SIT[2].Event <> NONE THEN EventT := SIT[2].Event;
+ELSIF SIT[3].Event <> NONE THEN EventT := SIT[3].Event;
+ELSE							EventT := NONE;
+END_IF
+
+IF    SID[1].Event <> NONE THEN EventD := SID[1].Event;
+ELSIF SID[2].Event <> NONE THEN EventD := SID[2].Event;
+ELSIF SID[3].Event <> NONE THEN EventD := SID[3].Event;
+ELSE							EventD := NONE;
+END_IF
+
+(*Working States*)
+CASE State OF
+
+(*Init State*)
+0:
+	OUT_EVRA := FALSE;
+	OUT_EVRB := FALSE;
+	OUT_EVAB := FALSE;
+	OUT_TWC  := 0;
+	OUT_LP   := 0;
+
+	SoftStop := FALSE;
+    TimeCnt  := 0.0; (*Time Count*)
+
+	(*Start IN*)
+	IF EventA = INIT_CONTINUOUS AND Ready THEN
+		Spd_Tgt := CFG.MinEVPA;
+		TimeOut := FALSE; (*Reset TimeOut Error*)
+		State   := 100;   (*Next State*)
+
+	(*Start OUT*)
+	ELSIF EventB = INIT_CONTINUOUS AND Ready THEN
+		Spd_Tgt := CFG.MinEVPB;
+		TimeOut := FALSE; (*Reset TimeOut Error*)
+		State   := 200;   (*Next State*)
+
+	(*Start TACK*)
+	ELSIF EventT = INIT_CONTINUOUS AND Ready THEN
+		TimeOut := FALSE; (*Reset TimeOut Error*)
+		State   := 300;   (*Next State*)
+
+	(*Start DUMP*)
+	ELSIF EventD = INIT_CONTINUOUS THEN
+		TimeOut := FALSE; (*Reset TimeOut Error*)
+		State   := 400;   (*Next State*)
+
+	END_IF
+
+(*Manual A-IN*)
+100:
+	IF EventD = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := TRUE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 400; (*Next State*)
+
+	ELSIF NOT Ready OR TimeOut OR P_A.AlMax THEN
+		OUT_TWC := 0;
+		OUT_LP  := 0;
+		State   := 0;  (*Next State*)
+
+	ELSIF EventB = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		Spd_Tgt  := CFG.MinEVPB;
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 200; (*Next State*)
+
+	ELSIF CFG.LS_Limit AND LS.Pos < CFG.TgtLS_Min + CFG.LS_DB THEN
+		OUT_EVRB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+		State    := 0;  (*Next State*)
+
+	ELSE
+		IF EventA = END_CONTINUOUS THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_TWC := 0;
+				OUT_LP  := 0;
+				State   := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		LS_Dif := ABS(LS.Pos - CFG.TgtLS_Min);
+
+		IF SoftStop THEN
+			Spd_Tgt  := Spd_Tgt - CFG.Spd_Dec * CFG.Cycle;
+
+			IF CFG.LS_Limit AND LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPA + LS_Dif * ((CFG.MaxEVPA - CFG.MinEVPA) / CFG.LS_Dist));
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPA);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPA);
+
+			IF Spd_Tgt = CFG.MinEVPA OR CFG.Spd_Dec <= 0 THEN
+				OUT_EVRB := FALSE;
+				OUT_TWC  := 0;
+				OUT_LP   := 0;
+				State    := 0; (*Next State*);
+
+			ELSE
+				OUT_EVRB := TRUE;
+				OUT_TWC  := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				Slow     := TRUE;
+			END_IF
+
+		ELSE
+			Spd_Tgt  := Spd_Tgt + CFG.Spd_Inc * CFG.Cycle;
+
+			IF CFG.LS_Limit AND LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPA + LS_Dif * ((CFG.MaxEVPA - CFG.MinEVPA) / CFG.LS_Dist));
+				OUT_LP  := 1;
+				Slow    := TRUE;
+			ELSE
+				OUT_LP  := CFG.LP;
+				Slow    := FALSE;
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPA);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPA);
+
+			OUT_EVRB := TRUE;
+			OUT_TWC  := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+	END_IF
+
+(*Manual B-OUT*)
+200:
+	IF EventD = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := TRUE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 400; (*Next State*)
+
+	ELSIF NOT Ready OR TimeOut OR P_B.AlMax THEN
+		OUT_TWC := 0;
+		OUT_LP  := 0;
+		State   := 0;  (*Next State*)
+
+	ELSIF EventA = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		Spd_Tgt := CFG.MinEVPA;
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 100;   (*Next State*)
+
+	ELSIF CFG.LS_Limit AND LS.Pos > CFG.TgtLS_Max - CFG.LS_DB THEN
+		OUT_EVRA := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+		State    := 0;  (*Next State*)
+
+	ELSE
+		IF EventB = END_CONTINUOUS THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_TWC := 0;
+				OUT_LP  := 0;
+				State   := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		LS_Dif := ABS(LS.Pos - CFG.TgtLS_Min);
+
+		IF SoftStop THEN
+			Spd_Tgt  := Spd_Tgt - CFG.Spd_Dec * CFG.Cycle;
+
+			IF CFG.LS_Limit AND LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPB + LS_Dif * ((CFG.MaxEVPB - CFG.MinEVPB) / CFG.LS_Dist));
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPB);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPB);
+
+			IF Spd_Tgt = CFG.MinEVPB OR CFG.Spd_Dec <= 0 THEN
+				OUT_EVRA := FALSE;
+				OUT_TWC  := 0;
+				OUT_LP   := 0;
+				State    := 0; (*Next State*);
+
+			ELSE
+				OUT_EVRA := TRUE;
+				OUT_TWC  := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				Slow     := TRUE;
+			END_IF
+
+		ELSE
+			Spd_Tgt  := Spd_Tgt + CFG.Spd_Inc * CFG.Cycle;
+
+			IF CFG.LS_Limit AND LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPB + LS_Dif * ((CFG.MaxEVPB - CFG.MinEVPB) / CFG.LS_Dist));
+				OUT_LP  := 1;
+				Slow    := TRUE;
+			ELSE
+				OUT_LP  := CFG.LP;
+				Slow    := FALSE;
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPB);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPB);
+
+			OUT_EVRA := TRUE;
+			OUT_TWC  := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+	END_IF
+
+(*Init TACK*)
+300:
+	IF EventD = INIT_CONTINUOUS THEN
+		OUT_EVAB := TRUE;
+
+		State    := 400; (*Next State*)
+
+	ELSIF EventT = INIT_CONTINUOUS OR NOT Ready OR TimeOut OR P_A.AlMax OR P_B.AlMax OR LS.Err THEN
+		State    := 0;   (*Next State*)
+
+	ELSIF EventA = INIT_CONTINUOUS THEN
+		Spd_Tgt  := CFG.MinEVPA;
+		State    := 100; (*Next State*)
+
+	ELSIF EventB = INIT_CONTINUOUS THEN
+		Spd_Tgt  := CFG.MinEVPB;
+		State    := 200; (*Next State*)
+
+	ELSIF LS.Pos + CFG.TgtLS_Tack_Off > CFG.TgtLS_Zero THEN
+		LS_Tgt   := CFG.TgtLS_Zero + CFG.TgtLS_Zero - LS.Pos - CFG.TgtLS_Tack_Off;
+
+		IF CFG.LS_Limit THEN LS_Tgt := MAX(LS_Tgt, CFG.TgtLS_Min); END_IF
+
+		Spd_Tgt  := CFG.MinEVPA;
+		State    := 500; (*Next State*)
+
+	ELSIF LS.Pos - CFG.TgtLS_Tack_Off < CFG.TgtLS_Zero THEN
+		LS_Tgt   := CFG.TgtLS_Zero + CFG.TgtLS_Zero - LS.Pos + CFG.TgtLS_Tack_Off;
+
+		IF CFG.LS_Limit THEN LS_Tgt := MIN(LS_Tgt, CFG.TgtLS_Max); END_IF
+
+		Spd_Tgt  := CFG.MinEVPB;
+		State    := 600; (*Next State*)
+
+	ELSE
+		State    := 0;   (*Next State*)
+
+	END_IF
+
+(*DUMP*)
+400:
+	IF EventD = END_CONTINUOUS OR TimeOut THEN
+		OUT_EVAB := FALSE;
+		State    := 0;  (*Next State*)
+
+	ELSIF CFG.LS_Limit AND ( LS.Pos >= CFG.TgtLS_Max OR LS.Pos <= CFG.TgtLS_Min ) THEN
+		OUT_EVAB := FALSE;
+		State    := 0;  (*Next State*)
+
+	ELSE
+		OUT_EVAB := TRUE;
+
+	END_IF
+
+(*Init Auto IN*)
+500:
+	IF EventD = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := TRUE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 400;   (*Next State*)
+
+	ELSIF NOT Ready OR TimeOut OR P_A.AlMax OR LS.Err THEN
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+		State    := 0;  (*Next State*)
+
+	ELSIF EventA = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		Spd_Tgt  := CFG.MinEVPA;
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 100; (*Next State*)
+
+	ELSIF EventB = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		Spd_Tgt  := CFG.MinEVPB;
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 200; (*Next State*)
+
+	ELSIF LS.Pos < LS_Tgt + CFG.LS_DB THEN
+		OUT_EVRB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+		State    := 0;   (*Next State*)
+
+	ELSE
+		IF EventT = INIT_CONTINUOUS THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_TWC := 0;
+				OUT_LP  := 0;
+				State   := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		LS_Dif := ABS(LS.Pos - LS_Tgt);
+
+		IF SoftStop THEN
+			Spd_Tgt  := Spd_Tgt - CFG.Spd_Dec * CFG.Cycle;
+
+			IF LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPA + LS_Dif * ((CFG.MaxEVPA - CFG.MinEVPA) / CFG.LS_Dist));
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPA);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPA);
+
+			IF Spd_Tgt = CFG.MinEVPA OR CFG.Spd_Dec <= 0 THEN
+				OUT_EVRB := FALSE;
+				OUT_TWC  := 0;
+				OUT_LP   := 0;
+				State    := 0; (*Next State*);
+
+			ELSE
+				OUT_EVRB := TRUE;
+				OUT_TWC  := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				Slow     := TRUE;
+			END_IF
+
+		ELSE
+			Spd_Tgt  := Spd_Tgt + CFG.Spd_Inc * CFG.Cycle;
+
+			IF LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPA + LS_Dif * ((CFG.MaxEVPA - CFG.MinEVPA) / CFG.LS_Dist));
+				OUT_LP  := 1;
+				Slow    := TRUE;
+			ELSE
+				OUT_LP  := CFG.LP;
+				Slow    := FALSE;
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPA);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPA);
+
+			OUT_EVRB := TRUE;
+			OUT_TWC  := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+	END_IF
+
+(*Init Auto OUT*)
+600:
+	IF EventD = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := TRUE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 400; (*Next State*)
+
+	ELSIF NOT Ready OR TimeOut OR P_B.AlMax OR LS.Err THEN
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+		State    := 0;  (*Next State*)
+
+	ELSIF EventA = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		Spd_Tgt  := CFG.MinEVPA;
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 100; (*Next State*)
+
+	ELSIF EventB = INIT_CONTINUOUS THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_EVAB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+
+		Spd_Tgt  := CFG.MinEVPB;
+		TimeCnt  := 0.0; (*Time Count*)
+		State    := 200;   (*Next State*)
+
+	ELSIF LS.Pos > LS_Tgt - CFG.LS_DB THEN
+		OUT_EVRA := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+		State    := 0;  (*Next State*)
+
+	ELSE
+		IF EventT = INIT_CONTINUOUS THEN
+			(*If already stoping, full stop*)
+			IF SoftStop THEN
+				OUT_TWC := 0;
+				OUT_LP  := 0;
+				State   := 0; (*Next State*)
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		LS_Dif := ABS(LS.Pos - LS_Tgt);
+
+		IF SoftStop THEN
+			Spd_Tgt  := Spd_Tgt - CFG.Spd_Dec * CFG.Cycle;
+
+			IF CFG.LS_Limit AND LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPB + LS_Dif * ((CFG.MaxEVPB - CFG.MinEVPB) / CFG.LS_Dist));
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPB);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPB);
+
+			IF Spd_Tgt = CFG.MinEVPB OR CFG.Spd_Dec <= 0 THEN
+				OUT_EVRA := FALSE;
+				OUT_TWC  := 0;
+				OUT_LP   := 0;
+				State    := 0; (*Next State*);
+
+			ELSE
+				OUT_EVRA := TRUE;
+				OUT_TWC  := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+				OUT_LP   := 1;
+				Slow     := TRUE;
+			END_IF
+
+		ELSE
+			Spd_Tgt  := Spd_Tgt + CFG.Spd_Inc * CFG.Cycle;
+
+			IF CFG.LS_Limit AND LS_Dif < CFG.LS_Dist THEN (*Si Dist = 0 nunca entrara*)
+				Spd_Tgt := MIN(Spd_Tgt, CFG.MinEVPB + LS_Dif * ((CFG.MaxEVPB - CFG.MinEVPB) / CFG.LS_Dist));
+				OUT_LP  := 1;
+				Slow    := TRUE;
+			ELSE
+				OUT_LP  := CFG.LP;
+				Slow    := FALSE;
+			END_IF
+
+			Spd_Tgt  := MIN(Spd_Tgt, CFG.MaxEVPB);
+			Spd_Tgt  := MAX(Spd_Tgt, CFG.MinEVPB);
+
+			OUT_EVRA := TRUE;
+			OUT_TWC  := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+	END_IF
+
+END_CASE
+
+(*Evaluo HP*)
+IF Hyst_Cnt > CFG.Hyst_TM THEN
+	Hyst_ON := TRUE;
+ELSE
+	Hyst_ON  := FALSE;
+	Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+END_IF
+
+IF OUT_TWC > 0 THEN
+	IF P_A.Bar > CFG.Hyst_HP AND Hyst_ON OR P_A.Err THEN
+		OUT_EVPA := TRUE;
+		OUT_EVPB := FALSE;
+		OUT_HP   := CFG.HP;
+		Hyst_cnt := 0.0;
+
+		ToFaroValue := 1.0;
+
+	ELSIF P_A.Bar < CFG.Hyst_LP AND Hyst_ON THEN
+		OUT_EVPA := FALSE;
+		OUT_EVPB := FALSE;
+		OUT_HP   := 0;
+		Hyst_cnt := 0.0;
+
+		ToFaroValue := 0.0;
+
+	END_IF
+
+	IF OUT_EVPA THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+	END_IF
+
+ELSIF OUT_TWC < 0 THEN
+	IF P_B.Bar > CFG.Hyst_HP AND Hyst_ON OR P_B.Err THEN
+		OUT_EVPA := FALSE;
+		OUT_EVPB := TRUE;
+		OUT_HP   := CFG.HP;
+		Hyst_cnt := 0.0;
+
+		ToFaroValue := -1.0;
+
+	ELSIF P_B.Bar < CFG.Hyst_LP AND Hyst_ON THEN
+		OUT_EVPA := FALSE;
+		OUT_EVPB := FALSE;
+		OUT_HP   := 0;
+		Hyst_cnt := 0.0;
+
+		ToFaroValue := 0.0;
+
+	END_IF
+
+	IF OUT_EVPB THEN
+		OUT_EVRA := FALSE;
+		OUT_EVRB := FALSE;
+		OUT_TWC  := 0;
+		OUT_LP   := 0;
+	END_IF
+
+ELSE
+	OUT_EVPA := FALSE;
+	OUT_EVPB := FALSE;
+	OUT_HP   := 0;
+
+END_IF
+
+Move_A := OUT_EVRB OR OUT_EVPA;
+Move_B := OUT_EVRA OR OUT_EVPB;
+END_FUNCTION_BLOCK

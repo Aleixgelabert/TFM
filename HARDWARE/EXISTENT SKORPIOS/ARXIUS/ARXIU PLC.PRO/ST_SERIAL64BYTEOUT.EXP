@@ -1,0 +1,10 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_Serial64ByteOut :
+STRUCT
+	wControl:WORD;
+	aData   :ARRAY[0..63] OF BYTE;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

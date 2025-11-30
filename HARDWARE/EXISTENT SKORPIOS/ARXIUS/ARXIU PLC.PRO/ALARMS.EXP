@@ -1,0 +1,468 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM ALARMS
+VAR CONSTANT
+	UDP_BUF_SIZE  : WORD := 4096;
+	TRIG_BUF_SIZE : WORD := 100;
+	ALARMS_LIST_SIZE : WORD := 66;
+	ALARMS_ARRAY_SIZE : WORD := 203;
+
+
+
+END_VAR
+VAR
+	TankAdver : BOOL;
+	EngAdver  : BOOL;
+	PumpAdver : BOOL;
+	CanAdver: BOOL;
+
+	Clear  : BOOL;
+	Buzzer : BOOL;
+	Adver  : BOOL;
+
+	LoadTrig : R_TRIG;
+
+	BobStay_adv : BOOL;
+	Cylinders_adv : BOOL;
+	Special_adv   : BOOL;
+
+
+
+	AlarmList : ARRAY[1..ALARMS_LIST_SIZE] OF STRING;
+	AlarmFlag : ARRAY[1..ALARMS_LIST_SIZE] OF BOOL;
+
+	AlarmArray : ARRAY[1..ALARMS_ARRAY_SIZE] OF POINTER TO ST_ALARM;
+
+	i : WORD;
+	j : WORD;
+	SF100x_Mute : BOOL;
+
+	fbUdpSend : FB_UDP_SEND_TRIG;
+
+	aBuffer : ARRAY[0..UDP_BUF_SIZE] OF BYTE;
+	wBufPos : DWORD;
+
+	InitArray : BOOL := TRUE;
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF InitArray THEN
+	InitArray := FALSE;
+
+	(*Emergency*)
+	AlarmArray[ 1] := ADR(SF000.Alarm);
+
+	(*Tank*)
+	AlarmArray[ 2] := ADR(SF001.Alarm);
+	AlarmArray[ 3] := ADR(SF002.Alarm);
+	AlarmArray[ 4] := ADR(SF003.Alarm);
+	AlarmArray[ 5] := ADR(SF004.Alarm);
+	AlarmArray[ 6] := ADR(SF005.Alarm);
+	AlarmArray[ 7] := ADR(SF006.Alarm);
+	AlarmArray[ 8] := ADR(SF007.Alarm);
+	AlarmArray[ 9] := ADR(SF008.Alarm);
+	AlarmArray[10] := ADR(SF009.Alarm);
+	AlarmArray[11] := ADR( P010.Alarm);
+	AlarmArray[12] := ADR( S011.Alarm);
+
+	(*Pump*)
+	AlarmArray[13] := ADR( P001.Alarm);
+	AlarmArray[14] := ADR( P002.Alarm);
+	AlarmArray[15] := ADR( P051.Alarm);
+	AlarmArray[16] := ADR( P052.Alarm);
+	AlarmArray[17] := ADR( P101.Alarm);
+	AlarmArray[18] := ADR( P103.Alarm);
+	AlarmArray[19] := ADR( S101.Alarm);
+	AlarmArray[20] := ADR( S102.Alarm);
+
+	(*Engine*)
+	AlarmArray[21] := ADR(ENGINE.Alarm1);
+	AlarmArray[22] := ADR(ENGINE.Alarm2);
+	AlarmArray[23] := ADR(INPUTS.THR_Alarm);
+	AlarmArray[24] := ADR(MAIN.fbDE601.Alarm);
+
+	(*Sensors Alarms*)
+	AlarmArray[25] := ADR(LS021.Alarm);
+	AlarmArray[26] := ADR(LS022.Alarm);
+	AlarmArray[27] := ADR(LS023.Alarm);
+	AlarmArray[28] := ADR(LS024.Alarm);
+
+	AlarmArray[29] := ADR( P201.Alarm);
+
+	AlarmArray[30] := ADR( P301.Alarm);
+	AlarmArray[31] := ADR( P303.Alarm);
+	AlarmArray[32] := ADR( P305.Alarm);
+	AlarmArray[33] := ADR( P307.Alarm);
+	AlarmArray[34] := ADR( P309.Alarm);
+	AlarmArray[35] := ADR( P311.Alarm);
+	AlarmArray[36] := ADR(LS301.Alarm);
+	AlarmArray[37] := ADR(LS303.Alarm);
+	AlarmArray[38] := ADR(LS305.Alarm);
+	AlarmArray[39] := ADR(LS307.Alarm);
+	AlarmArray[40] := ADR(LS309.Alarm);
+	AlarmArray[41] := ADR(LS311.Alarm);
+
+	AlarmArray[42] := ADR( P501.Alarm);
+	AlarmArray[43] := ADR( P503.Alarm);
+	AlarmArray[44] := ADR( P505.Alarm);
+	AlarmArray[45] := ADR( P507.Alarm);
+
+	AlarmArray[46] := ADR( P601.Alarm);
+	AlarmArray[47] := ADR( P603.Alarm);
+	AlarmArray[48] := ADR( P605.Alarm);
+	AlarmArray[49] := ADR( P607.Alarm);
+	AlarmArray[50] := ADR(LS601.Alarm);
+	AlarmArray[51] := ADR(LS605.Alarm);
+
+	AlarmArray[52] := ADR( P701.Alarm);
+	AlarmArray[53] := ADR( P703.Alarm);
+	AlarmArray[54] := ADR( P705.Alarm);
+	AlarmArray[55] := ADR( P707.Alarm);
+	AlarmArray[56] := ADR( P709.Alarm);
+	AlarmArray[57] := ADR(LS707.Alarm);
+	AlarmArray[58] := ADR(LS709.Alarm);
+
+	AlarmArray[59] := ADR(SF801.Alarm);
+	AlarmArray[60] := ADR(SF803.Alarm);
+	AlarmArray[61] := ADR( P802.Alarm);
+	AlarmArray[62] := ADR( P804.Alarm);
+	AlarmArray[63] := ADR(LS801.Alarm);
+	AlarmArray[64] := ADR(LS803.Alarm);
+
+(*	AlarmArray[65] := ADR( P901.Alarm);*)
+(*	AlarmArray[66] := ADR( P903.Alarm);*)
+(*	AlarmArray[67] := ADR(LS901.Alarm);*)
+(*	AlarmArray[68] := ADR(LS903.Alarm);*)
+
+	AlarmArray[69] := ADR( P1001.Alarm);
+	AlarmArray[70] := ADR( P1002.Alarm);
+	AlarmArray[71] := ADR(LS1001.Alarm);
+	AlarmArray[72] := ADR(LS1002.Alarm);
+	AlarmArray[73] := ADR(SF1002.Alarm);
+	AlarmArray[74] := ADR(SF1003.Alarm);
+	AlarmArray[75] := ADR(SF1004.Alarm);
+
+	AlarmArray[76] := ADR( P1101.Alarm);
+	AlarmArray[77] := ADR( P1102.Alarm);
+
+	AlarmArray[78] := ADR( P1202.Alarm);
+	AlarmArray[79] := ADR( P1203.Alarm);
+	AlarmArray[80] := ADR( P1204.Alarm);
+	AlarmArray[81] := ADR( P1205.Alarm);
+	AlarmArray[82] := ADR( P1206.Alarm);
+	AlarmArray[83] := ADR( P1207.Alarm);
+	AlarmArray[84] := ADR( P1208.Alarm);
+	AlarmArray[85] := ADR( P1209.Alarm);
+	AlarmArray[86] := ADR( P1210.Alarm);
+	AlarmArray[87] := ADR( P1211.Alarm);
+	AlarmArray[88] := ADR( P1212.Alarm);
+	AlarmArray[89] := ADR( P1213.Alarm);
+	AlarmArray[90] := ADR( P1214.Alarm);
+	AlarmArray[91] := ADR( P1215.Alarm);
+	AlarmArray[92] := ADR( P1216.Alarm);
+	AlarmArray[93] := ADR( P1219.Alarm);
+
+	AlarmArray[94] := ADR( P1301.Alarm);
+	AlarmArray[95] := ADR( P1302.Alarm);
+	AlarmArray[96] := ADR(LS1303.Alarm);
+
+	AlarmArray[ 97] := ADR( P1602.Alarm);
+	AlarmArray[ 98] := ADR( P1603.Alarm);
+	AlarmArray[ 99] := ADR( P1604.Alarm);
+	AlarmArray[100] := ADR( P1605.Alarm);
+
+	AlarmArray[101] := ADR(LS1905.Alarm);
+
+	AlarmArray[102] := ADR(LS2001.Alarm);
+	AlarmArray[103] := ADR(LS2005.Alarm);
+
+	AlarmArray[104] := ADR(LS2201.Alarm);
+
+	AlarmArray[105] := ADR(LS2301.Alarm);
+	AlarmArray[106] := ADR(LS2305.Alarm);
+
+	AlarmArray[107] := ADR(LS2401.Alarm);
+	AlarmArray[108] := ADR(LS2409.Alarm);
+
+	AlarmArray[109] := ADR( P2500.Alarm);
+	AlarmArray[110] := ADR(LS2501.Alarm);
+	AlarmArray[111] := ADR(LS2505.Alarm);
+
+	(*CAN*)
+	AlarmArray[112] := ADR(CAN1.Alarm);
+	AlarmArray[113] := ADR(CAN2.Alarm);
+	AlarmArray[114] := ADR(CAN3.Alarm);
+	AlarmArray[115] := ADR(CAN4.Alarm);
+	AlarmArray[116] := ADR(CAN5.Alarm);
+	AlarmArray[117] := ADR(NJ1939.Alarm);
+
+	AlarmArray[118] := ADR(N20.Alarm);
+	AlarmArray[119] := ADR(N21.Alarm);
+	AlarmArray[120] := ADR(N22.Alarm);
+	AlarmArray[121] := ADR(N23.Alarm);
+	AlarmArray[122] := ADR(N24.Alarm);
+	AlarmArray[123] := ADR(N25.Alarm);
+	AlarmArray[124] := ADR(N26.Alarm);
+	AlarmArray[125] := ADR(N27.Alarm);
+	AlarmArray[126] := ADR(N28.Alarm);
+	AlarmArray[127] := ADR(N29.Alarm);
+	AlarmArray[128] := ADR(N30.Alarm);
+	AlarmArray[129] := ADR(N31.Alarm);
+	AlarmArray[130] := ADR(N32.Alarm);
+	AlarmArray[131] := ADR(N33.Alarm);
+	AlarmArray[132] := ADR(N34.Alarm);
+	AlarmArray[133] := ADR(N35.Alarm);
+	AlarmArray[134] := ADR(N36.Alarm);
+	AlarmArray[135] := ADR(N37.Alarm);
+	AlarmArray[136] := ADR(N38.Alarm);
+	AlarmArray[137] := ADR(N39.Alarm);
+	AlarmArray[138] := ADR(N40.Alarm);
+	AlarmArray[139] := ADR(N41.Alarm);
+	AlarmArray[140] := ADR(N42.Alarm);
+	AlarmArray[141] := ADR(N43.Alarm);
+	AlarmArray[142] := ADR(N44.Alarm);
+	AlarmArray[143] := ADR(N47.Alarm);
+
+	AlarmArray[144] := ADR(N50.Alarm);
+	AlarmArray[145] := ADR(N51.Alarm);
+	AlarmArray[146] := ADR(N52.Alarm);
+	AlarmArray[147] := ADR(N53.Alarm);
+	AlarmArray[148] := ADR(N54.Alarm);
+	AlarmArray[149] := ADR(N55.Alarm);
+	AlarmArray[150] := ADR(N56.Alarm);
+	AlarmArray[151] := ADR(N57.Alarm);
+	AlarmArray[152] := ADR(N58.Alarm);
+	AlarmArray[153] := ADR(N59.Alarm);
+	AlarmArray[154] := ADR(N60.Alarm);
+	AlarmArray[155] := ADR(N61.Alarm);
+	AlarmArray[156] := ADR(N64.Alarm);
+	AlarmArray[157] := ADR(N70.Alarm);
+	AlarmArray[158] := ADR(N71.Alarm);
+	AlarmArray[159] := ADR(N72.Alarm);
+	AlarmArray[160] := ADR(N73.Alarm);
+	AlarmArray[161] := ADR(N74.Alarm);
+
+	AlarmArray[162] := ADR(N102.Alarm);
+	AlarmArray[163] := ADR(N103.Alarm);
+	AlarmArray[164] := ADR(N104.Alarm);
+	AlarmArray[165] := ADR(N105.Alarm);
+	AlarmArray[166] := ADR(N106.Alarm);
+	AlarmArray[167] := ADR(N107.Alarm);
+	AlarmArray[168] := ADR(N108.Alarm);
+	AlarmArray[169] := ADR(N109.Alarm);
+	AlarmArray[170] := ADR(N110.Alarm);
+	AlarmArray[171] := ADR(N111.Alarm);
+	AlarmArray[172] := ADR(N112.Alarm);
+	AlarmArray[173] := ADR(N113.Alarm);
+	AlarmArray[174] := ADR(N114.Alarm);
+	AlarmArray[175] := ADR(N115.Alarm);
+	AlarmArray[176] := ADR(N116.Alarm);
+	AlarmArray[177] := ADR(N117.Alarm);
+	AlarmArray[178] := ADR(N118.Alarm);
+	AlarmArray[179] := ADR(N119.Alarm);
+
+	AlarmArray[188] := ADR(N10.Alarm);
+	AlarmArray[189] := ADR(N11.Alarm);
+	AlarmArray[190] := ADR(N12.Alarm);
+	AlarmArray[191] := ADR(N13.Alarm);
+	AlarmArray[198] := ADR(N20_2.Alarm);
+
+	AlarmArray[200] := ADR(MAIN.fbTackValve.Alarm);
+
+	(*AlarmArray[201] := ADR(SF100.Alarm);*)
+	AlarmArray[202] := ADR(S1100.Alarm);
+
+END_IF
+
+LoadTrig(CLK:= PARAMS.Loaded);
+
+IF NOT PARAMS.Loaded OR LoadTrig.Q THEN
+	Clear := TRUE;
+
+END_IF
+
+TankAdver := SF001.Alarm.Adver
+		  OR SF002.Alarm.Adver
+		  OR SF003.Alarm.Adver
+		  OR SF004.Alarm.Adver
+		  OR SF005.Alarm.Adver
+		  OR SF006.Alarm.Adver
+		  OR SF007.Alarm.Adver
+		  OR SF008.Alarm.Adver
+		  OR SF009.Alarm.Adver
+		  OR  P010.Alarm.Adver
+		  OR  S011.Alarm.Adver
+;
+PumpAdver :=  P001.Alarm.Adver
+		  OR  P002.Alarm.Adver
+		  OR  P051.Alarm.Adver
+		  OR  P052.Alarm.Adver
+		  OR  P101.Alarm.Adver
+		  OR  P103.Alarm.Adver
+		  OR  S101.Alarm.Adver
+		  OR  S102.Alarm.Adver
+;
+EngAdver  := ENGINE.Alarm1.Adver
+		  OR ENGINE.Alarm2.Adver
+		  OR INPUTS.THR_Alarm.Adver
+		  OR MAIN.fbDE601.Alarm.Adver
+;
+
+CanAdver  := FALSE;
+
+
+(*Fill Allarms array*)
+Buzzer := FALSE;
+i := 1;
+
+(*ENABLE ALARM*)
+(*Tank Enable*)
+IF NOT MAIN.aSys_Enable[1] THEN AlarmList[i] := 'Tank Disabled.'; 				AlarmFlag[i] := TRUE;	i := i + 1; TankAdver := TRUE; END_IF
+(*Pump Enable*)
+IF NOT MAIN.aSys_Enable[4] THEN AlarmList[i] := 'Engine HP Pump 1 Disabled.'; 	AlarmFlag[i] := TRUE;	i := i + 1; PumpAdver := TRUE; END_IF
+IF NOT MAIN.aSys_Enable[5] THEN AlarmList[i] := 'Engine HP Pump 2 Disabled.';	AlarmFlag[i] := TRUE;	i := i + 1; PumpAdver := TRUE; END_IF
+IF NOT MAIN.aSys_Enable[6] THEN AlarmList[i] := 'PowerPack 1 Disabled.'; 		AlarmFlag[i] := TRUE;	i := i + 1; PumpAdver := TRUE; END_IF
+IF NOT MAIN.aSys_Enable[7] THEN AlarmList[i] := 'PowerPack 2 Disabled.'; 		AlarmFlag[i] := TRUE;	i := i + 1; PumpAdver := TRUE; END_IF
+(*Engine Enable*)
+IF NOT MAIN.aSys_Enable[8] THEN AlarmList[i] := 'Engine Disabled.'; 			AlarmFlag[i] := TRUE;	i := i + 1; EngAdver := TRUE; END_IF
+IF NOT MAIN.aSys_Enable[9] THEN AlarmList[i] := 'Propulsion Disabled.'; 		AlarmFlag[i] := TRUE; 	i := i + 1; EngAdver := TRUE; END_IF
+(*HP Function Enable*)
+IF NOT MAIN.aHP_Enable[ 1] THEN AlarmList[i] := 'TackPort Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[ 2] THEN AlarmList[i] := 'TackStbd Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[ 3] THEN AlarmList[i] := 'J5 Disabled.';					AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[ 4] THEN AlarmList[i] := 'J4 Disabled.';					AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[ 5] THEN AlarmList[i] := 'Forastay Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[ 6] THEN AlarmList[i] := 'J2 Disabled.';					AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[ 7] THEN AlarmList[i] := 'JibInOut Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[ 8] THEN AlarmList[i] := 'JibUpDw Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+(*IF NOT MAIN.aHP_Enable[ 9] THEN AlarmList[i] := 'Vang Disabled.';				AlarmFlag[i] := TRUE;	i := i + 1; END_IF*)
+IF NOT MAIN.aHP_Enable[10] THEN AlarmList[i] := 'PropUpDW Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[11] THEN AlarmList[i] := 'TrimTab Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[12] THEN AlarmList[i] := 'Runner Disabled.';				AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[13] THEN AlarmList[i] := 'Checkstay Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[14] THEN AlarmList[i] := 'Innerstay Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[15] THEN AlarmList[i] := 'Outhaul Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[16] THEN AlarmList[i] := 'MainCunn Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1;	END_IF
+(*IF NOT MAIN.aHP_Enable[17] THEN AlarmList[i] := 'BackstayPort Disabled.';		AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aHP_Enable[18] THEN AlarmList[i] := 'BackstayStbd Disabled.';		AlarmFlag[i] := TRUE;	i := i + 1; END_IF*)
+IF NOT MAIN.aHP_Enable[19] THEN AlarmList[i] := 'WaterBallast Disabled.';		AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+(*LP Function Enable*)
+IF NOT MAIN.aLP_Enable[ 4] THEN AlarmList[i] := 'Stbd Primary Winch 1202 Disabled.';	AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[ 5] THEN AlarmList[i] := 'Stbd Pit Winch 1204 Disabled.';		AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[ 6] THEN AlarmList[i] := 'Main Winch 1206 Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[ 7] THEN AlarmList[i] := 'Port Runner Winch 1208 Disabled.';		AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[ 8] THEN AlarmList[i] := 'Port Primary Winch 1210 Disabled.';	AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[ 9] THEN AlarmList[i] := 'Port Secondary Winch 1212 Disabled.';	AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[10] THEN AlarmList[i] := 'Port Pit Winch 1214 Disabled.';		AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[11] THEN AlarmList[i] := 'DGBD Disabled.';						AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+
+IF NOT MAIN.aLP_Enable[13] THEN AlarmList[i] := 'Keel Disabled.';						AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[14] THEN AlarmList[i] := 'Stbd Runner Winch 1602 Disabled.';		AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[15] THEN AlarmList[i] := 'Stbd Secondary Winch 1604 Disabled.';	AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[16] THEN AlarmList[i] := 'Traveller Disabled.';					AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[17] THEN AlarmList[i] := 'BowThruster Disabled.';				AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+IF NOT MAIN.aLP_Enable[18] THEN AlarmList[i] := 'BowThrusterUpDw Disabled.';			AlarmFlag[i] := TRUE;	i := i + 1; END_IF
+
+(*ENGINE Forced Values*)
+IF ENGINE.Alarm3 <> ''		THEN AlarmList[i] := ENGINE.Alarm3;        			AlarmFlag[i] := TRUE; 	i := i + 1; EngAdver := TRUE; END_IF
+
+(*WATER BALLAST*)
+IF MAIN.fbWB.Error > 0 		THEN AlarmList[i] := CONCAT('Water Ballast Error: ', WORD_TO_STRING(MAIN.fbWB.Error)); AlarmFlag[i] := FALSE; i := i + 1; END_IF
+
+(*COPY TO VISU LIST*)
+FOR j := 1 TO ALARMS_ARRAY_SIZE BY 1 DO
+
+	IF AlarmArray[j] <> 0 THEN
+
+		IF AlarmArray[j]^.Adver AND i < ALARMS_LIST_SIZE THEN
+			AlarmList[i] := CONCAT( AlarmArray[j]^.TimeInit, ' - ');
+			AlarmList[i] := CONCAT( AlarmList[i], AlarmArray[j]^.Text);
+
+			IF AlarmArray[j]^.Alarm THEN
+				AlarmList[i] := CONCAT( AlarmList[i], ' - ' );
+				AlarmList[i] := CONCAT( AlarmList[i], REAL_TO_STRING(REAL_TO_INT(AlarmArray[j]^.AlLen * 10.0) / 10.0) );
+				AlarmList[i] := CONCAT( AlarmList[i], 's' );
+
+			ELSE
+				AlarmList[i] := CONCAT( AlarmList[i], ' - ' );
+				AlarmList[i] := CONCAT( AlarmList[i], WORD_TO_STRING(AlarmArray[j]^.AlCnt) );
+				AlarmList[i] := CONCAT( AlarmList[i], ' times' );
+
+			END_IF
+
+			AlarmFlag[i] := AlarmArray[j]^.Alarm;
+			i := i + 1;
+
+		END_IF
+	END_IF
+END_FOR
+
+(*BUZZER*)
+SF100x_Mute := SF100x_Mute AND (SF1003.Alarm.Alarm OR SF1004.Alarm.Alarm);
+
+Buzzer := Buzzer
+	OR MAIN.fbDE601.Alarm.Alarm
+	OR NOT SF100x_Mute AND (SF1003.Alarm.Alarm OR SF1004.Alarm.Alarm);
+
+Adver  := i > 1;(* OR fbUdpSend.bError;*)
+
+(*Clear unused alarm string*)
+FOR i := i TO ALARMS_LIST_SIZE BY 1 DO
+	AlarmList[i] := '';
+	AlarmFlag[i] := FALSE;
+END_FOR
+
+Buzzer := PARAMS.Loaded AND( Buzzer OR TANK.Buzzer OR POWERPACK.Buzzer OR ENGINE.Buzzer );
+
+(*UDP STREAMING*)
+IF TOFARO.bCloseAll THEN
+	fbUdpSend( bEnable:= FALSE );
+END_IF
+
+(*Reset Flag*)
+fbUdpSend(
+	bEnable:= TRUE,
+	bFlag  := FALSE
+);
+
+IF fbUDPSend.eStep = UDP_STATE_IDLE AND fbUDPSend.bCreated THEN
+	wBufPos := 0;
+
+	FOR j := 1 TO ALARMS_ARRAY_SIZE BY 1 DO
+
+		IF AlarmArray[j] <> 0 THEN
+
+			IF AlarmArray[j]^.AlInit THEN
+				AlarmArray[j]^.AlInit := FALSE;
+
+				F_ADD_STRINGX2_TO_BUFFER( S1:= AlarmArray[j]^.TimeInit, S2:= '$t1$t'  , wSize := UDP_BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+				F_ADD_STRINGX2_TO_BUFFER( S1:= AlarmArray[j]^.Text,     S2:= '$t0$r$n', wSize := UDP_BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+				fbUdpSend.bFlag := TRUE;
+			END_IF
+
+			IF AlarmArray[j]^.AlEnd THEN
+				AlarmArray[j]^.AlEnd := FALSE;
+
+				F_ADD_STRINGX2_TO_BUFFER( S1:= AlarmArray[j]^.TimeEnd, 				 S2:= '$t0$t', wSize := UDP_BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+				F_ADD_STRINGX2_TO_BUFFER( S1:= AlarmArray[j]^.Text,    				 S2:= '$t'   , wSize := UDP_BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+				F_ADD_STRINGX2_TO_BUFFER( S1:= REAL_TO_STRING(AlarmArray[j]^.AlLen), S2:= '$r$n' , wSize := UDP_BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+				fbUdpSend.bFlag := TRUE;
+			END_IF
+
+		END_IF
+	END_FOR
+
+	fbUdpSend(
+		bEnable    := TRUE,
+		sRemoteHost:= PARAMS.sUDPAlarmsHost,
+		nRemotePort:= PARAMS.nUDPAlarmsPort,
+		pBuffer    := ADR(aBuffer),
+		wBufLen    := wBufPos,
+	);
+END_IF
+END_PROGRAM

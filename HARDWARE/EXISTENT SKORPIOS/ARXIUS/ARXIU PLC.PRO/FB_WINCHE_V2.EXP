@@ -1,0 +1,379 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_WINCHE_V2
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	Perc : REAL;
+
+	IN_1 : ARRAY[1..4] OF BOOL;
+	IN_2 : ARRAY[1..4] OF BOOL;
+	IN_3 : BOOL;
+
+	Override : BOOL := FALSE;
+
+END_VAR
+VAR_IN_OUT
+	P_A : ST_SENSOR_BAR;
+	P_B : ST_SENSOR_BAR;
+	CFG : ST_WINCHE_CFG;
+	RAMP: ST_WINCHE_RAMP_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_TWC : INT;
+	OUT_LP  : BYTE;
+END_VAR
+VAR
+	State : WORD;
+
+	IN_SelA : REAL;
+	IN_SelB : REAL;
+	IN_MaxA : REAL;
+	IN_MaxB : REAL;
+
+	IN_Hmi_1 : BOOL;
+	IN_Hmi_2 : BOOL;
+
+	SI_A : ARRAY[1..5] OF FB_SMART_INPUT;
+	SI_B : ARRAY[1..5] OF FB_SMART_INPUT;
+
+	EventA : EN_SMART_INPUT_STATE;
+	EventB : EN_SMART_INPUT_STATE;
+
+	Spd_Tgt  : REAL;
+	SoftStop : BOOL;
+	Boost    : BOOL;
+
+	CyclCnt : REAL;
+	TimeOut : BOOL;
+
+	IsIN_3     : BOOL;
+	IsIN_3_Cnt : REAL;
+
+	SpdA : INT;
+	SpdB : INT;
+	Spd1 : STRING;
+	Spd2 : STRING;
+	Out_1: BOOL;
+	Out_2: BOOL;
+
+	ToFaroInput  : REAL;
+	ToFaroOutput : REAL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF IN_3 THEN
+	IsIN_3     := TRUE;
+	IsIN_3_Cnt := 0;
+ELSE
+	IF IsIN_3_Cnt > 0.25 THEN
+		IsIN_3 := FALSE;
+	ELSE
+		IsIN_3_Cnt := IsIN_3_Cnt + CFG.Cycle;
+	END_IF
+END_IF
+
+
+IF Cfg.A_Spd1 THEN
+	SpdA := 1;
+	SpdB := 2;
+	Spd1 := 'A';
+	Spd2 := 'B';
+
+	SI_A[1](In:= IN_1[1], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[2](In:= IN_1[2], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[3](In:= IN_1[3], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[4](In:= IN_1[4], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[5](In:= IN_Hmi_1, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+
+	SI_B[1](In:= IN_2[1], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[2](In:= IN_2[2], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[3](In:= IN_2[3], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[4](In:= IN_2[4], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[5](In:= IN_Hmi_2, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+	IF    SI_A[1].Event <> NONE THEN EventA := SI_A[1].Event;
+	ELSIF SI_A[2].Event <> NONE THEN EventA := SI_A[2].Event;
+	ELSIF SI_A[3].Event <> NONE THEN EventA := SI_A[3].Event;
+	ELSIF SI_A[4].Event <> NONE THEN EventA := SI_A[4].Event;
+	ELSIF SI_A[5].Event <> NONE THEN EventA := SI_A[5].Event;
+	ELSE							 EventA := NONE;
+	END_IF
+
+	IF    SI_B[1].Event <> NONE THEN EventB := SI_B[1].Event;
+	ELSIF SI_B[2].Event <> NONE THEN EventB := SI_B[2].Event;
+	ELSIF SI_B[3].Event <> NONE THEN EventB := SI_B[3].Event;
+	ELSIF SI_B[4].Event <> NONE THEN EventB := SI_B[4].Event;
+	ELSIF SI_B[5].Event <> NONE THEN EventB := SI_B[5].Event;
+	ELSE							 EventB := NONE;
+	END_IF
+
+	IF IsIN_3 THEN
+		IN_SelA := CFG.Spd3[1];
+		IN_MaxA := CFG.Spd3[7];
+
+		P_A.MaxBar := CFG.P3_Max;
+	ELSE
+		IN_SelA := CFG.Spd1[1];
+		IN_MaxA := CFG.Spd1[7];
+
+		P_A.MaxBar := CFG.P1_Max;
+	END_IF
+
+	IN_SelB := CFG.Spd2[1];
+	IN_MaxB := CFG.Spd2[7];
+
+	P_B.MaxBar := CFG.P2_Max;
+
+ELSE
+	SpdA := 2;
+	SpdB := 1;
+	Spd1 := 'B';
+	Spd2 := 'A';
+
+	SI_A[1](In:= IN_2[1], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[2](In:= IN_2[2], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[3](In:= IN_2[3], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[4](In:= IN_2[4], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_A[5](In:= IN_Hmi_2, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+	SI_B[1](In:= IN_1[1], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[2](In:= IN_1[2], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[3](In:= IN_1[3], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[4](In:= IN_1[4], T_Cont:= T#0ms, T_DClk:= T#0ms);
+	SI_B[5](In:= IN_Hmi_1, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+	IF    SI_A[1].Event <> NONE THEN EventA := SI_A[1].Event;
+	ELSIF SI_A[2].Event <> NONE THEN EventA := SI_A[2].Event;
+	ELSIF SI_A[3].Event <> NONE THEN EventA := SI_A[3].Event;
+	ELSIF SI_A[4].Event <> NONE THEN EventA := SI_A[4].Event;
+	ELSIF SI_A[5].Event <> NONE THEN EventA := SI_A[5].Event;
+	ELSE							 EventA := NONE;
+	END_IF
+
+	IF    SI_B[1].Event <> NONE THEN EventB := SI_B[1].Event;
+	ELSIF SI_B[2].Event <> NONE THEN EventB := SI_B[2].Event;
+	ELSIF SI_B[3].Event <> NONE THEN EventB := SI_B[3].Event;
+	ELSIF SI_B[4].Event <> NONE THEN EventB := SI_B[4].Event;
+	ELSIF SI_B[5].Event <> NONE THEN EventB := SI_B[5].Event;
+	ELSE							 EventB := NONE;
+	END_IF
+
+	IF IsIN_3 THEN
+		IN_SelB := CFG.Spd3[1];
+		IN_MaxB := CFG.Spd3[7];
+
+		P_B.MaxBar := CFG.P3_Max;
+	ELSE
+		IN_SelB := CFG.Spd1[1];
+		IN_MaxB := CFG.Spd1[7];
+
+		P_B.MaxBar := CFG.P1_Max;
+	END_IF
+
+	IN_SelA := CFG.Spd2[1];
+	IN_MaxA := CFG.Spd2[7];
+
+	P_A.MaxBar := CFG.P2_Max;
+
+END_IF
+(*
+IF    IN_SpdA < 1 THEN IN_SpdA := 1;
+ELSIF IN_SpdA > 7 THEN IN_SpdA := 7;
+END_IF
+
+IF    IN_SpdB < 1 THEN IN_SpdB := 1;
+ELSIF IN_SpdB > 7 THEN IN_SpdB := 7;
+END_IF
+*)
+ToFaroInput := 0.0;
+IF IN_1[1] OR IN_1[2] OR IN_1[3] OR IN_1[4] OR IN_Hmi_1 THEN ToFaroInput := 1.0;               END_IF
+IF IN_2[1] OR IN_2[2] OR IN_2[3] OR IN_2[4] OR IN_Hmi_2 THEN ToFaroInput := 2.0 + ToFaroInput; END_IF
+
+IF NOT Enable THEN
+	OUT_TWC := 0;
+	OUT_LP  := 0;
+
+	CyclCnt := 0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR (CFG.TimeMax > 0 AND CyclCnt > CFG.TimeMax);
+CyclCnt := CyclCnt + CFG.Cycle;
+
+CASE State OF
+0: (*INIT*)
+	OUT_TWC := 0;
+	CyclCnt := 0;
+
+	SoftStop := FALSE;
+	Boost    := FALSE;
+
+	IF Ready THEN
+		IF EventA = INIT_CONTINUOUS AND NOT P_A.AlMax THEN
+			Spd_Tgt := RAMP.Spd_Min;
+			OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+			TimeOut := FALSE;
+			State   := 10;
+
+		ELSIF EventB = INIT_CONTINUOUS AND NOT P_B.AlMax THEN
+			Spd_Tgt := RAMP.Spd_Min;
+			OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+			TimeOut := FALSE;
+			State   := 20;
+
+		END_IF
+	END_IF
+
+
+10: (*A*)
+	IF TimeOut OR P_A.AlMax THEN
+		OUT_TWC := 0;
+		State   := 0;
+
+	ELSE
+		IF EventA = INIT_CONTINUOUS THEN
+			SoftStop := FALSE;
+			CyclCnt  := 0;
+		ELSIF EventA = END_CONTINUOUS THEN
+			SoftStop := TRUE;
+		END_IF
+
+		IF SoftStop THEN
+			IF EventB = INIT_CONTINUOUS THEN
+				Spd_Tgt := RAMP.Spd_Min;
+				OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+				TimeOut := FALSE;
+				State   := 20;
+
+			ELSE
+				Spd_Tgt := Spd_Tgt - RAMP.Spd_Dec * CFG.Cycle;
+				Spd_Tgt := MIN(Spd_Tgt, IN_SelA     );
+				Spd_Tgt := MAX(Spd_Tgt, RAMP.Spd_Min);
+
+				IF Spd_Tgt = RAMP.Spd_Min OR RAMP.Spd_Dec <= 0
+				THEN OUT_TWC := 0;
+				ELSE OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+				END_IF
+
+			END_IF
+
+		ELSE
+			IF EventB = INIT_CONTINUOUS OR Override THEN
+				Boost := TRUE;
+			ELSIF EventB = END_CONTINUOUS THEN
+				Boost := FALSE;
+			END_IF
+
+			Spd_Tgt := Spd_Tgt + RAMP.Spd_Inc * CFG.Cycle;
+			IF Boost
+			THEN Spd_Tgt := MIN(Spd_Tgt, IN_MaxA );
+			ELSE Spd_Tgt := MIN(Spd_Tgt, IN_SelA );
+			END_IF
+			Spd_Tgt := MAX(Spd_Tgt, RAMP.Spd_Min);
+
+			OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF OUT_TWC = 0 THEN
+			State    := 0; (*Next State*)
+		END_IF
+
+		(*OUT_TWC := REAL_TO_INT(CFG.SpdA[IN_SpdA] * Perc * 10.0);*)
+
+	END_IF
+
+20: (*B*)
+	IF TimeOut OR P_B.AlMax THEN
+		OUT_TWC := 0;
+		State   := 0;
+
+	ELSE
+		IF EventB = INIT_CONTINUOUS THEN
+			SoftStop := FALSE;
+			CyclCnt  := 0;
+		ELSIF EventB = END_CONTINUOUS THEN
+			SoftStop := TRUE;
+		END_IF
+
+		IF SoftStop THEN
+			IF EventA = INIT_CONTINUOUS THEN
+				Spd_Tgt := RAMP.Spd_Min;
+				OUT_TWC := REAL_TO_INT(Spd_Tgt * Perc * 10.0);
+				TimeOut := FALSE;
+				State   := 10;
+
+			ELSE
+				Spd_Tgt := Spd_Tgt - RAMP.Spd_Dec * CFG.Cycle;
+				Spd_Tgt := MIN(Spd_Tgt, IN_SelB     );
+				Spd_Tgt := MAX(Spd_Tgt, RAMP.Spd_Min);
+	
+				IF Spd_Tgt = RAMP.Spd_Min OR RAMP.Spd_Dec <= 0
+				THEN OUT_TWC := 0;
+				ELSE OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+				END_IF
+
+			END_IF
+
+		ELSE
+			IF EventA = INIT_CONTINUOUS OR Override THEN
+				Boost := TRUE;
+			ELSIF EventA = END_CONTINUOUS THEN
+				Boost := FALSE;
+			END_IF
+
+			Spd_Tgt := Spd_Tgt + RAMP.Spd_Inc * CFG.Cycle;
+			IF Boost
+			THEN Spd_Tgt := MIN(Spd_Tgt, IN_MaxB );
+			ELSE Spd_Tgt := MIN(Spd_Tgt, IN_SelB );
+			END_IF
+			Spd_Tgt := MAX(Spd_Tgt, RAMP.Spd_Min);
+
+			OUT_TWC := REAL_TO_INT(-Spd_Tgt * Perc * 10.0);
+
+		END_IF
+
+		IF OUT_TWC = 0 THEN
+			State    := 0; (*Next State*)
+		END_IF
+
+		(*OUT_TWC := REAL_TO_INT(-CFG.SpdB[IN_SpdB] * Perc * 10.0);*)
+
+	END_IF
+
+END_CASE
+
+IF Cfg.A_Spd1 THEN
+	Out_1 := OUT_TWC > 0;
+	Out_2 := OUT_TWC < 0;
+ELSE
+	Out_1 := OUT_TWC < 0;
+	Out_2 := OUT_TWC > 0;
+END_IF
+
+IF OUT_TWC = 0 THEN
+	OUT_LP := 0;
+ELSE
+	OUT_LP  := 1; (*How Many*)
+END_IF
+
+(*Gear to FARO*)
+IF Out_1 THEN
+	IF IsIN_3
+	THEN ToFaroOutput := 1;
+	ELSE ToFaroOutput := 3;
+	END_IF
+ELSIF Out_2 THEN
+	ToFaroOutput := 2;
+ELSE
+	ToFaroOutput := 0;
+END_IF
+
+END_FUNCTION_BLOCK

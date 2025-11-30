@@ -1,0 +1,748 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_BOARD
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	EngReady : BOOL;
+	Latching : BOOL;
+
+	Keel_Pos : REAL;
+	Keel_Err : BOOL;
+
+	IN_P : ARRAY[1..2] OF BOOL;
+	IN_S : ARRAY[1..2] OF BOOL;
+	IN_C : ARRAY[1..2] OF BOOL;
+
+END_VAR
+VAR_IN_OUT
+	PA_P : ST_SENSOR_BAR;
+	PA_S : ST_SENSOR_BAR;
+	PB_P : ST_SENSOR_BAR;
+	PB_S : ST_SENSOR_BAR;
+
+	LS_P : ST_SENSOR_POS;
+	LS_S : ST_SENSOR_POS;
+
+	SF_P : ST_SENSOR_SWITCH;
+	SF_S : ST_SENSOR_SWITCH;
+
+	CFG : ST_BOARD_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_TWC_P : INT;
+	OUT_TWC_S : INT;
+
+	OUT_EVB_P : BOOL;
+	OUT_EVB_S : BOOL;
+
+	OUT_EVT_P : BOOL;
+	OUT_EVT_S : BOOL;
+
+	OUT_LP : BYTE;
+
+END_VAR
+VAR
+	State   : WORD;
+
+	IN_Hmi_P : BOOL;
+	IN_Hmi_S : BOOL;
+	IN_Hmi_C : BOOL;
+
+	IN_Hmi_P_In  : BOOL;
+	IN_Hmi_S_In  : BOOL;
+	IN_Hmi_P_Out : BOOL;
+	IN_Hmi_S_Out : BOOL;
+
+	IN_Hmi_InPerc  : INT := 20;
+	IN_Hmi_OutPerc : INT := 20;
+
+	SI_P : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_S : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_C : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	Event_P : EN_SMART_INPUT_STATE;
+	Event_S : EN_SMART_INPUT_STATE;
+	Event_C : EN_SMART_INPUT_STATE;
+
+	SI_P_In  : FB_SMART_INPUT;
+	SI_S_In  : FB_SMART_INPUT;
+	SI_P_Out : FB_SMART_INPUT;
+	SI_S_Out : FB_SMART_INPUT;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+	P_Alarm: BOOL;
+
+	TWC_P_Inc : REAL;
+	TWC_S_Inc : REAL;
+
+
+	LS_Err : BOOL;
+
+	P_Bypass  : BOOL;
+
+	Slow : BOOL;
+	LS_Dif : REAL;
+
+	LS_P_Out : BOOL;
+	LS_S_Out : BOOL;
+	LS_P_In  : BOOL;
+	LS_S_In  : BOOL;
+	LS_P_Mid : BOOL;
+	LS_S_Mid : BOOL;
+
+	LS_Safe_P_Out : BOOL;
+	LS_Safe_S_Out : BOOL;
+	LS_Safe_P_In  : BOOL;
+	LS_Safe_S_In  : BOOL;
+
+
+	MOVING_P : BOOL;
+	MOVING_C : BOOL;
+	MOVING_S : BOOL;
+
+	MOVING_P_In  : BOOL;
+	MOVING_P_Out : BOOL;
+	MOVING_S_In  : BOOL;
+	MOVING_S_Out : BOOL;
+
+	Out_IN  : BOOL;
+(*	Out_IN1 : BOOL;
+	Out_IN2 : BOOL;
+	Out_IN3 : BOOL;*)
+	Out_OUT : BOOL;
+
+
+	DeltaP  : REAL;
+	DeltaS  : REAL;
+	DeltaPS : REAL;
+
+	SoftStop: BOOL;
+
+	Hyst_Cnt : REAL;
+	Hyst_ON  : BOOL;
+
+END_VAR
+VAR PERSISTENT
+	Manual AT %Q*: BOOL;
+
+	Hatch_Enable AT %Q*: BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+P_Alarm := PA_P.AlMax OR PA_S.AlMax OR PB_P.AlMax OR PB_S.AlMax;
+LS_Err  := LS_P.Err OR LS_S.Err;
+
+LS_P_In  := NOT LS_P.Err AND LS_P.Pos > CFG.TgtLS_P_In  - CFG.LS_DB;
+LS_P_Out := NOT LS_P.Err AND LS_P.Pos < CFG.TgtLS_P_Out + CFG.LS_DB;
+LS_P_Mid := NOT LS_P.Err AND LS_P.Pos > CFG.TgtLS_P_Mid - CFG.LS_DB AND LS_P.Pos < CFG.TgtLS_P_Mid + CFG.LS_DB;
+
+LS_S_In  := NOT LS_S.Err AND LS_S.Pos > CFG.TgtLS_S_In  - CFG.LS_DB;
+LS_S_Out := NOT LS_S.Err AND LS_S.Pos < CFG.TgtLS_S_Out + CFG.LS_DB;
+LS_S_Mid := NOT LS_S.Err AND LS_S.Pos > CFG.TgtLS_S_Mid - CFG.LS_DB AND LS_S.Pos < CFG.TgtLS_S_Mid + CFG.LS_DB;
+
+LS_Safe_P_In  := NOT LS_P.Err AND LS_P.Pos > CFG.TgtLS_P_Safe_In  - CFG.LS_DB;
+LS_Safe_P_Out := NOT LS_P.Err AND LS_P.Pos < CFG.TgtLS_P_Safe_Out + CFG.LS_DB;
+
+LS_Safe_S_In  := NOT LS_S.Err AND LS_S.Pos > CFG.TgtLS_S_Safe_In  - CFG.LS_DB;
+LS_Safe_S_Out := NOT LS_S.Err AND LS_S.Pos < CFG.TgtLS_S_Safe_Out + CFG.LS_DB;
+
+SI_P[1](In:= IN_P[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P[2](In:= IN_P[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P[3](In:= IN_Hmi_P, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_S[1](In:= IN_S[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S[2](In:= IN_S[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S[3](In:= IN_Hmi_S, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_C[1](In:= IN_C[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_C[2](In:= IN_C[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_C[3](In:= IN_Hmi_C, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_P_In (In:= IN_Hmi_P_In,  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_In (In:= IN_Hmi_S_In,  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_Out(In:= IN_Hmi_P_Out, T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_Out(In:= IN_Hmi_S_Out, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	OUT_TWC_P := 0;
+	OUT_TWC_S := 0;
+
+	OUT_EVB_P := FALSE;
+	OUT_EVB_S := FALSE;
+
+	OUT_EVT_P := FALSE;
+	OUT_EVT_S := FALSE;
+
+	OUT_LP := 0;
+
+	MOVING_P := FALSE;
+	MOVING_C := FALSE;
+	MOVING_S := FALSE;
+
+	MOVING_P_In  := FALSE;
+	MOVING_P_Out := FALSE;
+	MOVING_S_In  := FALSE;
+	MOVING_S_Out := FALSE;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );
+TimeCnt := TimeCnt + CFG.Cycle;
+
+IF    SI_P[1].Event <> NONE THEN Event_P := SI_P[1].Event;
+ELSIF SI_P[2].Event <> NONE THEN Event_P := SI_P[2].Event;
+ELSIF SI_P[3].Event <> NONE THEN Event_P := SI_P[3].Event;
+ELSE							 Event_P := NONE;
+END_IF
+
+IF    SI_S[1].Event <> NONE THEN Event_S := SI_S[1].Event;
+ELSIF SI_S[2].Event <> NONE THEN Event_S := SI_S[2].Event;
+ELSIF SI_S[3].Event <> NONE THEN Event_S := SI_S[3].Event;
+ELSE							 Event_S := NONE;
+END_IF
+
+IF    SI_C[1].Event <> NONE THEN Event_C := SI_C[1].Event;
+ELSIF SI_C[2].Event <> NONE THEN Event_C := SI_C[2].Event;
+ELSIF SI_C[3].Event <> NONE THEN Event_C := SI_C[3].Event;
+ELSE							 Event_C := NONE;
+END_IF
+
+(*Working States*)
+CASE State OF
+0:
+	OUT_TWC_P := 0;
+	OUT_TWC_S := 0;
+
+	OUT_EVB_P := FALSE;
+	OUT_EVB_S := FALSE;
+
+	OUT_EVT_P := FALSE;
+	OUT_EVT_S := FALSE;
+
+	OUT_LP := 0;
+
+	MOVING_P_In  := FALSE;
+	MOVING_P_Out := FALSE;
+	MOVING_S_In  := FALSE;
+	MOVING_S_Out := FALSE;
+
+	MOVING_P := FALSE;
+	MOVING_C := FALSE;
+	MOVING_S := FALSE;
+
+	SoftStop := FALSE;
+	Hyst_cnt := CFG.P_Hyst_TM + CFG.Cycle;
+
+	IF Manual AND Ready THEN
+		(*Manual Port IN -> Cylinder Out*)
+		IF SI_P_In.Event = INIT_CONTINUOUS AND NOT SF_P.Alarm.Alarm THEN
+			MOVING_P_In := TRUE;
+			TWC_P_Inc   := -CFG.EVP_In_P_Min;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 100;   (*Next State*)
+
+		(*Manual Port OUT -> Cylinder In*)
+		ELSIF SI_P_Out.Event = INIT_CONTINUOUS THEN
+			MOVING_P_Out := TRUE;
+			TWC_P_Inc    := CFG.EVP_Out_P_Min;
+
+			TimeOut  := FALSE; (*Reset TimeOut Error*)
+			State    := 200;   (*Next State*)
+
+		(*Manual Stbd IN -> Cylinder Out*)
+		ELSIF SI_S_In.Event = INIT_CONTINUOUS AND NOT SF_S.Alarm.Alarm THEN
+			MOVING_S_In := TRUE;
+			TWC_S_Inc   := -CFG.EVP_In_S_Min;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 300;   (*Next State*)
+
+		(*Manual Stbd OUT -> Cylinder In*)
+		ELSIF SI_S_Out.Event = INIT_CONTINUOUS THEN
+			MOVING_S_Out := TRUE;
+			TWC_S_Inc    := CFG.EVP_Out_S_Min;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 400;   (*Next State*)
+
+		END_IF
+
+	ELSIF Ready AND NOT LS_Err THEN
+
+		IF Event_P = INIT_CONTINUOUS THEN
+
+			IF LS_P_Out AND LS_S_In AND NOT SF_P.Alarm.Alarm THEN
+				MOVING_S  := TRUE;
+				TWC_P_Inc := -CFG.EVP_In_P_Min;  (*Port IN  -> Cylinder Out*)
+				TWC_S_Inc :=  CFG.EVP_Out_S_Min; (*Stbd OUT -> Cylinder In*)
+
+				TimeOut := FALSE; (*Reset TimeOut Error*)
+				State   := 6000;  (*Retracted Port*)
+
+			ELSIF NOT SF_S.Alarm.Alarm THEN
+				MOVING_P  := TRUE;
+				TWC_P_Inc :=  CFG.EVP_Out_P_Min; (*Port OUT -> Cylinder In*)
+				TWC_S_Inc := -CFG.EVP_In_S_Min;  (*Stbd IN  -> Cylinder Out*)
+
+				TimeOut := FALSE; (*Reset TimeOut Error*)
+				State   := 1000;  (*Full Port*)
+			END_IF
+
+		ELSIF Event_S = INIT_CONTINUOUS THEN
+
+			IF LS_P_In AND LS_S_Out AND NOT SF_S.Alarm.Alarm THEN
+				MOVING_P  := TRUE;
+				TWC_P_Inc :=  CFG.EVP_Out_P_Min; (*Port OUT -> Cylinder In*)
+				TWC_S_Inc := -CFG.EVP_In_S_Min;  (*Stbd IN  -> Cylinder Out*)
+
+				TimeOut := FALSE; (*Reset TimeOut Error*)
+				State   := 5000;  (*Retracted Stbd*)
+
+			ELSIF NOT SF_P.Alarm.Alarm THEN
+				MOVING_S  := TRUE;
+				TWC_P_Inc := -CFG.EVP_In_P_Min;  (*Port IN  -> Cylinder Out*)
+				TWC_S_Inc :=  CFG.EVP_Out_S_Min; (*Stbd OUT -> Cylinder In*)
+
+				TimeOut := FALSE; (*Reset TimeOut Error*)
+				State   := 2000;  (*Full Stbd*)
+
+			END_IF
+
+		ELSIF Event_C = INIT_CONTINUOUS THEN
+			MOVING_C  := TRUE;
+
+			IF LS_P.Pos > CFG.TgtLS_P_Mid + CFG.LS_DB OR LS_S.Pos < CFG.TgtLS_S_Mid - CFG.LS_DB THEN
+				MOVING_P  := TRUE;
+				TWC_P_Inc :=  CFG.EVP_Out_P_Min;
+				TWC_S_Inc := -CFG.EVP_In_S_Min;
+
+				TimeOut := FALSE; (*Reset TimeOut Error*)
+				State   := 3000;  (*Next State*)
+
+			ELSIF LS_P.Pos < CFG.TgtLS_P_Mid - CFG.LS_DB OR LS_S.Pos > CFG.TgtLS_S_Mid + CFG.LS_DB THEN
+				MOVING_S  := TRUE;
+				TWC_P_Inc := -CFG.EVP_In_P_Min; (*Port IN -> Cylinder Out*)
+				TWC_S_Inc :=  CFG.EVP_Out_S_Min;
+
+				TimeOut := FALSE; (*Reset TimeOut Error*)
+				State   := 4000;  (*Next State*)
+
+			END_IF
+		END_IF
+	END_IF
+
+(*Manual Port IN -> Cylinder Out*)
+100:
+	IF SI_P_In.Event = END_CONTINUOUS OR SI_P_Out.Event = INIT_CONTINUOUS OR NOT Ready OR SF_P.Alarm.Alarm OR TimeOut OR P_Alarm THEN
+		OUT_TWC_P := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSE
+		TWC_P_Inc := MAX(MAX(TWC_P_Inc - CFG.EVP_In_Inc * CFG.Cycle, -IN_Hmi_InPerc), -CFG.EVP_In_P_Max);
+		OUT_TWC_P := REAL_TO_INT(TWC_P_Inc * 10.0);
+		OUT_LP    := 1;
+
+	END_IF
+
+(*Manual Port OUT -> Cylinder In*)
+200:
+	IF SI_P_Out.Event = END_CONTINUOUS OR SI_P_In.Event = INIT_CONTINUOUS OR NOT Ready OR TimeOut OR P_Alarm THEN
+		OUT_EVB_P := FALSE;
+		OUT_EVT_P := FALSE;
+		OUT_TWC_P := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSE
+		TWC_P_Inc := MIN(MIN(TWC_P_Inc + CFG.EVP_Out_Inc * CFG.Cycle, IN_Hmi_OutPerc), CFG.EVP_Out_P_Max);
+		OUT_EVB_P := TRUE;
+		OUT_EVT_P := TRUE;
+		OUT_TWC_P := REAL_TO_INT(TWC_P_Inc * 10.0);
+		OUT_LP    := 1;
+
+	END_IF
+
+(*Manual Stbd IN -> Cylinder Out*)
+300:
+	IF SI_S_In.Event = END_CONTINUOUS OR SI_S_Out.Event = INIT_CONTINUOUS OR NOT Ready OR SF_S.Alarm.Alarm OR TimeOut OR P_Alarm THEN
+		OUT_TWC_S := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSE
+		TWC_S_Inc := MAX(MAX(TWC_S_Inc - CFG.EVP_In_Inc * CFG.Cycle, -IN_Hmi_InPerc), -CFG.EVP_In_S_Max);
+		OUT_TWC_S := REAL_TO_INT(TWC_S_Inc * 10.0);
+		OUT_LP    := 1;
+
+	END_IF
+
+(*Manual Stbd OUT -> Cylinder In*)
+400:
+	IF SI_S_Out.Event = END_CONTINUOUS OR SI_S_In.Event = INIT_CONTINUOUS OR NOT Ready OR TimeOut OR P_Alarm THEN
+		OUT_EVB_S := FALSE;
+		OUT_EVT_S := FALSE;
+		OUT_TWC_S := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSE
+		TWC_S_Inc := MIN(MIN(TWC_S_Inc + CFG.EVP_Out_Inc * CFG.Cycle, IN_Hmi_OutPerc), CFG.EVP_Out_S_Max);
+		OUT_EVB_S := TRUE;
+		OUT_EVT_S := TRUE;
+		OUT_TWC_S := REAL_TO_INT(TWC_S_Inc * 10.0);
+		OUT_LP    := 1;
+
+	END_IF
+
+(*Moving to PORT*)
+(*Automatic/Momentary Port OUT -> Cylinder In*)
+(*Automatic/Momentary Stbd IN  -> Cylinder Out*)
+1000, 3000, 5000:
+
+	IF State = 3000 THEN
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_Mid; 		(*Positive*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_Mid; 		(*Negative*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	ELSIF State = 5000 THEN
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_InR;		(*Positive*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_OutR; 	(*Negative*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	ELSIF Keel_Err OR Keel_Pos > CFG.Keel_P_Max THEN
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_Safe_Out; (*Positive*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_Safe_In; 	(*Negative*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	ELSE
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_Out; 		(*Positive*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_In; 		(*Negative*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	END_IF
+
+	IF Manual OR NOT Ready OR SF_S.Alarm.Alarm OR LS_Err OR P_Alarm OR TimeOut THEN
+		OUT_EVB_P := FALSE;
+		OUT_EVT_P := FALSE;
+		OUT_TWC_P := 0;
+		OUT_TWC_S := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSIF DeltaP <= 0.0 AND DeltaS >= 0.0 THEN
+		OUT_EVB_P := FALSE;
+		OUT_EVT_P := FALSE;
+		OUT_TWC_P := 0;
+		OUT_TWC_S := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSE
+		(*Activate SoftStop*)
+		IF Event_P = INIT_CONTINUOUS OR Event_S = INIT_CONTINUOUS OR Event_C = INIT_CONTINUOUS
+		OR State = 1000 AND ((NOT EngReady OR NOT Latching) AND Event_P = END_CONTINUOUS)
+		OR State = 3000 AND ((NOT EngReady OR NOT Latching) AND Event_C = END_CONTINUOUS)
+		OR State = 5000 AND ((NOT EngReady OR NOT Latching) AND Event_S = END_CONTINUOUS)
+		THEN
+
+			IF SoftStop THEN
+				OUT_EVB_P := FALSE;
+				OUT_EVT_P := FALSE;
+				OUT_TWC_P := 0;
+				OUT_TWC_S := 0;
+				OUT_LP    := 0;
+				State     := 0;
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		(*Port OUT -> Cylinder In*)
+		IF SoftStop OR DeltaPS < -CFG.LS_Dif_Max THEN
+			TWC_P_Inc := TWC_P_Inc - CFG.EVP_Out_Dec * CFG.Cycle; 						(*Increment*)
+			TWC_P_Inc := MIN(TWC_P_Inc, CFG.EVP_Out_P_Max);								(*Max Value*)
+			TWC_P_Inc := MIN(TWC_P_Inc, CFG.EVP_Out_P_Min + DeltaP * CFG.EVP_Out_LS_K); (*Approx K*)
+			TWC_P_Inc := MAX(TWC_P_Inc, CFG.EVP_Out_P_Min); 							(*Min Value - Extra check*)
+
+			IF TWC_P_Inc = CFG.EVP_Out_P_Min OR CFG.EVP_Out_Dec <= 0 THEN
+				OUT_TWC_P := 0;
+				OUT_EVB_P := FALSE;
+			ELSE
+				OUT_TWC_P := REAL_TO_INT(TWC_P_Inc * 10.0);
+				OUT_EVB_P := TRUE;
+			END_IF
+
+			OUT_EVT_P := FALSE;
+
+		ELSIF DeltaP > 0.0 (*AND DeltaPS > -CFG.LS_Dif_Max*) THEN
+			TWC_P_Inc := TWC_P_Inc + CFG.EVP_Out_Inc * CFG.Cycle; 						(*Increment*)
+			TWC_P_Inc := MIN(TWC_P_Inc, CFG.EVP_Out_P_Max);								(*Max Value*)
+			TWC_P_Inc := MIN(TWC_P_Inc, CFG.EVP_Out_P_Min + DeltaP * CFG.EVP_Out_LS_K); (*Approx K*)
+
+			IF EngReady																	(*Delta K*)
+			THEN TWC_P_Inc := MIN(TWC_P_Inc, CFG.EVP_Out_P_Eng + DeltaPS * CFG.EVP_Out_EVP_K);
+			ELSE TWC_P_Inc := MIN(TWC_P_Inc, CFG.EVP_Out_P_PP  + DeltaPS * CFG.EVP_Out_EVP_K);
+			END_IF
+
+			TWC_P_Inc := MAX(TWC_P_Inc, CFG.EVP_Out_P_Min); 							(*Min Value - Extra check*)
+
+			OUT_TWC_P := REAL_TO_INT(TWC_P_Inc * 10.0);
+			OUT_EVB_P := TRUE;
+
+			IF Hyst_Cnt > CFG.P_Hyst_TM THEN
+				Hyst_ON := TRUE;
+			ELSE
+				Hyst_ON  := FALSE;
+				Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+			END_IF
+	
+			IF PB_P.Bar > CFG.P_Hyst_HP AND Hyst_ON OR PB_P.Err THEN
+				OUT_EVT_P := TRUE;
+				Hyst_cnt  := 0.0;
+			ELSIF PB_P.Bar < CFG.P_Hyst_LP AND Hyst_ON THEN
+				OUT_EVT_P := FALSE;
+				Hyst_cnt  := 0.0;
+			END_IF
+
+		ELSE
+			OUT_TWC_P := 0;
+			OUT_EVB_P := FALSE;
+			OUT_EVT_P := FALSE;
+		END_IF
+
+		(*Stbd IN  -> Cylinder Out*)
+		IF SoftStop OR DeltaPS > CFG.LS_Dif_Min THEN
+			TWC_S_Inc := TWC_S_Inc + CFG.EVP_In_Dec * CFG.Cycle; 						(*Increment*)
+			TWC_S_Inc := MAX(TWC_S_Inc, -CFG.EVP_In_S_Max); 							(*Max Value*)
+			TWC_S_Inc := MAX(TWC_S_Inc, -CFG.EVP_In_S_Min + DeltaS * CFG.EVP_In_LS_K); 	(*Approx K*)
+			TWC_S_Inc := MIN(TWC_S_Inc, -CFG.EVP_In_S_Min); 							(*Min Value - Extra check*)
+
+			IF TWC_S_Inc = -CFG.EVP_In_S_Min OR CFG.EVP_In_Dec <= 0
+			THEN OUT_TWC_S := 0;
+			ELSE OUT_TWC_S := REAL_TO_INT(TWC_S_Inc * 10.0);
+			END_IF
+
+		ELSIF DeltaS < 0.0 (*AND DeltaPS < CFG.LS_Dif_Min*) THEN
+			TWC_S_Inc := TWC_S_Inc - CFG.EVP_In_Inc * CFG.Cycle; 						(*Increment*)
+			TWC_S_Inc := MAX(TWC_S_Inc, -CFG.EVP_In_S_Max); 							(*Max Value*)
+			TWC_S_Inc := MAX(TWC_S_Inc, -CFG.EVP_In_S_Min + DeltaS * CFG.EVP_In_LS_K); 	(*Approx K*)
+
+			IF EngReady																	(*Delta K*)
+			THEN TWC_S_Inc := MAX(TWC_S_Inc, -CFG.EVP_In_S_Eng + DeltaPS * CFG.EVP_In_EVP_K);
+			ELSE TWC_S_Inc := MAX(TWC_S_Inc, -CFG.EVP_In_S_PP  + DeltaPS * CFG.EVP_In_EVP_K);
+			END_IF
+
+			TWC_S_Inc := MIN(TWC_S_Inc, -CFG.EVP_In_S_Min); 							(*Min Value - Extra check*)
+
+			OUT_TWC_S := REAL_TO_INT(TWC_S_Inc * 10.0);
+
+		ELSE
+			OUT_TWC_S := 0;
+
+		END_IF
+
+		OUT_LP := CFG.LP;
+
+		(*If both stopped go to Init State*)
+		IF OUT_TWC_P = 0 AND OUT_TWC_S = 0 THEN
+			OUT_EVB_P := FALSE;
+			OUT_EVT_P := FALSE;
+			OUT_TWC_P := 0;
+			OUT_TWC_S := 0;
+			OUT_LP    := 0;
+			State     := 0;
+
+		END_IF
+
+	END_IF
+
+
+(*Moving to STBD*)
+(*Automatic/Momentary Port IN  -> Cylinder Out*)
+(*Automatic/Momentary Stbd OUT -> Cylinder In*)
+2000, 4000, 6000:
+
+	IF State = 4000 THEN
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_Mid; 		(*Negative*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_Mid; 		(*Positive*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	ELSIF State = 6000 THEN
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_OutR; 	(*Negative*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_InR; 		(*Positive*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	ELSIF Keel_Err OR Keel_Pos < CFG.Keel_S_Min THEN
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_Safe_In; 	(*Negative*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_Safe_Out; (*Positive*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	ELSE
+		DeltaP  := LS_P.Pos - CFG.TgtLS_P_In; 		(*Negative*)
+		DeltaS  := LS_S.Pos - CFG.TgtLS_S_Out; 		(*Positive*)
+		DeltaPS := DeltaP + DeltaS + CFG.LS_Dif_Tgt;(*Positive -> Out Late*)
+
+	END_IF
+
+	IF Hyst_Cnt > CFG.P_Hyst_TM THEN
+		Hyst_ON := TRUE;
+	ELSE
+		Hyst_ON  := FALSE;
+		Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+	END_IF
+
+	IF Manual OR NOT Ready OR SF_P.Alarm.Alarm OR LS_Err OR P_Alarm OR TimeOut THEN
+		OUT_EVB_S := FALSE;
+		OUT_EVT_S := FALSE;
+		OUT_TWC_P := 0;
+		OUT_TWC_S := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSIF DeltaP >= 0.0 AND DeltaS <= 0.0 THEN
+		OUT_EVB_S := FALSE;
+		OUT_EVT_S := FALSE;
+		OUT_TWC_P := 0;
+		OUT_TWC_S := 0;
+		OUT_LP    := 0;
+		State     := 0;
+
+	ELSE
+		(*Activate SoftStop*)
+		IF Event_P = INIT_CONTINUOUS OR Event_S = INIT_CONTINUOUS OR Event_C = INIT_CONTINUOUS
+		OR State = 2000 AND ((NOT EngReady OR NOT Latching) AND Event_S = END_CONTINUOUS)
+		OR State = 4000 AND ((NOT EngReady OR NOT Latching) AND Event_C = END_CONTINUOUS)
+		OR State = 6000 AND ((NOT EngReady OR NOT Latching) AND Event_P = END_CONTINUOUS)
+		THEN
+			IF SoftStop THEN
+				OUT_EVB_S := FALSE;
+				OUT_EVT_S := FALSE;
+				OUT_TWC_P := 0;
+				OUT_TWC_S := 0;
+				OUT_LP    := 0;
+				State     := 0;
+				RETURN;
+
+			ELSE
+				SoftStop := TRUE;
+
+			END_IF
+		END_IF
+
+		(*Port IN  -> Cylinder Out*)
+		IF SoftStop OR DeltaPS > CFG.LS_Dif_Min THEN
+			TWC_P_Inc := TWC_P_Inc + CFG.EVP_In_Dec * CFG.Cycle; 						(*Increment*)
+			TWC_P_Inc := MAX(TWC_P_Inc, -CFG.EVP_In_P_Max); 							(*Max Value*)
+			TWC_P_Inc := MAX(TWC_P_Inc, -CFG.EVP_In_P_Min + DeltaP * CFG.EVP_In_LS_K); 	(*Approx K*)
+			TWC_P_Inc := MIN(TWC_P_Inc, -CFG.EVP_In_P_Min); 							(*Min Value - Extra check*)
+
+			IF TWC_P_Inc = -CFG.EVP_In_P_Min OR CFG.EVP_In_Dec <= 0
+			THEN OUT_TWC_P := 0;
+			ELSE OUT_TWC_P := REAL_TO_INT(TWC_P_Inc * 10.0);
+			END_IF
+
+		ELSIF DeltaP < 0.0 (*AND DeltaPS < CFG.LS_Dif_Min*) THEN
+			TWC_P_Inc := TWC_P_Inc - CFG.EVP_In_Inc * CFG.Cycle; 						(*Increment*)
+			TWC_P_Inc := MAX(TWC_P_Inc, -CFG.EVP_In_P_Max); 							(*Max Value*)
+			TWC_P_Inc := MAX(TWC_P_Inc, -CFG.EVP_In_P_Min + DeltaP * CFG.EVP_In_LS_K); 	(*Approx K*)
+
+			IF EngReady																	(*Delta K*)
+			THEN TWC_P_Inc := MAX(TWC_P_Inc, -CFG.EVP_In_P_Eng + DeltaPS * CFG.EVP_In_EVP_K);
+			ELSE TWC_P_Inc := MAX(TWC_P_Inc, -CFG.EVP_In_P_PP  + DeltaPS * CFG.EVP_In_EVP_K);
+			END_IF
+
+			TWC_P_Inc := MIN(TWC_P_Inc, -CFG.EVP_In_P_Min); 							(*Min Value - Extra check*)
+
+			OUT_TWC_P := REAL_TO_INT(TWC_P_Inc * 10.0);
+
+		ELSE
+			OUT_TWC_P := 0;
+
+		END_IF
+
+		(*Stbd OUT -> Cylinder In*)
+		IF SoftStop OR DeltaPS < -CFG.LS_Dif_Max THEN
+			TWC_S_Inc := TWC_S_Inc - CFG.EVP_Out_Dec * CFG.Cycle; 						(*Increment*)
+			TWC_S_Inc := MIN(TWC_S_Inc, CFG.EVP_Out_S_Max);								(*Max Value*)
+			TWC_S_Inc := MIN(TWC_S_Inc, CFG.EVP_Out_S_Min + DeltaS * CFG.EVP_Out_LS_K); (*Approx K*)
+			TWC_S_Inc := MAX(TWC_S_Inc, CFG.EVP_Out_S_Min); 							(*Min Value - Extra check*)
+
+			IF TWC_S_Inc = CFG.EVP_Out_S_Min OR CFG.EVP_Out_Dec <= 0 THEN
+				OUT_TWC_S := 0;
+				OUT_EVB_S := FALSE;
+			ELSE
+				OUT_TWC_S := REAL_TO_INT(TWC_S_Inc * 10.0);
+				OUT_EVB_S := TRUE;
+			END_IF
+
+			OUT_EVT_S := FALSE;
+
+		ELSIF DeltaS > 0.0 (*AND DeltaPS > -CFG.LS_Dif_Max*) THEN
+			TWC_S_Inc := TWC_S_Inc + CFG.EVP_Out_Inc * CFG.Cycle; 						(*Increment*)
+			TWC_S_Inc := MIN(TWC_S_Inc, CFG.EVP_Out_S_Max);								(*Max Value*)
+			TWC_S_Inc := MIN(TWC_S_Inc, CFG.EVP_Out_S_Min + DeltaS * CFG.EVP_Out_LS_K); (*Approx K*)
+
+			IF EngReady																	(*Delta K*)
+			THEN TWC_S_Inc := MIN(TWC_S_Inc, CFG.EVP_Out_S_Eng + DeltaPS * CFG.EVP_Out_EVP_K);
+			ELSE TWC_S_Inc := MIN(TWC_S_Inc, CFG.EVP_Out_S_PP  + DeltaPS * CFG.EVP_Out_EVP_K);
+			END_IF
+
+			TWC_S_Inc := MAX(TWC_S_Inc, CFG.EVP_Out_S_Min); 							(*Min Value - Extra check*)
+
+			OUT_TWC_S := REAL_TO_INT(TWC_S_Inc * 10.0);
+			OUT_EVB_S := TRUE;
+
+			IF Hyst_Cnt > CFG.P_Hyst_TM THEN
+				Hyst_ON := TRUE;
+			ELSE
+				Hyst_ON  := FALSE;
+				Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+			END_IF
+	
+			IF PB_S.Bar > CFG.P_Hyst_HP AND Hyst_ON OR PB_S.Err THEN
+				OUT_EVT_S := TRUE;
+				Hyst_cnt  := 0.0;
+			ELSIF PB_S.Bar < CFG.P_Hyst_LP AND Hyst_ON THEN
+				OUT_EVT_S := FALSE;
+				Hyst_cnt  := 0.0;
+			END_IF
+
+		ELSE
+			OUT_TWC_S := 0;
+			OUT_EVB_S := FALSE;
+			OUT_EVT_S := FALSE;
+
+		END_IF
+
+		OUT_LP    := CFG.LP;
+
+		(*If both stopped go to Init State*)
+		IF OUT_TWC_P = 0 AND OUT_TWC_S = 0 THEN
+			OUT_EVB_S := FALSE;
+			OUT_EVT_S := FALSE;
+			OUT_TWC_P := 0;
+			OUT_TWC_S := 0;
+			OUT_LP    := 0;
+			State     := 0;
+
+		END_IF
+
+	END_IF
+
+END_CASE
+END_FUNCTION_BLOCK

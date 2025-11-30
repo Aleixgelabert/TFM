@@ -1,0 +1,62 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_WINCHE_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_WINCHE_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+	aux1 : REAL;
+	aux2 : REAL;
+	aux3 : REAL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.Spd1[1] := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd11' ), fbIdList );
+stConfig.Spd2[1] := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd21' ), fbIdList );
+stConfig.Spd3[1] := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd31' ), fbIdList );
+
+stConfig.Spd1[7] := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd17' ), fbIdList );
+stConfig.Spd2[7] := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd27' ), fbIdList );
+stConfig.Spd3[7] := F_IDLIST_GETREAL( CONCAT(sHead, '_Spd37' ), fbIdList );
+
+stConfig.P1_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_P1_Max' ), fbIdList );
+stConfig.P2_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_P2_Max' ), fbIdList );
+stConfig.P3_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_P3_Max' ), fbIdList );
+
+stConfig.A_Spd1 := F_IDLIST_GETBOOL( CONCAT(sHead, '_A_Spd1' ), fbIdList );
+
+stConfig.TimeMax := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax' ), fbIdList );
+stConfig.Cycle   := rTime;
+
+(*stConfig.PP  := F_IDLIST_GETBYTE( CONCAT(sHead, '_PP' ), fbIdList );*)
+
+aux1 := (stConfig.Spd1[7]-stConfig.Spd1[1])/6.0;
+aux2 := (stConfig.Spd2[7]-stConfig.Spd2[1])/6.0;
+aux3 := (stConfig.Spd3[7]-stConfig.Spd3[1])/6.0;
+
+stConfig.Spd1[2] := stConfig.Spd1[1] + Aux1;
+stConfig.Spd1[3] := stConfig.Spd1[2] + Aux1;
+stConfig.Spd1[4] := stConfig.Spd1[3] + Aux1;
+stConfig.Spd1[5] := stConfig.Spd1[4] + Aux1;
+stConfig.Spd1[6] := stConfig.Spd1[5] + Aux1;
+
+stConfig.Spd2[2] := stConfig.Spd2[1] + Aux2;
+stConfig.Spd2[3] := stConfig.Spd2[2] + Aux2;
+stConfig.Spd2[4] := stConfig.Spd2[3] + Aux2;
+stConfig.Spd2[5] := stConfig.Spd2[4] + Aux2;
+stConfig.Spd2[6] := stConfig.Spd2[5] + Aux2;
+
+stConfig.Spd3[2] := stConfig.Spd3[1] + Aux3;
+stConfig.Spd3[3] := stConfig.Spd3[2] + Aux3;
+stConfig.Spd3[4] := stConfig.Spd3[3] + Aux3;
+stConfig.Spd3[5] := stConfig.Spd3[4] + Aux3;
+stConfig.Spd3[6] := stConfig.Spd3[5] + Aux3;
+
+END_FUNCTION

@@ -1,0 +1,275 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_BACKSTAY
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	IN_P_In   : ARRAY[1..2] OF BOOL;
+	IN_P_Out  : ARRAY[1..2] OF BOOL;
+	IN_S_In   : ARRAY[1..2] OF BOOL;
+	IN_S_Out  : ARRAY[1..2] OF BOOL;
+
+END_VAR
+VAR_IN_OUT
+	P_P  : ST_SENSOR_BAR;
+	P_S  : ST_SENSOR_BAR;
+	LS_P : ST_SENSOR_POS;
+	LS_S : ST_SENSOR_POS;
+	CFG  : ST_SE_CYLINDER_POS_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_P_In  : BOOL;
+	OUT_P_Out : BOOL;
+	OUT_S_In  : BOOL;
+	OUT_S_Out : BOOL;
+
+	OUT_HP    : BYTE;
+END_VAR
+VAR
+	State   : WORD;
+	State_P : WORD;
+	State_S : WORD;
+
+	IN_Hmi_P_In  : BOOL;
+	IN_Hmi_P_Out : BOOL;
+	IN_Hmi_S_In  : BOOL;
+	IN_Hmi_S_Out : BOOL;
+
+	SI_P_In  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_P_Out : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_S_In  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SI_S_Out : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	Event_P_In  : EN_SMART_INPUT_STATE;
+	Event_P_Out : EN_SMART_INPUT_STATE;
+	Event_S_In  : EN_SMART_INPUT_STATE;
+	Event_S_Out : EN_SMART_INPUT_STATE;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+	Slow_P : BOOL;
+	Slow_S : BOOL;
+
+	LS_P_In  : BOOL;
+	LS_P_Out : BOOL;
+	LS_S_In  : BOOL;
+	LS_S_Out : BOOL;
+
+	ToFaroValueP : REAL;
+	ToFaroValueS : REAL;
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+LS_P_Out := LS_P.Pos > CFG.TgtLS_Out;
+LS_P_In  := LS_P.Pos < CFG.TgtLS_In;
+LS_S_Out := LS_S.Pos > CFG.TgtLS_Out;
+LS_S_In  := LS_S.Pos < CFG.TgtLS_In;
+
+(*Check Inputs*)
+SI_P_In[1](In:= IN_P_In[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_In[2](In:= IN_P_In[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_In[3](In:= IN_Hmi_P_In, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_P_Out[1](In:= IN_P_Out[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_Out[2](In:= IN_P_Out[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_P_Out[3](In:= IN_Hmi_P_Out, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_S_In[1](In:= IN_S_In[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_In[2](In:= IN_S_In[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_In[3](In:= IN_Hmi_S_In, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_S_Out[1](In:= IN_S_Out[1],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_Out[2](In:= IN_S_Out[2],  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_S_Out[3](In:= IN_Hmi_S_Out, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	OUT_P_In  := FALSE;
+	OUT_P_Out := FALSE;
+	OUT_S_In  := FALSE;
+	OUT_S_Out := FALSE;
+	OUT_HP    := 0;
+
+	ToFaroValueP := 0.0;
+	ToFaroValueS := 0.0;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	State_P := 0;
+	State_S := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );
+TimeCnt := TimeCnt + CFG.Cycle;
+
+IF    SI_P_In[1].Event <> NONE THEN Event_P_In := SI_P_In[1].Event; Slow_P := FALSE;
+ELSIF SI_P_In[2].Event <> NONE THEN Event_P_In := SI_P_In[2].Event; Slow_P := TRUE;
+ELSIF SI_P_In[3].Event <> NONE THEN Event_P_In := SI_P_In[3].Event; Slow_P := TRUE;
+ELSE
+	Event_P_In := NONE;
+END_IF
+
+IF    SI_P_Out[1].Event <> NONE THEN Event_P_Out := SI_P_Out[1].Event;
+ELSIF SI_P_Out[2].Event <> NONE THEN Event_P_Out := SI_P_Out[2].Event;
+ELSIF SI_P_Out[3].Event <> NONE THEN Event_P_Out := SI_P_Out[3].Event;
+ELSE
+	Event_P_Out := NONE;
+END_IF
+
+IF    SI_S_In[1].Event <> NONE THEN Event_S_In := SI_S_In[1].Event; Slow_S := FALSE;
+ELSIF SI_S_In[2].Event <> NONE THEN Event_S_In := SI_S_In[2].Event; Slow_S := TRUE;
+ELSIF SI_S_In[3].Event <> NONE THEN Event_S_In := SI_S_In[3].Event; Slow_S := TRUE;
+ELSE
+	Event_S_In := NONE;
+END_IF
+
+IF    SI_S_Out[1].Event <> NONE THEN Event_S_Out := SI_S_Out[1].Event;
+ELSIF SI_S_Out[2].Event <> NONE THEN Event_S_Out := SI_S_Out[2].Event;
+ELSIF SI_S_Out[3].Event <> NONE THEN Event_S_Out := SI_S_Out[3].Event;
+ELSE
+	Event_S_Out := NONE;
+END_IF
+
+
+(*Common Working States*)
+CASE State OF
+
+(*Common Init State*)
+0:
+
+	OUT_HP := 0;
+
+	IF State_P = 0 AND State_S = 0 THEN TimeCnt := 0.0; END_IF
+
+(*Port Working States*)
+	CASE State_P OF
+	(*Init State*)
+	0:
+		ToFaroValueP := 0.0;
+
+		(*Start Manual IN*)
+		IF Event_P_In = INIT_CONTINUOUS AND Ready AND NOT P_P.AlMax AND NOT (CFG.LS_Limit_In AND (LS_P_In OR LS_P.Err)) THEN
+			OUT_P_In  := TRUE;
+			OUT_P_Out := FALSE;
+
+			TimeOut   := FALSE; (*Reset TimeOut Error*)
+			State_P   := 1100;  (*Next State*)
+
+			ToFaroValueP := 1.0;
+	
+		(*Start Manual OUT*)
+		ELSIF Event_P_Out = INIT_CONTINUOUS AND NOT (CFG.LS_Limit_Out AND (LS_P_Out OR LS_P.Err)) THEN
+			OUT_P_In  := FALSE;
+			OUT_P_Out := TRUE;
+
+			TimeOut   := FALSE; (*Reset TimeOut Error*)
+			State_P   := 2100;  (*Next State*)
+
+			ToFaroValueP := -1.0;
+
+		(*Nothing*)
+		ELSE
+			OUT_P_In  := FALSE;
+			OUT_P_Out := FALSE;
+
+		END_IF
+
+	(*Manual IN*)
+	1100:
+		(*End IN*)
+		IF Event_P_In <> NONE OR Event_P_Out <> NONE OR TimeOut OR P_P.AlMax OR CFG.LS_Limit_In AND (LS_P_In OR LS_P.Err) THEN
+			OUT_P_In  := FALSE;
+			OUT_P_Out := FALSE;
+
+			State_P   := 0; (*Next State*)
+
+		ELSIF Slow_P OR Slow_S THEN
+			OUT_HP := 1;
+
+		ELSE
+			OUT_HP := CFG.HP;
+
+		END_IF
+
+	(*Manual OUT*)
+	2100:
+		(*End OUT*)
+		IF Event_P_Out <> NONE OR Event_P_In <> NONE OR TimeOut OR CFG.LS_Limit_Out AND (LS_P_Out OR LS_P.Err)THEN
+			OUT_P_In  := FALSE;
+			OUT_P_Out := FALSE;
+
+			State_P   := 0; (*Next State*)
+		END_IF
+
+	END_CASE
+
+(*Stbd Working States*)
+	CASE State_S OF
+	(*Init State*)
+	0:
+		ToFaroValueS := 0.0;
+
+		(*Start Manual IN*)
+		IF Event_S_In = INIT_CONTINUOUS AND Ready AND NOT P_S.AlMax AND NOT (CFG.LS_Limit_In AND (LS_S_In OR LS_S.Err)) THEN
+			OUT_S_In  := TRUE;
+			OUT_S_Out := FALSE;
+
+			TimeOut   := FALSE; (*Reset TimeOut Error*)
+			State_S   := 1100;  (*Next State*)
+
+			ToFaroValueS := 1.0;
+
+		(*Start Manual OUT*)
+		ELSIF Event_S_Out = INIT_CONTINUOUS AND NOT (CFG.LS_Limit_Out AND (LS_S_Out OR LS_S.Err)) THEN
+			OUT_S_In  := FALSE;
+			OUT_S_Out := TRUE;
+
+			TimeOut   := FALSE; (*Reset TimeOut Error*)
+			State_S   := 2100;  (*Next State*)
+
+			ToFaroValueS := -1.0;
+
+		(*Nothing*)
+		ELSE
+			OUT_S_In  := FALSE;
+			OUT_S_Out := FALSE;
+
+		END_IF
+
+	(*Manual IN*)
+	1100:
+		(*End IN*)
+		IF Event_S_In <> NONE OR Event_S_Out <> NONE OR TimeOut OR P_S.AlMax OR CFG.LS_Limit_In AND (LS_S_In OR LS_S.Err) THEN
+			OUT_S_In  := FALSE;
+			OUT_S_Out := FALSE;
+
+			State_S   := 0; (*Next State*)
+
+		ELSIF Slow_P OR Slow_S THEN
+			OUT_HP := 1;
+
+		ELSE
+			OUT_HP := CFG.HP;
+
+		END_IF
+
+	(*Manual OUT*)
+	2100:
+		(*End OUT*)
+		IF Event_S_Out <> NONE OR Event_S_In <> NONE OR TimeOut OR CFG.LS_Limit_Out AND (LS_S_Out OR LS_S.Err)THEN
+			OUT_S_In  := FALSE;
+			OUT_S_Out := FALSE;
+
+			State_S   := 0; (*Next State*)
+		END_IF
+
+	END_CASE
+
+END_CASE
+END_FUNCTION_BLOCK

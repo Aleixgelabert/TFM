@@ -1,0 +1,99 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_KEEL_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_KEEL_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*Targets*)
+stConfig.TgtLS_In  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_In'  ), fbIdList );
+stConfig.TgtLS_Mid := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Mid' ), fbIdList );
+stConfig.TgtLS_Out := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Out' ), fbIdList );
+
+stConfig.TgtLS_Safe_In  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Safe_In'  ), fbIdList );
+stConfig.TgtLS_Safe_Out := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Safe_Out' ), fbIdList );
+
+stConfig.TgtLS_Tack_Off := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Tack_Off' ), fbIdList );
+
+stConfig.LS_DB := F_IDLIST_GETREAL( CONCAT(sHead, '_LS_DB' ), fbIdList );
+
+(*Board Limits*)
+stConfig.Board_P_Min_Out := F_IDLIST_GETREAL( CONCAT(sHead, '_Board_P_Min_Out' ), fbIdList );
+stConfig.Board_S_Min_Out := F_IDLIST_GETREAL( CONCAT(sHead, '_Board_S_Min_Out' ), fbIdList );
+
+(*Valve Limits*)
+stConfig.EVP_In_SE_Min   := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_SE_Min'   ), fbIdList );
+stConfig.EVP_In_SE_Max   := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_SE_Max'   ), fbIdList );
+stConfig.EVP_In_SE_Man   := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_SE_Man'   ), fbIdList );
+
+stConfig.EVP_In_FE_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_FE_Min' ), fbIdList );
+stConfig.EVP_In_FE_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_FE_Max' ), fbIdList );
+stConfig.EVP_In_FE_Man := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_FE_Man' ), fbIdList );
+
+stConfig.EVP_In_Eng_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_Eng_Min' ), fbIdList );
+stConfig.EVP_In_Eng_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_Eng_Max' ), fbIdList );
+stConfig.EVP_In_Eng_Man := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_Eng_Man' ), fbIdList );
+
+stConfig.EVP_In_P_Empty := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_P_Empty' ), fbIdList );
+
+stConfig.EVP_Out_SE_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_SE_Min' ), fbIdList );
+stConfig.EVP_Out_SE_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_SE_Max' ), fbIdList );
+stConfig.EVP_Out_SE_Man := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_SE_Man' ), fbIdList );
+stConfig.EVP_Out_SE_Empty := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_SE_Empty' ), fbIdList );
+
+stConfig.EVP_Out_FE_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_FE_Min' ), fbIdList );
+stConfig.EVP_Out_FE_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_FE_Max' ), fbIdList );
+stConfig.EVP_Out_FE_Man := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_FE_Man' ), fbIdList );
+
+stConfig.EVP_Out_Eng_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Eng_Min' ), fbIdList );
+stConfig.EVP_Out_Eng_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Eng_Max' ), fbIdList );
+stConfig.EVP_Out_Eng_Man := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Eng_Man' ), fbIdList );
+
+stConfig.EVP_Out_Fill_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Fill_Min' ), fbIdList );
+stConfig.EVP_Out_Fill_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Fill_Max' ), fbIdList );
+
+stConfig.EVP_Out_P_Fill := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_P_Fill' ), fbIdList );
+
+(*Valve Softstart*)
+stConfig.EVP_In_SE_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_SE_Inc' ), fbIdList );
+stConfig.EVP_In_SE_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_SE_Dec' ), fbIdList );
+
+stConfig.EVP_In_FE_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_FE_Inc' ), fbIdList );
+stConfig.EVP_In_FE_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_FE_Dec' ), fbIdList );
+
+stConfig.EVP_Out_SE_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_SE_Inc' ), fbIdList );
+stConfig.EVP_Out_SE_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_SE_Dec' ), fbIdList );
+
+stConfig.EVP_Out_FE_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_FE_Inc' ), fbIdList );
+stConfig.EVP_Out_FE_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_FE_Dec' ), fbIdList );
+
+stConfig.EVP_In_Eng_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_Eng_Inc' ), fbIdList );
+stConfig.EVP_In_Eng_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_Eng_Dec' ), fbIdList );
+
+stConfig.EVP_Out_Eng_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Eng_Inc' ), fbIdList );
+stConfig.EVP_Out_Eng_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Eng_Dec' ), fbIdList );
+
+(*Valve Gains*)
+stConfig.EVP_In_Eng_K  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_In_Eng_K'  ), fbIdList );
+stConfig.EVP_Out_Eng_K := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Out_Eng_K' ), fbIdList );
+
+stConfig.LP  := F_IDLIST_GETBYTE( CONCAT(sHead, '_LP'  ), fbIdList );
+
+stConfig.TimeMax  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax'  ), fbIdList );
+stConfig.Cycle    := rTime;
+
+(*Auto Ease limit*)
+stConfig.MinLoadSide_Bar   := F_IDLIST_GETREAL( CONCAT(sHead, '_MinLoadSide_Bar'   ), fbIdList );
+stConfig.MaxUnloadSide_Bar := F_IDLIST_GETREAL( CONCAT(sHead, '_MaxUnloadSide_Bar' ), fbIdList );
+
+END_FUNCTION

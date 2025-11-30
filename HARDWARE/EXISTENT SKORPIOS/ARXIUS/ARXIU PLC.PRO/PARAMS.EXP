@@ -1,0 +1,747 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM PARAMS
+VAR CONSTANT
+	BUF_SIZE: WORD := 15000;
+END_VAR
+VAR
+	Loaded : BOOL;
+	Error  : BOOL;
+	Save   : BOOL;
+	Saved  : BOOL;
+	State  : WORD;
+	SavedCnt : REAL;
+
+	fbParamList : FB_IDLIST;
+	fbSaveList  : FB_FILE_WRITE;
+
+	aBuffer : ARRAY[1..BUF_SIZE] OF BYTE;
+	wBufPos : DWORD;
+
+	i : INT;
+
+(*Sensors*)
+	SF_Delay : REAL;
+
+(*Parameters*)
+	(*stTankCfg*)
+	stEngineCfg     : ST_ENGINE_CFG;
+	stPropulsionCfg : ST_PROPULSION_CFG;
+	stPowerpackCfg  : ST_POWERPACK_CFG;
+
+	(*Cilinders*)
+	stSE301Cfg  : ST_SE_CYLINDER_POS_CFG;
+	stSE303Cfg  : ST_SE_CYLINDER_POS_CFG;
+	stSE305Cfg  : ST_SE_CYLINDER_POS_CFG;
+	stSE307Cfg  : ST_SE_CYLINDER_POS_CFG;
+	stSE309Cfg  : ST_SE_CYLINDER_POS_CFG;
+	stSE311Cfg  : ST_SE_CYLINDER_POS_CFG;
+
+	stSE501Cfg  : ST_SE_CYLINDER_CFG;
+	stSE503Cfg  : ST_SE_CYLINDER_CFG;
+	stSE505Cfg  : ST_SE_CYLINDER_CFG;
+
+	stDE601Cfg  : ST_LIFT_PROP_CFG;
+	stDE605Cfg  : ST_DE_CYLINDER_POS_CFG;
+
+	stSE701Cfg  : ST_SE_CYLINDER_CFG;
+	stSE703Cfg  : ST_SE_CYLINDER_CFG;
+	stSE705Cfg  : ST_SE_CYLINDER_CFG;
+	stSE707Cfg  : ST_SE_CYLINDER_POS_CFG;
+	stSE709Cfg  : ST_SE_CYLINDER_POS_CFG;
+
+	stSE901Cfg  : ST_SE_CYLINDER_POS_CFG;
+	(*stSE903Cfg  : ST_SE_CYLINDER_POS_CFG;*)
+
+	(*Water Ballast*)
+	stWBCfg        : ST_WB_CFG;
+	stWBValveSFCfg : ST_WB_VALVE_CFG;
+	stWBValveLSCfg : ST_WB_VALVE_LS_CFG;
+
+	(*Winches*)
+	stW1202Cfg    : ST_WINCHE_CFG;
+	stW1204Cfg    : ST_WINCHE_CFG;
+	stW1206Cfg    : ST_WINCHE_CFG;
+	stW1208Cfg    : ST_WINCHE_CFG;
+	stW1210Cfg    : ST_WINCHE_CFG;
+	stW1212Cfg    : ST_WINCHE_CFG;
+	stW1214Cfg    : ST_WINCHE_CFG;
+
+	stW1602Cfg    : ST_WINCHE_CFG;
+	stW1604Cfg    : ST_WINCHE_CFG;
+
+	stWRampCfg    : ST_WINCHE_RAMP_CFG;
+
+	(*Other*)
+	stBoardCfg     : ST_BOARD_CFG;
+	stKeelCfg      : ST_KEEL_CFG;
+	stTravellerCfg : ST_TRAVELLER_CFG;
+
+	stBowThrCfg     : ST_LP_FUNC_CFG;
+	stBowThrUpDwCfg : ST_LP_FUNC_CFG;
+
+	stTackValveCfg  : ST_TACK_VALVE_CFG;
+
+	stMastSetup : ST_MAST_SETUP;
+
+(*UDP Parameter Vars*)
+	sUDPSendHost : STRING(15);
+	nUDPSendPort : UDINT;
+	nUDPSendTime : UINT;
+	nUDPRecvPort : UDINT;
+
+	sUDPAlarmsHost : STRING(15);
+	nUDPAlarmsPort : UDINT;
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF SavedCnt > 0 THEN
+	Saved    := FALSE;
+	SavedCnt := SavedCnt - 0.005;
+ELSE
+	Saved := TRUE;
+END_IF
+
+CASE State OF
+0: (*Init State*)
+	IF NOT Loaded THEN
+		fbParamList.sFilePath := '\Hard Disk\FTP\Sensors.txt';
+		(*fbParamList.sFilePath := '\Hard Disk\FTP\Parameters.txt';*)
+		Error := FALSE;
+		State := 100;
+	ELSIF Save THEN
+		fbSaveList.sFilePath := '\Hard Disk\FTP\';
+		fbSaveList.sFileName := 'Sensors';
+(*		fbSaveList.sFileName := 'Parameters';*)
+		fbSaveList.sFileExt  := '.txt';
+		fbSaveList.Backup    := TRUE;
+
+		Save  := FALSE;
+		SavedCnt := 1.5;
+		State := 200;
+	ELSE
+		fbParamList( bEnable := FALSE );
+		fbSaveList ( bEnable := FALSE );
+
+	END_IF
+
+100: (*Load Sensors*)
+	fbParamList( bEnable := TRUE );
+
+	IF fbParamList.bInit THEN
+		State := 110;
+	ELSIF fbParamList.byError > 0 THEN
+		Loaded := TRUE;
+		Error  := TRUE;
+		State  := 0;
+	END_IF
+
+110:(*Read SENSORS*)
+	(*EVP*)
+	EVP313.Cal_K    := F_IDLIST_GETREAL( 'EVP313_K'   , fbParamList );
+	EVP313.Cal_Off  := F_IDLIST_GETREAL( 'EVP313_Off' , fbParamList );
+	EVP513.Cal_K    := F_IDLIST_GETREAL( 'EVP513_K'   , fbParamList );
+	EVP513.Cal_Off  := F_IDLIST_GETREAL( 'EVP513_Off' , fbParamList );
+	EVP709.Cal_K    := F_IDLIST_GETREAL( 'EVP709_K'   , fbParamList );
+	EVP709.Cal_Off  := F_IDLIST_GETREAL( 'EVP709_Off' , fbParamList );
+	EVP1005.Cal_K   := F_IDLIST_GETREAL( 'EVP1005_K'  , fbParamList );
+	EVP1005.Cal_Off := F_IDLIST_GETREAL( 'EVP1005_Off', fbParamList );
+	EVP1010.Cal_K   := F_IDLIST_GETREAL( 'EVP1010_K'  , fbParamList );
+	EVP1010.Cal_Off := F_IDLIST_GETREAL( 'EVP1010_Off', fbParamList );
+
+	(*Node36/37 - TANK + GS + MF00 + PP*)
+	SF_Delay := F_IDLIST_GETREAL( 'SF_Delay', fbParamList );
+
+	F_READ_SENSOR_BAR(  P010, fbParamList );
+	P010.MinBar := F_IDLIST_GETREAL( CONCAT(P010.Name, '_Min'), fbParamList );
+
+	F_READ_SENSOR_BAR(  P001, fbParamList );
+	F_READ_SENSOR_BAR(  P002, fbParamList );
+	F_READ_SENSOR_BAR(  P003, fbParamList );
+
+	F_READ_SENSOR_BAR(  P051, fbParamList );
+	F_READ_SENSOR_BAR(  P052, fbParamList );
+
+	F_READ_SENSOR_TEMP( S011, fbParamList );
+	F_READ_SENSOR_TEMP( S100, fbParamList );
+	F_READ_SENSOR_TEMP( S101, fbParamList );
+	F_READ_SENSOR_TEMP( S102, fbParamList );
+
+	(*Water Ballast - Nodes...*)
+	F_READ_SENSOR_POS( LS021, fbParamList );
+	F_READ_SENSOR_POS( LS022, fbParamList );
+	F_READ_SENSOR_POS( LS023, fbParamList );
+	F_READ_SENSOR_POS( LS024, fbParamList );
+
+	(*MF01 - Node42*)
+	F_READ_SENSOR_BAR(  P101, fbParamList );
+	F_READ_SENSOR_BAR(  P103, fbParamList );
+
+	(*MF02 - Node34*)
+	F_READ_SENSOR_BAR(  P201 , fbParamList );
+
+	(*MF03 - Node43/44*)
+	F_READ_SENSOR_BAR(  P301, fbParamList );
+	F_READ_SENSOR_BAR(  P303, fbParamList );
+	F_READ_SENSOR_BAR(  P305, fbParamList );
+	F_READ_SENSOR_BAR(  P307, fbParamList );
+	F_READ_SENSOR_BAR(  P309, fbParamList );
+	F_READ_SENSOR_BAR(  P311, fbParamList );
+
+	F_READ_SENSOR_POS( LS301, fbParamList );
+	F_READ_SENSOR_POS( LS303, fbParamList );
+	F_READ_SENSOR_POS( LS305, fbParamList );
+	F_READ_SENSOR_POS( LS307, fbParamList );
+	F_READ_SENSOR_POS( LS309, fbParamList );
+	F_READ_SENSOR_POS( LS311, fbParamList );
+
+	F_READ_SENSOR_KG(  L301, fbParamList );
+	F_READ_SENSOR_KG(  L303, fbParamList );
+	F_READ_SENSOR_KG(  L305, fbParamList );
+	F_READ_SENSOR_KG(  L307, fbParamList );
+	F_READ_SENSOR_KG(  L309, fbParamList );
+	F_READ_SENSOR_KG(  L311, fbParamList );
+
+	(*MF05 - Node41*)
+	F_READ_SENSOR_BAR(  P501, fbParamList );
+	F_READ_SENSOR_BAR(  P503, fbParamList );
+	F_READ_SENSOR_BAR(  P505, fbParamList );
+	F_READ_SENSOR_BAR(  P507, fbParamList );
+
+	F_READ_SENSOR_KG(  L501, fbParamList );
+	F_READ_SENSOR_KG(  L503, fbParamList );
+	F_READ_SENSOR_KG(  L505, fbParamList );
+
+	(*MF06 - Node20*)
+	F_READ_SENSOR_BAR(  P601, fbParamList );
+	F_READ_SENSOR_BAR(  P603, fbParamList );
+	F_READ_SENSOR_BAR(  P605, fbParamList );
+	F_READ_SENSOR_BAR(  P607, fbParamList );
+
+	F_READ_SENSOR_POS( LS601, fbParamList );
+	F_READ_SENSOR_POS( LS605, fbParamList );
+
+	(*MF07 - Node21/22*)
+	F_READ_SENSOR_BAR(  P701, fbParamList );
+	F_READ_SENSOR_BAR(  P703, fbParamList );
+	F_READ_SENSOR_BAR(  P705, fbParamList );
+	F_READ_SENSOR_BAR(  P707, fbParamList );
+	F_READ_SENSOR_BAR(  P709, fbParamList );
+
+	F_READ_SENSOR_KG(  L701, fbParamList );
+	F_READ_SENSOR_KG(  L703, fbParamList );
+	F_READ_SENSOR_KG(  L705, fbParamList );
+	F_READ_SENSOR_KG(  L707, fbParamList );
+	F_READ_SENSOR_KG(  L709, fbParamList );
+
+	F_READ_SENSOR_POS( LS707, fbParamList );
+	F_READ_SENSOR_POS( LS709, fbParamList );
+
+	(*MF08 - Node23*)
+	F_READ_SENSOR_BAR(  P802, fbParamList );
+	F_READ_SENSOR_BAR(  P804, fbParamList );
+
+	F_READ_SENSOR_POS( LS801, fbParamList );
+	F_READ_SENSOR_POS( LS803, fbParamList );
+
+	(*MF09 - Node35*)
+	F_READ_SENSOR_BAR(  P901, fbParamList );
+	F_READ_SENSOR_BAR(  P903, fbParamList );
+
+	F_READ_SENSOR_KG(  L901, fbParamList );
+	F_READ_SENSOR_KG(  L903, fbParamList );
+
+	F_READ_SENSOR_POS( LS901, fbParamList );
+	F_READ_SENSOR_POS( LS903, fbParamList );
+
+	(*MF10 - Node40*)
+	F_READ_SENSOR_BAR(  P1001, fbParamList );
+	F_READ_SENSOR_BAR(  P1002, fbParamList );
+
+	F_READ_SENSOR_POS( LS1001, fbParamList );
+	F_READ_SENSOR_POS( LS1002, fbParamList );
+
+	(*MF11 - Node21*)
+	F_READ_SENSOR_BAR(  P1101, fbParamList );
+	F_READ_SENSOR_BAR(  P1102, fbParamList );
+	F_READ_SENSOR_TEMP( S1100, fbParamList );
+
+	(*MF12 - Node24/25*)
+	F_READ_SENSOR_BAR(  P1202, fbParamList );
+	F_READ_SENSOR_BAR(  P1203, fbParamList );
+	F_READ_SENSOR_BAR(  P1204, fbParamList );
+	F_READ_SENSOR_BAR(  P1205, fbParamList );
+	F_READ_SENSOR_BAR(  P1206, fbParamList );
+	F_READ_SENSOR_BAR(  P1207, fbParamList );
+	F_READ_SENSOR_BAR(  P1208, fbParamList );
+	F_READ_SENSOR_BAR(  P1209, fbParamList );
+	F_READ_SENSOR_BAR(  P1210, fbParamList );
+	F_READ_SENSOR_BAR(  P1211, fbParamList );
+	F_READ_SENSOR_BAR(  P1212, fbParamList );
+	F_READ_SENSOR_BAR(  P1213, fbParamList );
+	F_READ_SENSOR_BAR(  P1214, fbParamList );
+	F_READ_SENSOR_BAR(  P1215, fbParamList );
+	F_READ_SENSOR_BAR(  P1216, fbParamList );
+	F_READ_SENSOR_BAR(  P1219, fbParamList );
+
+	(*MF13 - Node33 - Traveller*)
+	F_READ_SENSOR_BAR(  P1301, fbParamList );
+	F_READ_SENSOR_BAR(  P1302, fbParamList );
+
+	F_READ_SENSOR_POS( LS1303, fbParamList );
+
+	(*MF16 - Node34*)
+	F_READ_SENSOR_BAR(  P1602, fbParamList );
+	F_READ_SENSOR_BAR(  P1603, fbParamList );
+	F_READ_SENSOR_BAR(  P1604, fbParamList );
+	F_READ_SENSOR_BAR(  P1605, fbParamList );
+
+	(*MF19 - Node32*)
+	F_READ_SENSOR_POS( LS1905, fbParamList );
+
+	(*MF20 - Node31*)
+	F_READ_SENSOR_POS( LS2001, fbParamList );
+	F_READ_SENSOR_POS( LS2005, fbParamList );
+
+	(*MF22 - Node31*)
+	F_READ_SENSOR_POS( LS2201, fbParamList );
+
+	(*MF23 - Node30*)
+	F_READ_SENSOR_POS( LS2301, fbParamList );
+	F_READ_SENSOR_POS( LS2305, fbParamList );
+
+	(*MF24 - Node29*)
+	F_READ_SENSOR_POS( LS2401, fbParamList );
+	F_READ_SENSOR_POS( LS2409, fbParamList );
+
+	(*MF25 - Node26*)
+	F_READ_SENSOR_BAR(  P2500, fbParamList );
+	F_READ_SENSOR_POS( LS2501, fbParamList );
+	F_READ_SENSOR_POS( LS2505, fbParamList );
+
+	(*DGB Seal - Node48*)
+	F_READ_SENSOR_BAR(  P_SealP, fbParamList );
+	F_READ_SENSOR_BAR(  P_SealS, fbParamList );
+
+
+	(*Next State*)
+	fbParamList( bEnable := FALSE );
+	fbParamList.sFilePath := '\Hard Disk\FTP\Parameters.txt';
+	State := 120;
+
+120: (*Load Parameters*)
+	fbParamList( bEnable := TRUE );
+	IF fbParamList.bInit THEN
+		State := 130;
+	ELSIF fbParamList.byError > 0 THEN
+		Loaded := TRUE;
+		Error  := TRUE;
+		State  := 0;
+	END_IF
+
+130:(*Read PARAMETERS*)
+
+(*1- Engine*)
+	F_READ_ENGINE_CFG    ( 'Engine'    , MAIN.Cycle_Time, stEngineCfg    , fbParamList );
+	F_READ_POWERPACK_CFG ( 'Powerpack' , MAIN.Cycle_Time, stPowerpackCfg , fbParamList );
+	F_READ_PROPULSION_CFG( 'Propulsion', MAIN.Cycle_Time, stPropulsionCfg, fbParamList );
+
+
+(*2- HP functions*)
+	F_READ_SE_CYLINDER_POS_CFG	( 'A3Tack', MAIN.Cycle_Time, stSE301Cfg , fbParamList );
+	F_READ_SE_CYLINDER_POS_CFG	( 'FrTack', MAIN.Cycle_Time, stSE303Cfg , fbParamList );
+	F_READ_SE_CYLINDER_POS_CFG	( 'J5'    , MAIN.Cycle_Time, stSE305Cfg , fbParamList );
+	F_READ_SE_CYLINDER_POS_CFG	( 'J4'    , MAIN.Cycle_Time, stSE307Cfg , fbParamList );
+	F_READ_SE_CYLINDER_POS_CFG	( 'Fsy'   , MAIN.Cycle_Time, stSE309Cfg , fbParamList );
+	F_READ_SE_CYLINDER_POS_CFG	( 'J2'    , MAIN.Cycle_Time, stSE311Cfg , fbParamList );
+
+	F_READ_SE_CYLINDER_CFG		( 'JibIO' , MAIN.Cycle_Time, stSE501Cfg , fbParamList );
+	F_READ_SE_CYLINDER_CFG		( 'JibUD' , MAIN.Cycle_Time, stSE503Cfg , fbParamList );
+	F_READ_SE_CYLINDER_CFG		( 'Vang'  , MAIN.Cycle_Time, stSE505Cfg , fbParamList );
+
+	F_READ_LIFT_PROP_CFG        ( 'PropUpDw', MAIN.Cycle_Time, stDE601Cfg, fbParamList );
+	F_READ_DE_CYLINDER_POS_CFG	( 'TrimTab' , MAIN.Cycle_Time, stDE605Cfg, fbParamList );
+
+	F_READ_SE_CYLINDER_CFG		( 'Inn'   , MAIN.Cycle_Time, stSE701Cfg , fbParamList );
+	F_READ_SE_CYLINDER_CFG		( 'Out'   , MAIN.Cycle_Time, stSE703Cfg , fbParamList );
+	F_READ_SE_CYLINDER_CFG		( 'Cunn'  , MAIN.Cycle_Time, stSE705Cfg , fbParamList );
+	F_READ_SE_CYLINDER_POS_CFG	( 'Runn'  , MAIN.Cycle_Time, stSE707Cfg , fbParamList );
+	F_READ_SE_CYLINDER_POS_CFG	( 'Chksy' , MAIN.Cycle_Time, stSE709Cfg , fbParamList );
+
+	F_READ_SE_CYLINDER_POS_CFG	( 'BsyP'  , MAIN.Cycle_Time, stSE901Cfg , fbParamList );
+	(*F_READ_SE_CYLINDER_POS_CFG	( 'BsyS'  , MAIN.Cycle_Time, stSE903Cfg , fbParamList );*)
+
+(*3- Water Ballast*)
+	F_READ_WB_CFG        ( 'WB'        , MAIN.Cycle_Time, stWBCfg        , fbParamList );
+	F_READ_WB_VALVESF_CFG( 'WBValves'  , MAIN.Cycle_Time, stWBValveSFCfg , fbParamList );
+	F_READ_WB_VALVELS_CFG( 'WBValvesLS', MAIN.Cycle_Time, stWBValveLSCfg , fbParamList );
+
+(*4- LP Fucntions*)
+	F_READ_WINCHE_CFG ( 'W1202', MAIN.Cycle_Time, stW1202Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1204', MAIN.Cycle_Time, stW1204Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1206', MAIN.Cycle_Time, stW1206Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1208', MAIN.Cycle_Time, stW1208Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1210', MAIN.Cycle_Time, stW1210Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1212', MAIN.Cycle_Time, stW1212Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1214', MAIN.Cycle_Time, stW1214Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1602', MAIN.Cycle_Time, stW1602Cfg, fbParamList );
+	F_READ_WINCHE_CFG ( 'W1604', MAIN.Cycle_Time, stW1604Cfg, fbParamList );
+
+	stWRampCfg.Spd_Min := F_IDLIST_GETREAL( 'WRAMP_Min', fbParamList );
+	stWRampCfg.Spd_Inc := F_IDLIST_GETREAL( 'WRAMP_Inc', fbParamList );
+	stWRampCfg.Spd_Dec := F_IDLIST_GETREAL( 'WRAMP_Dec', fbParamList );
+
+	F_READ_BOARD_CFG    ( 'Board'    , MAIN.Cycle_Time, stBoardCfg    , fbParamList );
+	F_READ_KEEL_CFG     ( 'Keel'     , MAIN.Cycle_Time, stKeelCfg     , fbParamList );
+	F_READ_TRAVELLER_CFG( 'Traveller', MAIN.Cycle_Time, stTravellerCfg, fbParamList );
+
+	F_READ_LP_FUNC_CFG( 'BowThr'    , MAIN.Cycle_Time, stBowThrCfg    , fbParamList );
+	F_READ_LP_FUNC_CFG( 'BowThrUpDw', MAIN.Cycle_Time, stBowThrUpDwCfg, fbParamList );
+
+	F_READ_TACK_VALVE_CFG ('TackValve', MAIN.Cycle_Time, stTackValveCfg, fbParamList );
+
+	F_READ_MAST_SETUP_CFG ('MastSetup', MAIN.Cycle_Time, stMastSetup, fbParamList);
+
+(*UDP Parameter*)
+	sUDPSendHost := F_IDLIST_GETSTRING( 'UDPHost', fbParamList );
+	nUDPSendPort := F_IDLIST_GETUDINT ( 'UDPPort', fbParamList );
+	nUDPSendTime := F_IDLIST_GETUINT  ( 'UDPTime', fbParamList );
+    nUDPRecvPort := F_IDLIST_GETUDINT ( 'UDPRecvPort', fbParamList );
+
+	sUDPAlarmsHost := F_IDLIST_GETSTRING( 'UDPAlarmsHost', fbParamList );
+	nUDPAlarmsPort := F_IDLIST_GETUDINT ( 'UDPAlarmsPort', fbParamList );
+
+	(*Next State*)
+	State := 300;
+
+200: (*Create Sensors Buffer*)
+	wBufPos := 0;
+
+(*Sensors*)
+	(*EVP PRESS VAR*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#EVP MAX PRESS VALVE:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP313_K'   , S2:='$t', S3:= REAL_TO_STRING( EVP313.Cal_K    ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP313_Off' , S2:='$t', S3:= REAL_TO_STRING( EVP313.Cal_Off  ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP513_K'   , S2:='$t', S3:= REAL_TO_STRING( EVP513.Cal_K    ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP513_Off' , S2:='$t', S3:= REAL_TO_STRING( EVP513.Cal_Off  ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP709_K'   , S2:='$t', S3:= REAL_TO_STRING( EVP709.Cal_K    ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP709_Off' , S2:='$t', S3:= REAL_TO_STRING( EVP709.Cal_Off  ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP1005_K'  , S2:='$t', S3:= REAL_TO_STRING( EVP1005.Cal_K   ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP1005_Off', S2:='$t', S3:= REAL_TO_STRING( EVP1005.Cal_Off ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP1010_K'  , S2:='$t', S3:= REAL_TO_STRING( EVP1010.Cal_K   ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'EVP1010_Off', S2:='$t', S3:= REAL_TO_STRING( EVP1010.Cal_Off ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+	(*TANK + GS + MF00 + PP - Node36/37*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#TANK + GS + MF00 + PP - Node36/37:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'SF_Delay', S2:='$t', S3:= REAL_TO_STRING( SF_Delay ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P010 );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= P010.Name , S2:='_Min$t', S3:= REAL_TO_STRING( P010.MinBar ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+	F_WRITE_SENSOR_TEMP( BUF_SIZE, ADR(aBuffer), wBufPos, S011 );
+	F_WRITE_SENSOR_TEMP( BUF_SIZE, ADR(aBuffer), wBufPos, S100 );
+	F_WRITE_SENSOR_TEMP( BUF_SIZE, ADR(aBuffer), wBufPos, S101 );
+	F_WRITE_SENSOR_TEMP( BUF_SIZE, ADR(aBuffer), wBufPos, S102 );
+
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P001 );
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P002 );
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P003 );
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P051 );
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P052 );
+
+	(*Water Ballast*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#Water Ballast - Node30/32:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS021 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS022 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS023 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS024 );
+
+	(*MF01 - Node42*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF01 - Node42:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P101 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P103 );
+
+	(*MF02 - Node34*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF02 - Node34:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P201  );
+
+	(*MF03 - Node43/44*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF03 - Node43/44:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P301 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P303 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P305 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P307 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P309 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P311 );
+
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS301 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS303 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS305 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS307 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS309 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS311 );
+
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L301 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L303 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L305 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L307 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L309 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L311 );
+
+	(*MF05 - Node41*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF05 - Node41:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P501 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P503 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P505 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P507 );
+
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L501 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L503 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L505 );
+
+	(*MF06 - Node20*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF06 - Node20:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P601 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P603 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P605 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P607 );
+
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS601 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS605 );
+
+	(*MF07 - Node21/22*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF07 - Node21/22:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P701 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P703 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P705 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P707 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P709 );
+
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS707 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS709 );
+
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L701 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L703 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L705 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L707 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L709 );
+
+	(*MF08 - Node23*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF08 - Node23:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P802 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P804 );
+
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS801 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS803 );
+
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L901 );
+	F_WRITE_SENSOR_KG( BUF_SIZE, ADR(aBuffer), wBufPos, L903 );
+
+	(*MF09 - Node35*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF09 - Node35:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P901 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P903 );
+
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS901 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS903 );
+
+	(*MF10 - Node40*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF10 - Node40:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1001 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1002 );
+
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS1001 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS1002 );
+
+	(*MF11 - Node21*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF11 - Node21:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P1101 );
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P1102 );
+	F_WRITE_SENSOR_TEMP( BUF_SIZE, ADR(aBuffer), wBufPos, S1100 );
+
+
+	(*MF12 - Node24/25*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF12 - Node24/25:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1202 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1203 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1204 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1205 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1206 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1207 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1208 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1209 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1210 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1211 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1212 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1213 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1214 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1215 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1216 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1219 );
+
+	(*MF13 - Node33 - Traveller*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF13 - Node33:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1301 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1302 );
+
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS1303 );
+
+	(*MF16 - Node34*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF16 - Node34:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1602 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1603 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1604 );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos, P1605 );
+
+	(*MF19 - Node32*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF19 - Node32:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS1905 );
+
+	(*MF20 - Node31*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF20 - Node31:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2001 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2005 );
+
+	(*MF22 - Node29*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF22 - Node29:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2201 );
+
+	(*MF23 - Node30*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF23 - Node30:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2301 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2305 );
+
+	(*MF24 - Node29*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF24 - Node29:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2401 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2409 );
+
+	(*MF25 - Node26*)
+	F_ADD_STRING_TO_BUFFER( S1:= '$n#MF25 - Node26:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_WRITE_SENSOR_BAR( BUF_SIZE, ADR(aBuffer), wBufPos,  P2500 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2501 );
+	F_WRITE_SENSOR_POS( BUF_SIZE, ADR(aBuffer), wBufPos, LS2505 );
+
+	(*DGB Seal - Node48*)
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P_SealP );
+	F_WRITE_SENSOR_BAR ( BUF_SIZE, ADR(aBuffer), wBufPos, P_SealS );
+
+
+	(*Next State*)
+	State := 210;
+
+210: (*Save Sensors Buffer*)
+	fbSaveList( bEnable:= TRUE, pBuffer:= ADR(aBuffer), wBufLen:= wBufPos );
+
+	IF fbSaveList.bDone THEN
+		State  := 220;
+	END_IF
+
+220: (*Create Parameters Buffer*)
+	fbSaveList( bEnable:= FALSE );
+	fbSaveList.sFilePath := '\Hard Disk\FTP\';
+	fbSaveList.sFileName := 'Parameters';
+	fbSaveList.sFileExt  := '.txt';
+	fbSaveList.Backup    := TRUE;
+
+	wBufPos := 0;
+
+(*1-Engine*)
+	F_WRITE_ENGINE_CFG    ( 'Engine'    , BUF_SIZE, ADR(aBuffer), wBufPos, stEngineCfg     );
+	F_WRITE_POWERPACK_CFG ( 'Powerpack' , BUF_SIZE, ADR(aBuffer), wBufPos, stPowerpackCfg  );
+	F_WRITE_PROPULSION_CFG( 'Propulsion', BUF_SIZE, ADR(aBuffer), wBufPos, stPropulsionCfg );
+
+(*2- HP Fucntions*)
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'A3Tack', BUF_SIZE, ADR(aBuffer), wBufPos, stSE301Cfg   );
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'FrTack', BUF_SIZE, ADR(aBuffer), wBufPos, stSE303Cfg   );
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'J5'    , BUF_SIZE, ADR(aBuffer), wBufPos, stSE305Cfg   );
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'J4'    , BUF_SIZE, ADR(aBuffer), wBufPos, stSE307Cfg   );
+	F_WRITE_SE_CYLINDER_POS_CFG ( 'Fsy'   , BUF_SIZE, ADR(aBuffer), wBufPos, stSE309Cfg   );
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'J2'    , BUF_SIZE, ADR(aBuffer), wBufPos, stSE311Cfg   );
+
+	F_WRITE_SE_CYLINDER_CFG		( 'JibIO' , BUF_SIZE, ADR(aBuffer), wBufPos, stSE501Cfg   );
+	F_WRITE_SE_CYLINDER_CFG		( 'JibUD' , BUF_SIZE, ADR(aBuffer), wBufPos, stSE503Cfg   );
+	F_WRITE_SE_CYLINDER_CFG		( 'Vang'  , BUF_SIZE, ADR(aBuffer), wBufPos, stSE505Cfg   );
+
+	F_WRITE_LIFT_PROP_CFG       ( 'PropUpDw', BUF_SIZE, ADR(aBuffer), wBufPos, stDE601Cfg );
+	F_WRITE_DE_CYLINDER_POS_CFG	( 'TrimTab' , BUF_SIZE, ADR(aBuffer), wBufPos, stDE605Cfg );
+
+	F_WRITE_SE_CYLINDER_CFG		( 'Inn'   , BUF_SIZE, ADR(aBuffer), wBufPos, stSE701Cfg   );
+	F_WRITE_SE_CYLINDER_CFG		( 'Out'   , BUF_SIZE, ADR(aBuffer), wBufPos, stSE703Cfg   );
+	F_WRITE_SE_CYLINDER_CFG		( 'Cunn'  , BUF_SIZE, ADR(aBuffer), wBufPos, stSE705Cfg   );
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'Runn'  , BUF_SIZE, ADR(aBuffer), wBufPos, stSE707Cfg   );
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'Chksy' , BUF_SIZE, ADR(aBuffer), wBufPos, stSE709Cfg   );
+
+	F_WRITE_SE_CYLINDER_POS_CFG	( 'BsyP'  , BUF_SIZE, ADR(aBuffer), wBufPos, stSE901Cfg   );
+	(*F_WRITE_SE_CYLINDER_POS_CFG	( 'BsyS'  , BUF_SIZE, ADR(aBuffer), wBufPos, stSE903Cfg   );*)
+
+(*3- Water Ballast*)
+	F_WRITE_WB_CFG        ( 'WB'        , BUF_SIZE, ADR(aBuffer), wBufPos, stWBCfg        );
+	F_WRITE_WB_VALVESF_CFG( 'WBValves'  , BUF_SIZE, ADR(aBuffer), wBufPos, stWBValveSFCfg );
+	F_WRITE_WB_VALVELS_CFG( 'WBValvesLS', BUF_SIZE, ADR(aBuffer), wBufPos, stWBValveLSCfg );
+
+(*4- LP Functions*)
+	F_WRITE_WINCHE_CFG ( 'W1202', BUF_SIZE, ADR(aBuffer), wBufPos, stW1202Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1204', BUF_SIZE, ADR(aBuffer), wBufPos, stW1204Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1206', BUF_SIZE, ADR(aBuffer), wBufPos, stW1206Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1208', BUF_SIZE, ADR(aBuffer), wBufPos, stW1208Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1210', BUF_SIZE, ADR(aBuffer), wBufPos, stW1210Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1212', BUF_SIZE, ADR(aBuffer), wBufPos, stW1212Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1214', BUF_SIZE, ADR(aBuffer), wBufPos, stW1214Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1602', BUF_SIZE, ADR(aBuffer), wBufPos, stW1602Cfg );
+	F_WRITE_WINCHE_CFG ( 'W1604', BUF_SIZE, ADR(aBuffer), wBufPos, stW1604Cfg );
+
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'WRAMP_Min', S2:='$t', S3:= REAL_TO_STRING( stWRampCfg.Spd_Min), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'WRAMP_Inc', S2:='$t', S3:= REAL_TO_STRING( stWRampCfg.Spd_Inc), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'WRAMP_Dec', S2:='$t', S3:= REAL_TO_STRING( stWRampCfg.Spd_Dec), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+	F_WRITE_BOARD_CFG     ( 'Board'    , BUF_SIZE, ADR(aBuffer), wBufPos, stBoardCfg     );
+	F_WRITE_KEEL_CFG      ( 'Keel'     , BUF_SIZE, ADR(aBuffer), wBufPos, stKeelCfg      );
+	F_WRITE_TRAVELLER_CFG ( 'Traveller', BUF_SIZE, ADR(aBuffer), wBufPos, stTravellerCfg );
+
+	F_WRITE_LP_FUNC_CFG ( 'BowThr'    , BUF_SIZE, ADR(aBuffer), wBufPos, stBowThrCfg     );
+	F_WRITE_LP_FUNC_CFG ( 'BowThrUpDw', BUF_SIZE, ADR(aBuffer), wBufPos, stBowThrUpDwCfg );
+
+	F_WRITE_TACK_VALVE_CFG ( 'TackValve', BUF_SIZE, ADR(aBuffer), wBufPos, stTackValveCfg );
+
+	F_WRITE_MAST_SETUP_CFG ( 'MastSetup', BUF_SIZE, ADR(aBuffer), wBufPos, stMastSetup );
+
+
+(*UDP Parameters*)
+	F_ADD_STRING_TO_BUFFER  ( S1:= '$n#UDP Parameters:$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'UDPHost', S2:='$t', S3:= sUDPSendHost                   , S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'UDPPort', S2:='$t', S3:= UDINT_TO_STRING( nUDPSendPort ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'UDPTime', S2:='$t', S3:= UINT_TO_STRING ( nUDPSendTime ), S4:='$n$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'UDPRecvPort', S2:='$t', S3:= UDINT_TO_STRING( nUDPRecvPort ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'UDPAlarmsHost', S2:='$t', S3:= sUDPAlarmsHost                   , S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+	F_ADD_STRINGX4_TO_BUFFER( S1:= 'UDPAlarmsPort', S2:='$t', S3:= UDINT_TO_STRING( nUDPAlarmsPort ), S4:='$n', wSize := BUF_SIZE, pBuffer := ADR(aBuffer), wPos := wBufPos );
+
+	(*Next State*)
+	State := 230;
+
+
+230: (*Save PArameters Buffer*)
+	fbSaveList( bEnable:= TRUE, pBuffer:= ADR(aBuffer), wBufLen:= wBufPos );
+
+	IF fbSaveList.bDone THEN
+		(*Loaded := FALSE;*)	(*No hace falta hacer el Reload despues de save.*)
+								(*En CK las rampas las calulo siempre.*)
+		State  := 300;
+	END_IF
+
+
+300: (*Calule coefficents*)
+	F_CALC_ENGINE_COEF    ( Cycle:= MAIN.Cycle_Time, Cfg:= stEngineCfg     );
+	F_CALC_PROPULSION_COEF(                          Cfg:= stPropulsionCfg );
+	F_CALC_KEEL_COEF      (                          Cfg:= stKeelCfg       );
+
+	(*Next State*)
+	Loaded := TRUE;
+	State  := 0;
+
+END_CASE
+END_PROGRAM

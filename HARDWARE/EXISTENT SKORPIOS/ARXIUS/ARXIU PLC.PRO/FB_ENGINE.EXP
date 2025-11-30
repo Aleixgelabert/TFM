@@ -1,0 +1,107 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_ENGINE
+VAR_INPUT
+	Enable : BOOL;
+	Boost  : BOOL;
+	Forced : BOOL;
+
+	Hydraulic_RPM  : REAL;
+	Propulsion_RPM : REAL;
+	Forced_RPM     : REAL;
+	ActualTorque   : REAL;
+END_VAR
+VAR_IN_OUT
+	Cfg : ST_ENGINE_CFG;
+END_VAR
+VAR_OUTPUT
+	Engine_RPM : REAL;
+	Available_Perc : REAL;
+END_VAR
+VAR
+	Man_RPM : REAL;
+	Use_Man : BOOL;
+	Tgt_RPM : REAL;
+	Dif_RPM : REAL;
+	CyclCnt : REAL;
+
+END_VAR
+
+(* @END_DECLARATION := '0' *)
+IF Propulsion_RPM > 0 THEN
+	(*Boost Logic*)
+	IF Boost THEN
+		Tgt_RPM := Propulsion_RPM * Cfg.Boost_K;
+	ELSE
+		Tgt_RPM := Propulsion_RPM;
+	END_IF
+
+	IF ActualTorque > Cfg.Min_Torque THEN
+		Available_Perc := 1 - Cfg.Dec_Flow_Perc_WP_K * (ActualTorque - Cfg.Min_Torque);
+	ELSE
+		Available_Perc := 1;
+	END_IF
+
+	(*Valvula = 0*)
+
+ELSIF Hydraulic_RPM > 0 THEN
+
+	IF Hydraulic_RPM >= Tgt_RPM THEN
+		CyclCnt := 0;
+		Tgt_RPM := Hydraulic_RPM;
+	ELSIF CyclCnt >= Cfg.DlyDec_sec THEN
+		Tgt_RPM := Hydraulic_RPM;
+	ELSE
+		CyclCnt := CyclCnt + Cfg.Cycle;
+	END_IF
+
+	Available_Perc := 1;
+
+	IF ActualTorque > Cfg.Min_Torque THEN
+		Tgt_RPM := Hydraulic_RPM + Hydraulic_RPM * Cfg.Inc_RMP_Perc_WOP_K * (ActualTorque - Cfg.Min_Torque);
+	END_IF
+
+(*Valvula = 0*)
+ELSE
+	Available_Perc := 1;
+
+	IF CyclCnt >= Cfg.DlyDec_sec THEN
+		Tgt_RPM := 0;
+	ELSE
+		CyclCnt := CyclCnt + Cfg.Cycle;
+	END_IF
+
+	(*si RPM esta en el rango , Valvula = X*)
+END_IF
+
+IF Forced AND Propulsion_RPM = 0 THEN
+	Tgt_RPM := MAX(Tgt_RPM, Forced_RPM);
+
+	(*Si tampoco Hydraulic_RPM activo la valvula si RPM esta en el rango
+
+	Por defecto desactivado, hacer que hay que activarlo.
+*)
+
+END_IF
+
+(*Ramp*)
+Dif_RPM := Tgt_RPM - Engine_RPM;
+
+IF Dif_RPM > Cfg.CycleMaxInc_RPM THEN
+	Dif_RPM := Cfg.CycleMaxInc_RPM;
+
+ELSIF Dif_RPM < -Cfg.CycleMaxDec_RPM THEN
+	Dif_RPM := -Cfg.CycleMaxDec_RPM;
+
+END_IF
+
+(*Limits*)
+IF Boost AND Propulsion_RPM > 0
+THEN Engine_RPM := MAX(MIN((Engine_RPM + Dif_RPM), Cfg.Boost_RPM), Cfg.Min_RPM);
+ELSE Engine_RPM := MAX(MIN((Engine_RPM + Dif_RPM), Cfg.Max_RPM  ), Cfg.Min_RPM);
+END_IF
+
+END_FUNCTION_BLOCK

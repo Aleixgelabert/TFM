@@ -1,0 +1,86 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_BOARD_CFG :
+STRUCT
+(*Targets*)
+	TgtLS_P_In   : REAL;
+	TgtLS_P_InR  : REAL;
+	TgtLS_P_Mid  : REAL;
+	TgtLS_P_OutR : REAL;
+	TgtLS_P_Out  : REAL;
+
+	TgtLS_S_In   : REAL;
+	TgtLS_S_InR  : REAL;
+	TgtLS_S_Mid  : REAL;
+	TgtLS_S_OutR : REAL;
+	TgtLS_S_Out  : REAL;
+
+	TgtLS_P_Safe_Out : REAL;
+	TgtLS_P_Safe_In  : REAL;
+
+	TgtLS_S_Safe_Out : REAL;
+	TgtLS_S_Safe_In  : REAL;
+
+	LS_Dif_Tgt : REAL;
+	LS_Dif_Max : REAL;
+	LS_Dif_Min : REAL;
+
+	LS_DB : REAL;
+
+	P_Hyst_HP : REAL;
+	P_Hyst_LP : REAL;
+	P_Hyst_TM : REAL;	(*Seconds*)
+
+(*Keel Limits*)
+	Keel_P_Max : REAL;
+	Keel_S_Min : REAL;
+
+(*Valve Limits*)
+	EVP_In_P_Min  : REAL;
+	EVP_In_P_Max  : REAL;
+
+	EVP_In_S_Min  : REAL;
+	EVP_In_S_Max  : REAL;
+
+	EVP_Out_P_Min  : REAL;
+	EVP_Out_P_Max  : REAL;
+
+	EVP_Out_S_Min  : REAL;
+	EVP_Out_S_Max  : REAL;
+
+(*Valve Targets*)
+	EVP_In_P_Eng : REAL;
+	EVP_In_P_PP  : REAL;
+
+	EVP_In_S_Eng : REAL;
+	EVP_In_S_PP  : REAL;
+
+	EVP_Out_P_Eng : REAL;
+	EVP_Out_P_PP  : REAL;
+
+	EVP_Out_S_Eng : REAL;
+	EVP_Out_S_PP  : REAL;
+
+(*Valve Gains*)
+	EVP_In_EVP_K  : REAL;
+	EVP_Out_EVP_K : REAL;
+
+	EVP_In_LS_K  : REAL;
+	EVP_Out_LS_K : REAL;
+
+(*Valve Softstart*)
+	EVP_In_Inc  : REAL;
+	EVP_Out_Inc : REAL;
+
+	EVP_In_Dec  : REAL;
+	EVP_Out_Dec : REAL;
+
+	LP : BYTE;
+
+	Cycle    : REAL; (*Seconds*)
+	TimeMax  : REAL; (*Seconds*)
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

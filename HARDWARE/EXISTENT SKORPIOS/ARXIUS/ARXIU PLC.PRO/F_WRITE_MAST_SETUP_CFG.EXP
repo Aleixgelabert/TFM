@@ -1,0 +1,108 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_MAST_SETUP_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	wSize   :DWORD;
+	pBuffer :POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wPos     : DWORD;
+	stTABLE : ST_MAST_SETUP;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX3_TO_BUFFER( S1:= '$n#', S2:= sHead, S3:=' - Parameters:$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_1_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[1,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_1_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[1,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_1_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[1,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_1_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[1,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_1_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[1,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_1_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[1,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_2_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[2,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_2_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[2,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_2_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[2,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_2_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[2,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_2_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[2,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_2_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[2,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_3_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[3,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_3_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[3,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_3_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[3,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_3_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[3,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_3_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[3,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_3_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[3,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_4_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[4,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_4_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[4,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_4_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[4,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_4_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[4,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_4_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[4,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_FSY_4_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aFSY[4,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_1_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[1,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_1_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[1,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_1_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[1,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_1_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[1,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_1_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[1,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_1_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[1,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_2_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[2,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_2_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[2,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_2_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[2,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_2_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[2,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_2_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[2,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_2_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[2,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_3_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[3,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_3_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[3,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_3_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[3,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_3_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[3,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_3_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[3,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_3_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[3,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_4_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[4,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_4_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[4,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_4_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[4,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_4_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[4,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_4_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[4,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_BDEF_4_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aBDef[4,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_1_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[1,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_1_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[1,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_1_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[1,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_1_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[1,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_1_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[1,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_1_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[1,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_2_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[2,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_2_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[2,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_2_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[2,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_2_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[2,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_2_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[2,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_2_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[2,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_3_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[3,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_3_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[3,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_3_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[3,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_3_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[3,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_3_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[3,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_3_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[3,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_4_1' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[4,1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_4_2' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[4,2] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_4_3' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[4,3] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_4_4' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[4,4] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_4_5' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[4,5] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TDEF_4_6' ), S2:='$t', S3:= REAL_TO_STRING( stTABLE.aTDef[4,6] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+
+
+
+END_FUNCTION

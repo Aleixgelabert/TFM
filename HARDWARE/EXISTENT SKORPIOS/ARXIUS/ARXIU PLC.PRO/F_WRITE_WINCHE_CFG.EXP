@@ -1,0 +1,66 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_WINCHE_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	wSize   :DWORD;
+	pBuffer :POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wPos     : DWORD;
+	stConfig : ST_WINCHE_CFG;
+END_VAR
+VAR
+	aux1 : REAL;
+	aux2 : REAL;
+	aux3 : REAL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX3_TO_BUFFER( S1:= '$n#', S2:= sHead, S3:=' - Parameters:$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Spd11' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.Spd1[1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Spd21' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.Spd2[1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Spd31' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.Spd3[1] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Spd17' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.Spd1[7] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Spd27' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.Spd2[7] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Spd37' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.Spd3[7] ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_P1_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.P1_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_P2_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.P2_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_P3_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.P3_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_A_Spd1' ), S2:='$t', S3:= BOOL_TO_STRING( stConfig.A_Spd1 ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+(*F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_PP'  ), S2:='$t', S3:= BYTE_TO_STRING( stConfig.PP ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );*)
+
+(*Calc Values*)
+
+aux1 := (stConfig.Spd1[7]-stConfig.Spd1[1])/6.0;
+aux2 := (stConfig.Spd2[7]-stConfig.Spd2[1])/6.0;
+aux3 := (stConfig.Spd3[7]-stConfig.Spd3[1])/6.0;
+
+stConfig.Spd1[2] := stConfig.Spd1[1] + Aux1;
+stConfig.Spd1[3] := stConfig.Spd1[2] + Aux1;
+stConfig.Spd1[4] := stConfig.Spd1[3] + Aux1;
+stConfig.Spd1[5] := stConfig.Spd1[4] + Aux1;
+stConfig.Spd1[6] := stConfig.Spd1[5] + Aux1;
+
+stConfig.Spd2[2] := stConfig.Spd2[1] + Aux2;
+stConfig.Spd2[3] := stConfig.Spd2[2] + Aux2;
+stConfig.Spd2[4] := stConfig.Spd2[3] + Aux2;
+stConfig.Spd2[5] := stConfig.Spd2[4] + Aux2;
+stConfig.Spd2[6] := stConfig.Spd2[5] + Aux2;
+
+stConfig.Spd3[2] := stConfig.Spd3[1] + Aux3;
+stConfig.Spd3[3] := stConfig.Spd3[2] + Aux3;
+stConfig.Spd3[4] := stConfig.Spd3[3] + Aux3;
+stConfig.Spd3[5] := stConfig.Spd3[4] + Aux3;
+stConfig.Spd3[6] := stConfig.Spd3[5] + Aux3;
+
+END_FUNCTION

@@ -1,0 +1,50 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_MAGIC_DOUBLE_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_MAGIC_DOUBLE_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.P2Max := F_IDLIST_GETREAL( CONCAT(sHead, '_P2Max' ), fbIdList );
+stConfig.P4Max := F_IDLIST_GETREAL( CONCAT(sHead, '_P4Max' ), fbIdList );
+
+stConfig.EVPA4  := F_IDLIST_GETINT( CONCAT(sHead, '_EVPA4' ), fbIdList );
+stConfig.EVPA2  := F_IDLIST_GETINT( CONCAT(sHead, '_EVPA2' ), fbIdList );
+stConfig.EVPB4  := F_IDLIST_GETINT( CONCAT(sHead, '_EVPB4' ), fbIdList );
+stConfig.EVPB2  := F_IDLIST_GETINT( CONCAT(sHead, '_EVPB2' ), fbIdList );
+stConfig.EVPFA4 := F_IDLIST_GETINT( CONCAT(sHead, '_EVPFA4' ), fbIdList );
+stConfig.EVPFA2 := F_IDLIST_GETINT( CONCAT(sHead, '_EVPFA2' ), fbIdList );
+stConfig.EVPFB4 := F_IDLIST_GETINT( CONCAT(sHead, '_EVPFB4' ), fbIdList );
+stConfig.EVPFB2 := F_IDLIST_GETINT( CONCAT(sHead, '_EVPFB2' ), fbIdList );
+
+stConfig.EVPRA2 := F_IDLIST_GETINT( CONCAT(sHead, '_EVPRA2' ), fbIdList );
+stConfig.EVPRAD := 700;
+
+stConfig.TgtLS4_In  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS4_In'  ), fbIdList );
+stConfig.TgtLS4_Out := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS4_Out' ), fbIdList );
+stConfig.TgtLS2_In  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS2_In'  ), fbIdList );
+stConfig.TgtLS2_Out := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS2_Out' ), fbIdList );
+
+stConfig.P_DB     := F_IDLIST_GETREAL( CONCAT(sHead, '_P_DB'     ), fbIdList );
+stConfig.LS_DB    := F_IDLIST_GETREAL( CONCAT(sHead, '_LS_DB'    ), fbIdList );
+
+stConfig.TimeMax  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax'  ), fbIdList );
+stConfig.OutDelay := F_IDLIST_GETREAL( CONCAT(sHead, '_OutDelay' ), fbIdList );
+stConfig.EVTDelay := F_IDLIST_GETREAL( CONCAT(sHead, '_EVTDelay' ), fbIdList );
+stConfig.Cycle    := rTime;
+
+stConfig.PP1  := F_IDLIST_GETBOOL( CONCAT(sHead, '_PP1'  ), fbIdList );
+stConfig.PP2  := F_IDLIST_GETBOOL( CONCAT(sHead, '_PP2'  ), fbIdList );
+
+
+END_FUNCTION

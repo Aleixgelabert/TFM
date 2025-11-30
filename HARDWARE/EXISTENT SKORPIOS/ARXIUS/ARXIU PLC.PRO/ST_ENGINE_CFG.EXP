@@ -1,0 +1,57 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_ENGINE_CFG :
+STRUCT
+
+	(*Parameters*)
+	MaxInc_RPM : REAL; (*RPM/sec*)
+	MaxDec_RPM : REAL; (*RPM/sec*)
+	DlyDec_sec : REAL;
+
+	Boost_RPM : REAL;
+	Max_RPM   : REAL;
+	Min_RPM   : REAL;
+	Stop_RPM  : REAL;
+
+	HP_Nx_RPM : REAL;
+	HP_SF_RPM : REAL;
+
+	LP_CK_RPM : REAL;
+	LP_1x_RPM : REAL;
+	LP_2x_RPM : REAL;
+	LP_3x_RPM : REAL;
+	LP_Nx_RPM : REAL;
+
+	N_Winch_WOP : INT;
+	N_Winch_WK  : INT;
+	N_Winch_WP  : INT;
+
+	Max_Torque : REAL;
+	Min_Torque : REAL;
+
+	Inc_RMP_Perc_WOP : REAL;
+	Dec_Flow_Perc_WP : REAL;
+
+	Max_HeatExch_P : REAL;
+
+	Cycle : REAL; (*Seconds*)
+
+	EnForceRPM : BOOL;
+	EnForceTHR : BOOL;
+
+
+
+	(*Coefficients*)
+	CycleMaxInc_RPM : REAL;
+	CycleMaxDec_RPM : REAL;
+
+	Boost_K : REAL;
+	OffDelay_cycl : UINT;
+
+	Inc_RMP_Perc_WOP_K : REAL;
+	Dec_Flow_Perc_WP_K : REAL;
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

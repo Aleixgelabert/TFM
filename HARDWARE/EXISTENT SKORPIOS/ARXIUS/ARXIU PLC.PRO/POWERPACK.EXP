@@ -1,0 +1,374 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM POWERPACK
+VAR
+	fbPP1 : FB_POWERPACK;
+	fbPP2 : FB_POWERPACK;
+
+	NHP   : UINT;
+	NSF   : UINT;
+	NLP   : UINT;
+	NW    : UINT;
+
+	LP_Perc  : REAL;
+
+	WinchReady : BOOL;
+
+	LP_RPM  : REAL;
+	HP_RPM  : REAL;
+	TgtRPM  : REAL;
+
+	PP1_HP : BOOL;
+	PP1_LP : BOOL;
+	PP2_HP : BOOL;
+	PP2_LP : BOOL;
+
+	Buzzer: BOOL;
+	Mute  : BOOL;
+	Bypass: BOOL;
+	PP_Adver : BOOL;
+	HP_Adver : BOOL;
+
+	EV1502_Time : REAL;
+	(*Calib*)
+	Calib1 : BOOL;
+	Calib2 : BOOL;
+	CalThr : REAL;
+	CalMax : REAL := 5.0;
+	CalInc : REAL := 0.01;
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+THR_PP1 := 0.0;
+THR_PP2 := 0.0;
+
+KEY_PP1 := FALSE;
+KEY_PP2 := FALSE;
+
+EV101 := FALSE;
+EV102 := FALSE;
+EV103 := FALSE;
+EV104 := FALSE;
+
+(*Count Small Functions HP*)
+NSF := MAIN.fbDE605.OUT_HP
+
+	 + MAIN.fbWB_A.OUT_HP
+	 + MAIN.fbWB_B.OUT_HP
+	 + MAIN.fbWB_C.OUT_HP
+	 + MAIN.fbWB_D.OUT_HP
+	 + MAIN.fbWB_E.OUT_HP
+	 + MAIN.fbWB_F.OUT_HP
+	 + MAIN.fbWB_G.OUT_HP
+	 + MAIN.fbWB_H.OUT_HP
+	 + MAIN.fbWB_I.OUT_HP
+	 + MAIN.fbWB_J.OUT_HP
+	 + MAIN.fbWB_K.OUT_HP
+	 + MAIN.fbWB_L.OUT_HP
+	 + MAIN.fbWB_M.OUT_HP
+	 + MAIN.fbWB_N.OUT_HP
+	 + MAIN.fbWB_R.OUT_HP
+	 + MAIN.fbWB_S.OUT_HP
+	 + MAIN.fbWB_PUD.OUT_HP
+	 + MAIN.fbWB_PAF.OUT_HP
+	 + MAIN.fbWB_SUD.OUT_HP
+	 + MAIN.fbWB_SAF.OUT_HP
+;
+
+(*Count All HP*)
+NHP := NSF
+	 + MAIN.fbSE301.OUT_HP
+	 + MAIN.fbSE303.OUT_HP
+	 + MAIN.fbSE305.OUT_HP
+	 + MAIN.fbSE307.OUT_HP
+	 + MAIN.fbSE309.OUT_HP
+	 + MAIN.fbSE311.OUT_HP
+	 + MAIN.fbSE501.OUT_HP
+	 + MAIN.fbSE503.OUT_HP
+	 + MAIN.fbSE505.OUT_HP
+	 + MAIN.fbDE601.OUT_HP
+(*	 + MAIN.fbDE605.OUT_HP*)
+	 + MAIN.fbSE701.OUT_HP
+	 + MAIN.fbSE703.OUT_HP
+	 + MAIN.fbSE705.OUT_HP
+	 + MAIN.fbSE707.OUT_HP
+	 + MAIN.fbSE709.OUT_HP
+
+     + MAIN.fbBSY.OUT_HP
+(*	 + MAIN.fbSE901.OUT_HP
+	 + MAIN.fbSE903.OUT_HP*)
+
+(*	 + MAIN.fbWB_A.OUT_HP
+	 + MAIN.fbWB_B.OUT_HP
+	 + MAIN.fbWB_C.OUT_HP
+	 + MAIN.fbWB_D.OUT_HP
+	 + MAIN.fbWB_E.OUT_HP
+	 + MAIN.fbWB_F.OUT_HP
+	 + MAIN.fbWB_G.OUT_HP
+	 + MAIN.fbWB_H.OUT_HP
+	 + MAIN.fbWB_I.OUT_HP
+	 + MAIN.fbWB_J.OUT_HP
+	 + MAIN.fbWB_K.OUT_HP
+	 + MAIN.fbWB_L.OUT_HP
+	 + MAIN.fbWB_M.OUT_HP
+	 + MAIN.fbWB_N.OUT_HP
+	 + MAIN.fbWB_R.OUT_HP
+	 + MAIN.fbWB_S.OUT_HP
+	 + MAIN.fbWB_PUD.OUT_HP
+	 + MAIN.fbWB_PAF.OUT_HP
+	 + MAIN.fbWB_SUD.OUT_HP
+	 + MAIN.fbWB_SAF.OUT_HP *)
+
+	 + MAIN.fbTraveller.OUT_HP
+;
+
+(*Count LP*)
+NW := MAIN.fbW1202.OUT_LP
+	+ MAIN.fbW1204.OUT_LP
+	+ MAIN.fbW1206.OUT_LP
+	+ MAIN.fbW1208.OUT_LP
+	+ MAIN.fbW1210.OUT_LP
+	+ MAIN.fbW1212.OUT_LP
+	+ MAIN.fbW1214.OUT_LP
+	+ MAIN.fbW1602.OUT_LP
+	+ MAIN.fbW1604.OUT_LP
+;
+
+NLP := NW
+	+ MAIN.fbKeel.OUT_LP
+	+ MAIN.fbBoard.OUT_LP
+	+ MAIN.fbTraveller.OUT_LP
+
+	+ MAIN.fbWB.OUT_LP
+
+	+ MAIN.fbBowThr.OUT_LP
+	+ MAIN.fbBowThrUpDw.OUT_LP
+;
+
+TgtRPM  := 0.0;
+LP_RPM  := 0.0;
+HP_RPM  := 0.0;
+
+PP1_HP := FALSE;
+PP1_LP := FALSE;
+PP2_HP := FALSE;
+PP2_LP := FALSE;
+
+
+IF ENGINE.Engine_ON THEN
+	LP_Perc := ENGINE.fbEngine.Available_Perc;
+
+	(*Evaluate HP*)
+	CASE NHP OF
+	0:
+		EV105 := FALSE;
+		EV106 := FALSE;
+
+	1:
+		IF    MAIN.aSys_Enable[4] THEN EV105 := TRUE;
+		ELSIF MAIN.aSys_Enable[5] THEN EV106 := TRUE;
+		END_IF
+
+	ELSE
+		EV105 := MAIN.aSys_Enable[4];
+		EV106 := MAIN.aSys_Enable[5];
+
+	END_CASE
+
+	(*	Any function only PP?? *)
+
+	IF ENGINE.fbPropulsion.Idle THEN
+		WinchReady := NW < PARAMS.stEngineCfg.N_Winch_WOP;
+
+		IF NLP > 0 THEN
+			IF MAIN.fbKeel.OUT_LP > 0 THEN
+				WinchReady := NW < PARAMS.stEngineCfg.N_Winch_WK;
+				LP_RPM := PARAMS.stEngineCfg.LP_CK_RPM;
+
+			ELSIF NLP = 1 THEN LP_RPM := PARAMS.stEngineCfg.LP_1x_RPM;
+			ELSIF NLP = 2 THEN LP_RPM := PARAMS.stEngineCfg.LP_2x_RPM;
+			ELSIF NLP = 3 THEN LP_RPM := PARAMS.stEngineCfg.LP_3x_RPM;
+			ELSE               LP_RPM := PARAMS.stEngineCfg.LP_Nx_RPM;
+			END_IF
+		END_IF
+
+		IF NHP > 0 THEN
+			IF NHP = NSF
+			THEN HP_RPM := PARAMS.stEngineCfg.HP_SF_RPM;
+			ELSE HP_RPM := PARAMS.stEngineCfg.HP_Nx_RPM;
+			END_IF
+		END_IF
+
+		TgtRPM := MAX(LP_RPM, HP_RPM);
+
+		IF TgtRPM = 0 THEN
+
+		;
+
+		(*
+			Si no TgtRPM pero engine tiene RPM tgt interno sea del delay o del forced con el flag.
+			comparo rango de RPM y habilito la Valvula 1611
+			Tambien valvula 105 y el Link 107 mas abajo.
+
+			Evaluo tambien la logica del EV1501 y EV1502 o igual solo EV1501 porque no tiene que haber presion.
+
+			MEjor si meto una presion mazima medida en P101.
+		*)
+		END_IF
+
+	ELSE
+		WinchReady := NW < PARAMS.stEngineCfg.N_Winch_WP;
+
+		IF MAIN.fbKeel.OUT_LP > 0 THEN
+			PP1_LP := fbPP1.Enable;
+			PP2_LP := fbPP2.Enable;
+		END_IF
+
+	END_IF
+
+	EV1501 := FALSE;
+	EV1502 := FALSE;
+
+(*With PowerPack*)
+ELSE
+	LP_Perc  := 1;
+	WinchReady := TRUE;
+
+	(*Evaluate HP*)
+	CASE NHP OF
+	0:
+		PP1_HP := FALSE;
+		PP2_HP := FALSE;
+
+	1:
+		IF    fbPP1.Enable THEN PP1_HP := TRUE;
+		ELSIF fbPP2.Enable THEN PP2_HP := TRUE;
+		END_IF
+
+	ELSE
+		PP1_HP := fbPP1.Enable;
+		PP2_HP := fbPP2.Enable;
+
+	END_CASE
+
+	(*Evaluate LP*)
+	CASE NLP OF
+	0:
+		PP1_LP := FALSE;
+		PP2_LP := FALSE;
+
+	(*1:
+		IF    fbPP1.Enable THEN PP1_LP := TRUE;
+		ELSIF fbPP2.Enable THEN PP2_LP := TRUE;
+		END_IF*)
+
+	ELSE
+		PP1_LP := fbPP1.Enable;
+		PP2_LP := fbPP2.Enable;
+
+	END_CASE
+
+	EV1501 := PP1_LP OR PP2_LP;
+
+	IF EV1501 = TRUE THEN
+		EV1502_Time := 1.0;
+		EV1502 := FALSE;
+
+	ELSIF EV1502_Time > 0.0 THEN
+		EV1502_Time := EV1502_Time - MAIN.Cycle_Time;
+		EV1502 := TRUE;
+
+	ELSE
+		EV1502 := FALSE;
+
+	END_IF
+
+END_IF
+
+(*POWERPACKS*)
+fbPP1(
+	Enable := MAIN.aSys_Enable[6] AND TANK.Enable AND (NOT S101.AlMax OR Bypass),
+
+	IN_HP := PP1_HP,
+	IN_LP := PP1_LP,
+
+	LP_P := P101,
+	HP_P := P103,
+	CFG  := PARAMS.stPowerpackCfg,
+
+	OUT_EV_HP => EV103,
+	OUT_EV_LP => EV101,
+(*	OUT_EV_LNK=> ,*)
+	OUT_KEY   => KEY_PP1,
+	OUT_THR   => THR_PP1
+);
+
+fbPP2(
+	Enable := MAIN.aSys_Enable[7] AND TANK.Enable AND (NOT S102.AlMax OR Bypass),
+
+	IN_HP := PP2_HP,
+	IN_LP := PP2_LP,
+
+	LP_P := P101,
+	HP_P := P103,
+	CFG  := PARAMS.stPowerpackCfg,
+
+	OUT_EV_HP => EV104,
+	OUT_EV_LP => EV102,
+(*	OUT_EV_LNK=> ,*)
+	OUT_KEY   => KEY_PP2,
+	OUT_THR   => THR_PP2
+);
+(*Link*)
+EV107 := fbPP1.OUT_EV_LNK OR fbPP2.OUT_EV_LNK;  (******ANADIR si hace falta para la vibracion**************)
+
+(*Alarms*)
+Mute   := Mute   AND S101.AlLow AND S102.AlLow;
+Bypass := Bypass AND (NOT S101.AlMax OR NOT S102.AlMax);
+Buzzer := TANK.Enable AND (S101.AlHig OR S102.AlHig OR S101.AlMax OR S102.AlMax) AND NOT MUTE;
+
+(*THROTTLE CALIBRATION*)
+IF Calib1 THEN
+	Calib2 := FALSE;
+
+	CalThr := CalThr + CalInc;
+	IF CalThr > CalMax THEN CalThr := CalMax; END_IF
+
+	THR_PP1 := CalThr;
+	THR_PP2 := 0.0;
+
+	KEY_PP1 := TRUE;
+	KEY_PP2 := TRUE;
+
+	EV101 := FALSE;
+	EV102 := FALSE;
+	EV103 := FALSE;
+	EV104 := FALSE;
+ELSE
+	CalThr := 0.0;
+END_IF
+
+IF Calib2 THEN
+	Calib1 := FALSE;
+
+	CalThr := CalThr + CalInc;
+	IF CalThr > CalMax THEN CalThr := CalMax; END_IF
+
+	THR_PP1 := 0.0;
+	THR_PP2 := CalThr;
+
+	KEY_PP1 := TRUE;
+	KEY_PP2 := TRUE;
+
+	EV101 := FALSE;
+	EV102 := FALSE;
+	EV103 := FALSE;
+	EV104 := FALSE;
+ELSE
+	CalThr := 0.0;
+END_IF
+
+END_PROGRAM

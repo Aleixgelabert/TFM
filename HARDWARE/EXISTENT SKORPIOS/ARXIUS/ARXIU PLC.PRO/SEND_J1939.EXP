@@ -1,0 +1,55 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM SEND_J1939
+VAR
+	i: INT;
+	iToSend  : INT;
+	aTxFrame : ARRAY [0..9] OF VARTYPE_EXTCANQUEUE;
+
+	fbFF70 : FB_CODE_FF70;
+
+	PedalPerc  : REAL;
+	PedalFault : BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+
+(*2800 = 100%*)
+PedalPerc  := ENGINE.fbEngine.Engine_RPM * 0.04504504505 - 30.63063063; (*NEW*)
+(*PedalPerc  := ENGINE.fbEngine.Engine_RPM * 0.0448 - 31.883;*)
+(*PedalFault := NOT fbEngine.Enable;*)
+
+(*Engine Pedal frame*)
+fbFF70(
+	Enable := ENGINE.fbEngine.Enable,
+	Source     := 16#10,
+	PedalPerc  := PedalPerc,
+	PedalID    := 0,
+	PedalFault := PedalFault,
+
+	TaskTime     := 5,
+	TransmitTime := 50
+);
+
+IF fbFF70.OUT_Enable THEN
+	IF iToSend < 10 THEN
+		aTxFrame[iToSend] := fbFF70.OUT;
+		iToSend := iToSend + 1;
+	END_IF
+END_IF
+
+(*SendingCAN*)
+IF J1939_Outputs.TxCounter = J1939_Inputs.TxCounter AND iToSend > 0 THEN
+	FOR i := 0 TO iToSend-1 BY 1 DO
+		MEMCPY( destAddr := ADR(J1939_Outputs.TxMessages[i] ), srcAddr := ADR(aTxFrame[i].length), n := 14 );
+	END_FOR
+
+	J1939_Outputs.NoOfTxMessages := iToSend;
+	J1939_Outputs.TxCounter      := J1939_Outputs.TxCounter + 1;
+
+	iToSend := 0;
+END_IF
+
+END_PROGRAM

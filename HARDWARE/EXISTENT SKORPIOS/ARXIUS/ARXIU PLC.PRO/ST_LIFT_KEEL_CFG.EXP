@@ -1,0 +1,35 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_LIFT_KEEL_CFG :
+STRUCT
+	PMax_Up : REAL; (*Alarm only*)
+	PMax_Dw : REAL; (*Alarm only*)
+
+	P500_Up : REAL; (*Usually 15% more than PMax*)
+	P500_Dw : REAL; (*Usually 15% more than PMax*)
+
+	P144_F  : REAL; (*Release Max Press.*)
+	P144_S  : REAL; (*Release Max Press.*)
+
+	TgtP_Dw   : REAL;
+	TgtLS_Up  : REAL;
+	TgtLS_SUp : REAL;
+	TgtLS_Dw  : REAL;
+
+	P_DB	 : REAL;
+	LS_DB    : REAL;
+	LS_Dist  : REAL;
+
+	Cycle    : REAL; (*Seconds*)
+	TimeMax  : REAL; (*Seconds*)
+	Delay_Dw : REAL;
+
+	PP1 : BOOL;
+	PP2 : BOOL;
+	HP1 : BOOL;
+	HP2 : BOOL;
+	HP3 : BOOL;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

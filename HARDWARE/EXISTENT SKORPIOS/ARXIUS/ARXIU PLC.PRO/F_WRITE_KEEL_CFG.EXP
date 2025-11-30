@@ -1,0 +1,102 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_KEEL_CFG : BOOL
+VAR_INPUT
+	sHead   : STRING;
+	wSize   :DWORD;
+	pBuffer :POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wPos     : DWORD;
+	stConfig : ST_KEEL_CFG;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX3_TO_BUFFER( S1:= '$n#', S2:= sHead, S3:=' - Parameters:$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+(*Targets*)
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TgtLS_In'  ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TgtLS_In  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TgtLS_Mid' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TgtLS_Mid ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TgtLS_Out' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TgtLS_Out ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TgtLS_Safe_In'  ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TgtLS_Safe_In  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TgtLS_Safe_Out' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TgtLS_Safe_Out ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TgtLS_Tack_Off' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TgtLS_Tack_Off ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LS_DB'), S2:='$t', S3:= REAL_TO_STRING( stConfig.LS_DB ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+(*Board Limits*)
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Board_P_Min_Out'), S2:='$t', S3:= REAL_TO_STRING( stConfig.Board_P_Min_Out ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Board_S_Min_Out'), S2:='$t', S3:= REAL_TO_STRING( stConfig.Board_S_Min_Out ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+(*Valve Limits*)
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_SE_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_SE_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_SE_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_SE_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_SE_Man' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_SE_Man ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_FE_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_FE_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_FE_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_FE_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_FE_Man' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_FE_Man ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_Eng_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_Eng_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_Eng_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_Eng_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_Eng_Man' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_Eng_Man ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_P_Empty' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_P_Empty ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_SE_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_SE_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_SE_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_SE_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_SE_Man' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_SE_Man ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_SE_Empty' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_SE_Empty ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_FE_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_FE_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_FE_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_FE_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_FE_Man' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_FE_Man ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Eng_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Eng_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Eng_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Eng_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Eng_Man' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Eng_Man ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Fill_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Fill_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Fill_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Fill_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_P_Fill' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_P_Fill ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+(*Valve Softstart*)
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_SE_Inc' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_SE_Inc ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_SE_Dec' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_SE_Dec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_FE_Inc' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_FE_Inc ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_FE_Dec' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_FE_Dec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_SE_Inc' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_SE_Inc ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_SE_Dec' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_SE_Dec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_FE_Inc' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_FE_Inc ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_FE_Dec' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_FE_Dec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_Eng_Inc' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_Eng_Inc ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_Eng_Dec' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_Eng_Dec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Eng_Inc' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Eng_Inc ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Eng_Dec' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Eng_Dec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+(*Valve Gains*)
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_In_Eng_K'  ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_In_Eng_K  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Out_Eng_K' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Out_Eng_K ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LP'  ), S2:='$t', S3:= BYTE_TO_STRING( stConfig.LP ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax'  ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+(*Auto Ease limit*)
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_MinLoadSide_Bar'   ), S2:='$t', S3:= REAL_TO_STRING( stConfig.MinLoadSide_Bar   ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_MaxUnloadSide_Bar' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.MaxUnloadSide_Bar ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+END_FUNCTION

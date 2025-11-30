@@ -1,0 +1,11 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_PSX_VALVE_OUT :
+STRUCT
+	Control  : UINT;
+	SetPoint : INT;
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

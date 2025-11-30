@@ -1,0 +1,27 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_ENGINE_COEF : BOOL
+VAR_INPUT
+	Cycle : REAL;
+END_VAR
+VAR_IN_OUT
+	Cfg : ST_ENGINE_CFG;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+Cfg.CycleMaxInc_RPM := Cfg.MaxInc_RPM * Cycle;
+Cfg.CycleMaxDec_RPM := Cfg.MaxDec_RPM * Cycle;
+
+IF Cfg.Max_RPM <> 0.0 THEN
+	Cfg.Boost_K := Cfg.Boost_RPM / Cfg.Max_RPM;
+END_IF
+
+IF Cfg.Max_Torque > Cfg.Min_Torque THEN
+	Cfg.Inc_RMP_Perc_WOP_K := Cfg.Inc_RMP_Perc_WOP / (100.0*(Cfg.Max_Torque - Cfg.Min_Torque));
+	Cfg.Dec_Flow_Perc_WP_K := Cfg.Dec_Flow_Perc_WP / (100.0*(Cfg.Max_Torque - Cfg.Min_Torque));
+END_IF
+END_FUNCTION

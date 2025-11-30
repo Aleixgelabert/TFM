@@ -1,0 +1,61 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_SENSOR_NC : BOOL
+VAR_INPUT
+	IN    : BOOL;
+	Clear : BOOL;
+	Cycle : REAL;
+	Delay : REAL;
+END_VAR
+VAR_IN_OUT
+	Sensor : ST_SENSOR_SWITCH;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF Clear THEN
+	Sensor.Alarm.Alarm := FALSE;
+	Sensor.Alarm.Adver := FALSE;
+	Sensor.Alarm.AlCnt := 0;
+	Sensor.Alarm.AlLen := 0.0;
+END_IF
+
+IF NOT IN THEN
+	IF Sensor.Count >= Delay THEN
+		IF NOT Sensor.Alarm.Alarm THEN
+			Sensor.Alarm.AlCnt  := Sensor.Alarm.AlCnt + 1;
+			Sensor.Alarm.AlLen  := 0.0;
+			Sensor.Alarm.TimeInit := INPUTS.sLocal;
+			Sensor.Alarm.AlInit   := TRUE;
+
+			Sensor.Alarm.Text   := Sensor.Desc;
+
+		ELSE
+			Sensor.Alarm.AlLen  := Sensor.Alarm.AlLen + MAIN.Cycle_Time;
+
+		END_IF
+
+		Sensor.Alarm.Adver := TRUE;
+		Sensor.Alarm.Alarm := TRUE;
+
+	ELSE
+		Sensor.Count := Sensor.Count + Cycle;
+
+	END_IF
+
+ELSE
+	IF Sensor.Alarm.Alarm THEN
+		Sensor.Alarm.TimeEnd := INPUTS.sLocal;
+		Sensor.Alarm.AlEnd   := TRUE;
+
+	END_IF
+
+	Sensor.Alarm.Alarm := FALSE;
+	Sensor.Count       := 0;
+END_IF
+
+
+END_FUNCTION

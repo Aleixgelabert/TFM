@@ -1,0 +1,24 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_KEEL_COEF : BOOL
+VAR_INPUT
+END_VAR
+VAR_IN_OUT
+	Cfg : ST_KEEL_CFG;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF CFG.EVP_Out_Eng_Max <> CFG.EVP_Out_Eng_Min THEN
+	CFG.EVP_Out_Fill_K   := (CFG.EVP_Out_Fill_Max - CFG.EVP_Out_Fill_Min) / (CFG.EVP_Out_Eng_Max - CFG.EVP_Out_Eng_Min);
+    CFG.EVP_Out_Fill_Off := CFG.EVP_Out_Fill_Min - CFG.EVP_Out_Eng_Min * CFG.EVP_Out_Fill_K;
+
+ELSE
+	CFG.EVP_Out_Fill_K   := 0;
+    CFG.EVP_Out_Fill_Off := 0;
+END_IF
+
+END_FUNCTION

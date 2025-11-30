@@ -1,0 +1,261 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM ENGINE
+VAR
+	fbEngine     : FB_ENGINE;
+	fbPropulsion : FB_PROPULSION;
+
+	Propulion_ON : BOOL;
+	Pump_ON      : BOOL;
+	Engine_ON    : BOOL; (*Con delay*)
+	Engine_STOP  : BOOL;
+	ForcedRPM    : BOOL;
+
+	ForcedProp     : BOOL;
+	ForcedProp_Thr : REAL;
+	ForcedProp_Tgt : REAL;
+	ForcedProp_Inc : REAL := 0.5; (*0.5V/s - 8 sec full throttle*)
+
+	OldCount : DWORD;
+	ErrCount : DWORD;
+
+	SIEngStop  : FB_SMART_INPUT;
+
+	Alarm1 : ST_ALARM;
+	Alarm2 : ST_ALARM;
+	Alarm3 : STRING;
+	Buzzer : BOOL;
+
+	EngineAlCnt : REAL;
+
+	S100_Mute  : BOOL;
+	SF100_Mute : BOOL;
+	S1100_Mute : BOOL;
+
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF ALARMS.Clear THEN
+	Alarm1.Alarm := FALSE;
+	Alarm1.Adver := FALSE;
+	Alarm1.AlCnt := 0;
+	Alarm1.AlLen := 0.0;
+
+	Alarm2.Alarm := FALSE;
+	Alarm2.Adver := FALSE;
+	Alarm2.AlCnt := 0;
+	Alarm2.AlLen := 0.0;
+
+END_IF
+
+S100_Mute  := S100_Mute   AND  S100.Alarm.Alarm;
+SF100_Mute := SF100_Mute  AND  SF100.Alarm.Alarm;
+S1100_Mute := S1100_Mute  AND  S1100.AlLow;
+
+
+(*Alarm Input from engine*)
+IF N0_DI4 THEN
+	IF NOT Alarm1.Alarm THEN
+		Alarm1.AlCnt  := Alarm1.AlCnt + 1;
+		Alarm1.AlLen  := 0.0;
+		Alarm1.TimeInit := INPUTS.sLocal;
+		Alarm1.AlInit   := TRUE;
+
+		Alarm1.Text   := 'Engine Alarm! ';
+
+	ELSE
+		Alarm1.AlLen  := Alarm1.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Alarm1.Adver := TRUE;
+	Alarm1.Alarm := TRUE;
+
+	EngineAlCnt  := 0;
+
+ELSIF EngineAlCnt > 5.0 THEN
+	IF Alarm1.Alarm THEN
+		Alarm1.TimeEnd := INPUTS.sLocal;
+		Alarm1.AlEnd   := TRUE;
+
+	END_IF
+
+	Alarm1.Alarm := FALSE;
+
+ELSE
+	EngineAlCnt := EngineAlCnt + MAIN.Cycle_Time;
+
+END_IF
+
+
+SIEngStop(In:= N112_IN.6, T_Cont:= T#500ms, T_DClk:= T#0ms);
+
+(*FLAGS/DIAGNOSIS*)
+IF RECV_J1939.F004.Count <> OldCount AND RECV_J1939.F004.EngineActualSpeed > 500.0 THEN
+	OldCount := RECV_J1939.F004.Count;
+	ErrCount := 0;
+
+	Engine_ON := TRUE;
+
+ELSIF ErrCount > 50 THEN
+	Engine_ON := FALSE;
+
+ELSE
+	ErrCount := ErrCount + 1;
+
+END_IF
+
+(*STOP*)
+IF MAIN.fbTackValve.StopEngine THEN
+	Engine_STOP := TRUE;
+
+	IF NOT Alarm2.Alarm THEN
+		Alarm2.AlCnt  := Alarm2.AlCnt + 1;
+		Alarm2.AlLen  := 0.0;
+		Alarm2.TimeInit := INPUTS.sLocal;
+		Alarm2.AlInit   := TRUE;
+
+		Alarm2.Text   := 'Engine Stopped by Tack Valves!';
+
+	ELSE
+		Alarm2.AlLen  := Alarm2.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Alarm2.Adver := TRUE;
+	Alarm2.Alarm := TRUE;
+
+ELSIF Engine_ON AND RECV_J1939.F004.EngineActualSpeed > PARAMS.stEngineCfg.Stop_RPM THEN
+	Engine_STOP := TRUE;
+
+	IF NOT Alarm2.Alarm THEN
+		Alarm2.AlCnt  := Alarm2.AlCnt + 1;
+		Alarm2.AlLen  := 0.0;
+		Alarm2.TimeInit := INPUTS.sLocal;
+		Alarm2.AlInit   := TRUE;
+
+		Alarm2.Text   := 'Engine Stopped by Excessive RPM!';
+
+	ELSE
+		Alarm2.AlLen  := Alarm2.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Alarm2.Adver := TRUE;
+	Alarm2.Alarm := TRUE;
+
+
+ELSIF SIEngStop.Event = INIT_CONTINUOUS THEN
+	Engine_STOP := TRUE;
+
+	IF NOT Alarm2.Alarm THEN
+		Alarm2.AlCnt  := Alarm2.AlCnt + 1;
+		Alarm2.AlLen  := 0.0;
+		Alarm2.TimeInit := INPUTS.sLocal;
+		Alarm2.AlInit   := TRUE;
+
+		Alarm2.Text   := 'Engine Stopped by Stop Button!';
+
+	ELSE
+		Alarm2.AlLen  := Alarm2.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Alarm2.Adver := TRUE;
+	Alarm2.Alarm := TRUE;
+
+ELSIF SIEngStop.Event = END_CONTINUOUS THEN
+	Engine_STOP := FALSE;
+
+	IF Alarm2.Alarm THEN
+		Alarm2.TimeEnd := INPUTS.sLocal;
+		Alarm2.AlEnd   := TRUE;
+
+	END_IF
+
+	Alarm2.Alarm := FALSE;
+
+END_IF
+
+Propulion_ON := Engine_ON AND NOT ENGINE.fbPropulsion.Idle;
+Pump_ON := PARAMS.Loaded AND NOT( Propulion_ON AND TANK.Reduced );
+
+Alarm3 := '';
+
+IF ForcedProp AND PARAMS.stEngineCfg.EnForceTHR THEN
+
+	Alarm3 := 'Forced Engine THROTTLE! ';
+
+	IF ForcedProp_Thr > 0 THEN
+		ForcedProp_Tgt := ForcedProp_Tgt + ForcedProp_Inc * MAIN.Cycle_Time;
+		ForcedProp_Tgt := MIN(ForcedProp_Tgt, ForcedProp_Thr);
+		ForcedProp_Tgt := MAX(ForcedProp_Tgt, 0.0);
+
+	ELSIF ForcedProp_Thr < 0 THEN
+		ForcedProp_Tgt := ForcedProp_Tgt - ForcedProp_Inc * MAIN.Cycle_Time;
+		ForcedProp_Tgt := MAX(ForcedProp_Tgt, ForcedProp_Thr);
+		ForcedProp_Tgt := MIN(ForcedProp_Tgt, 0.0);
+
+	ELSE
+		ForcedProp_Tgt := 0.0;
+
+	END_IF
+
+	THR_Prop     := ForcedProp_Tgt;
+	THR_Prop_Err := FALSE;
+
+ELSE
+	ForcedProp     := FALSE;
+	ForcedProp_Thr := THR_Prop;
+	ForcedProp_Tgt := 0.0;
+
+END_IF
+
+(*PROPULSION*)
+fbPropulsion(
+	Enable    := MAIN.aSys_Enable[9] AND TANK.Enable AND MAIN.aSys_Enable[3],
+	Ready     := Engine_ON AND MAIN.fbDE601.PROP_DW,
+
+	Throttle_V   := THR_Prop,
+	Throttle_err := THR_Prop_Err,
+
+	Cfg  := PARAMS.stPropulsionCfg,
+
+	FwdEVP => EVP002,
+	RevEVP => EVP001,
+	MoveEV => EV1101,
+);
+
+IF NOT EV1101 THEN
+	EVP001 := MAIN.fbKeel.EVP_Eng_I;  (*Verificar estos 2*)
+	EVP002 := MAIN.fbKeel.EVP_Eng_O;  (*Verificar estos 2*)
+END_IF
+
+(*ENGINE*)
+fbEngine(
+	Enable := MAIN.aSys_Enable[8] AND TANK.Enable,
+	Boost  := FALSE,
+	Forced := ForcedRPM AND PARAMS.stEngineCfg.EnForceRPM,
+
+	Hydraulic_RPM  := POWERPACK.TgtRPM,
+	Propulsion_RPM := fbPropulsion.Tgt_RPM,
+	ActualTorque   := RECV_J1939.F004.EngineActualTorque,
+
+	Cfg            := PARAMS.stEngineCfg,
+);
+
+IF ForcedRPM AND PARAMS.stEngineCfg.EnForceRPM THEN
+	Alarm3 := CONCAT(Alarm3, 'Forced Engine RPM! ');
+ELSE
+	ForcedRPM := FALSE;
+END_IF
+
+Buzzer := Alarm1.Alarm
+	   (*OR NOT SF100_Mute AND SF100.Alarm.Alarm*)
+	   OR NOT S1100_Mute AND S1100.AlHig
+	   OR S1100.AlMax;
+
+END_PROGRAM

@@ -1,0 +1,35 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_WB_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_WB_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.Cycle    := rTime;
+stConfig.TimeMax_Idle  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax_Idle'   ), fbIdList );
+stConfig.TimeMax_Init  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax_Init'   ), fbIdList );
+stConfig.TimeMax_DumpFwd  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax_DumpFwd'   ), fbIdList );
+stConfig.TimeMax_DumpAft  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax_DumpAft'   ), fbIdList );
+stConfig.TimeMax_MoveFwd  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax_MoveFwd'   ), fbIdList );
+stConfig.TimeMax_MoveAft  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax_MoveAft'   ), fbIdList );
+
+stConfig.EVP_Pump_Min := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Pump_Min' ), fbIdList );
+stConfig.EVP_Pump_Max := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Pump_Max' ), fbIdList );
+stConfig.EVP_Pump_Inc := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Pump_Inc' ), fbIdList );
+stConfig.EVP_Pump_Dec := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP_Pump_Dec' ), fbIdList );
+
+stConfig.LP := F_IDLIST_GETBYTE( CONCAT(sHead, '_LP' ), fbIdList );
+
+stConfig.EnScoopAF := F_IDLIST_GETBOOL( CONCAT(sHead, '_EnScoopAF' ), fbIdList );
+
+END_FUNCTION

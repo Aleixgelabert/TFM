@@ -1,0 +1,179 @@
+		(*Press Sensors*)
+		(* 1*) P010.Bar (*Tank*)
+		(* 2*) P101.Bar (*PowerPack Low Press. Line*)
+		(* 3*) P103.Bar (*Main High Press. Line*)
+		(* 4*) P201.Bar (*Main Low Press. Line*)
+
+		(* 5*) P301.Bar (*FRO Tack*)
+		(* 6*) P303.Bar (*A3 Tack*)
+		(* 7*) P305.Bar (*J5*)
+		(* 8*) P307.Bar (*J4*)
+		(* 9*) P309.Bar (*Forastay*)
+		(*10*) P311.Bar (*J2*)
+
+		(*11*) P501.Bar (*Jib InOut*)
+		(*12*) P503.Bar (*Jib UpDw*)
+		(*13*) P505.Bar (*Vang*)
+
+		(*14*) P601.Bar (*Propulsion Dw*)
+		(*15*) P603.Bar (*Propulsion Up*)
+		(*16*) P605.Bar (*Trim Tab Out*)
+		(*17*) P607.Bar (*Trim Tab In*)
+
+		(*18*) P701.Bar (*Inner Staysail*)
+		(*19*) P703.Bar (*Outhaul*)
+		(*20*) P705.Bar (*Main Cunningham*)
+		(*21*) P707.Bar (*Bottom Deflector*)
+		(*22*) P709.Bar (*Top Deflector*)
+
+		(*23*) P802.Bar (*Daggerborad Port Pump*)
+		(*24*) P804.Bar (*Daggerborad Stbd Pump*)
+
+		(*25*) P901.Bar (*Backstay Tail Port*)
+		(*26*) P903.Bar (*Backstay Tail Stbd*)
+
+		(*27*)P1001.Bar (*Keel IN*)
+		(*28*)P1002.Bar (*Keel OUT*)
+
+		(*29*)P1101.Bar (*Propulsion*)
+		(*30*)P1102.Bar (*Propulsion*)
+
+		(*31*)P1202.Bar (*Primary Winch Stbd A*)
+		(*32*)P1203.Bar (*Primary Winch Stbd B*)
+		(*33*)P1204.Bar (*Pit Winch Stbd A*)
+		(*34*)P1205.Bar (*Pit Winch Stbd B*)
+		(*35*)P1206.Bar (*Mainsheet Winch A*)
+		(*36*)P1207.Bar (*Mainsheet Winch B*)
+		(*37*)P1208.Bar (*Runner Winch Port A*)
+		(*38*)P1209.Bar (*Runner Winch Port B*)
+		(*39*)P1210.Bar (*Primary Winch Port A*)
+		(*40*)P1211.Bar (*Primary Winch Port B*)
+		(*41*)P1212.Bar (*Secondary Winch Port A*)
+		(*42*)P1213.Bar (*Secondary Winch Port B*)
+		(*43*)P1214.Bar (*Pit Winch Port	A*)
+		(*44*)P1215.Bar (*Pit Winch Port	B*)
+		(*45*)P1216.Bar (*Daggerborad Port Ease*)
+		(*46*)P1219.Bar (*Daggerborad Stbd Ease*)
+
+		(*47*)P1301.Bar (*Traveller A*)
+		(*48*)P1302.Bar (*Traveller B*)
+
+		(*49*)P1602.Bar (*Runner Winch Stbd A*)
+		(*50*)P1603.Bar (*Runner Winch Stbd B*)
+		(*51*)P1604.Bar (*Secondary Winch Stbd A*)
+		(*52*)P1605.Bar (*Secondary Winch Stbd B*)
+
+		(*Position Sensors*)
+		(*53*) LS301.Pos (*A3 Tack*)
+		(*54*) LS303.Pos (*FRO Tack*)
+		(*55*) LS305.Pos (*J5*)
+		(*56*) LS307.Pos (*J4*)
+		(*57*) LS309.Pos (*Forastay*)
+		(*58*) LS311.Pos (*J2*)
+
+		(*59*) LS601.Pos (*Propulsion*)
+		(*60*) LS605.Pos (*Trim Tab*)
+
+		(*61*) LS707.Pos  (*Outhaul*)
+		(*62*) LS709.Pos  (*Main Cunningham*)
+
+		(*63*) LS801.Pos (*Daggerboard Port*)
+		(*64*) LS803.Pos (*Daggerboard Stbd*)
+		
+		(*65*) LS901.Pos (*Backstay Tail Port*)
+		(*66*) LS903.Pos (*Backstay Tail Stbd*)
+
+		(*67*)LS1001.Pos (*Keel Main*)
+		(*68*)LS1002.Pos (*Keel Recovery*)
+
+		(*69*)LS1303.Pos (*Traveller*)
+		
+		(*Water ballast*)
+		(*70*) LS021.Pos (*Aft. Tank (Port)*)
+		(*71*) LS022.Pos (*Fwd. Tank (Port)*)
+		(*72*) LS023.Pos (*Aft. Tank (Stbd)*)
+		(*73*) LS024.Pos (*Fwd. Tank (Stbd)*)
+		
+		(*Engine*)
+		(*74*) (*Engine Speed RPM*)
+		(*75*) (*Engine Torque %*)
+		(*76*) (*Engine Coolant Temp*)
+		(*77*) (*Engine Oil Press kPa*)
+		(*78*) (*Propulsion RPM*)
+
+		(*Tank*)
+		(*79*) S011.Deg (*Oil Tank Temp*)
+
+		(*80*) (*BowThrUpDw*) Up=0, Dw=100, Other= 50
+
+		(*HP Fucntions*)	
+		(*81*) SE301
+		(*82*) SE303
+		(*83*) SE305
+		(*84*) SE307
+		(*85*) SE309
+		(*86*) SE311
+
+		(*87*) SE501
+		(*88*) SE503
+		(*89*) SE505
+
+		(*90*) DE601
+		(*91*) DE605
+
+		(*92*) SE701
+		(*93*) SE703
+		(*94*) SE705
+		(*95*) SE707
+		(*96*) SE709
+
+		(*97*) SE901
+		(*98*) SE903
+
+		(*99*) DE905
+
+		(*LP VALVES*)
+		(*100*) EVP001
+		(*101*) EVP002
+
+		(*102*) EVP1202_3
+		(*103*) EVP1204_5
+		(*104*) EVP1206_7
+		(*105*) EVP1208_9
+		(*106*) EVP1210_1
+		(*107*) EVP1212_3
+		(*108*) EVP1214_5
+		(*109*) EVP1216_7
+		(*110*) EVP1218_9
+		(*111*) EVP1220_1
+
+		(*112*) EVP402_3
+		(*113*) EVP404_5
+		(*114*) EVP406_7
+
+		(*115*) EVP1602_3
+		(*116*) EVP1604_5
+		(*117*) EVP1606_7
+		(*118*) EVP1608_9
+		(*119*) EVP1610_1
+		
+		(*FUNCTIONS IN USE*)
+		(*120*)NHP
+		(*121*)NLP
+		(*122*)NW
+		
+		(*123*)FlowPerc
+
+		(*WINCHES INPUTS*)
+		(*124*)W1202_Input (*Primary Winch Stbd*)
+		(*125*)W1204_Input (*Pit Winch Stbd*)
+		(*126*)W1206_Input (*Mainsheet Winch*)
+		(*127*)W1208_Input (*Runner Winch Port*)
+		(*128*)W1210_Input (*Primary Winch Port*)
+		(*129*)W1212_Input (*Secondary Winch Port*)
+		(*130*)W1214_Input (*Pit Winch Port*)
+
+		(*131*)1602_Input (*Runner Winch Stbd*)
+		(*132*)1604_Input (*Secondary Winch Stbd*)
+
+		

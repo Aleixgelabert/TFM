@@ -1,0 +1,12 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE RxQueue_10 :
+STRUCT
+	TxCounter      : UINT;
+	RxCounter      : UINT;
+	NoOfRxMessages : UINT;
+	RxMessages     : ARRAY [0..9] OF ARRAY[0..13] OF BYTE;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

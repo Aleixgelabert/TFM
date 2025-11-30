@@ -1,0 +1,112 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_PROPULSION
+VAR_INPUT
+	Enable : BOOL;
+	Ready  : BOOL;
+
+	Throttle_V   : REAL;
+	Throttle_err : BOOL;
+END_VAR
+VAR_IN_OUT
+	Cfg : ST_PROPULSION_CFG;
+END_VAR
+VAR_OUTPUT
+	Tgt_RPM : REAL;
+	FwdEVP  : UINT;
+	RevEVP  : UINT;
+	MoveEV  : BOOL;
+	Idle    : BOOL;
+END_VAR
+VAR
+	State   : WORD;
+	IntPos  : DWORD;
+	TimeCnt : REAL;
+END_VAR
+
+(* @END_DECLARATION := '0' *)
+IF NOT Enable THEN
+	Tgt_RPM := 0;
+	FwdEVP  := 0;
+	RevEVP  := 0;
+	MoveEV  := FALSE;
+	Idle    := TRUE;
+	TimeCnt := 0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Working States*)
+CASE State OF
+
+0: (*Init State: Safety that init with throttle in zero*)
+	Tgt_RPM := 0.0;
+	FwdEVP  := 0;
+	RevEVP  := 0;
+	MoveEV  := FALSE;
+	Idle    := TRUE;
+	TimeCnt := 0;
+	
+	IF ABS(Throttle_V - Cfg.aThrt_V[5]) < Cfg.IdleDB_V AND NOT Throttle_err THEN
+		State := 10;
+	END_IF
+
+10: (*Normal Working Mode*)
+	IF ABS(Throttle_V - Cfg.aThrt_V[5]) < Cfg.IdleDB_V OR Throttle_err OR NOT Ready THEN
+		Tgt_RPM := 0.0;
+		FwdEVP  := 0;
+		RevEVP  := 0;
+	
+		IF TimeCnt > CFG.Delay_Off THEN
+			MoveEV  := FALSE;
+		ELSE
+			MoveEV  := TRUE;
+			TimeCnt := TimeCnt + CFG.Cycle;
+		END_IF
+	
+		Idle    := TRUE;
+	
+	ELSE
+		IF Throttle_V <= Cfg.aThrt_V[0] THEN (*REVERSE*)
+	  		Tgt_RPM := cfg.aEng_RPM[0];
+			FwdEVP  := 0;
+			RevEVP  := REAL_TO_UINT(cfg.aEVP_mA [0]);
+			MoveEV  := TRUE;
+	
+		ELSIF Throttle_V >= Cfg.aThrt_V[10] THEN (*FORWARD*)
+	    	Tgt_RPM := cfg.aEng_RPM[10];
+			FwdEVP  := REAL_TO_UINT(cfg.aEVP_mA [10]);
+			RevEVP  := 0;
+			MoveEV  := TRUE;
+	
+		ELSE
+	  		IntPos := F_LOCATE_IN_BUFFER( Value:= Throttle_V, Buffer:= ADR(Cfg.aThrt_V[0]), Size:= 11 );
+	
+			IF Throttle_V < Cfg.aThrt_V[5] THEN (*REVERSE*)
+				Tgt_RPM := Throttle_V * Cfg.aEng_K[IntPos] + Cfg.aEng_Off[IntPos];
+				FwdEVP  := 0;
+				RevEVP  := REAL_TO_UINT(Throttle_V * Cfg.aEVP_K[IntPos] + Cfg.aEVP_Off[IntPos]);
+				MoveEV  := TRUE;
+	
+			ELSE (*FORWARD*)
+				Tgt_RPM := Throttle_V * Cfg.aEng_K[IntPos] + Cfg.aEng_Off[IntPos];
+				FwdEVP  := REAL_TO_UINT(Throttle_V * Cfg.aEVP_K[IntPos] + Cfg.aEVP_Off[IntPos]);
+				RevEVP  := 0;
+				MoveEV  := TRUE;
+	
+			END_IF
+	    END_IF
+	
+		TimeCnt := 0.0;
+		Idle    := FALSE;
+
+	END_IF
+
+END_CASE
+
+
+
+END_FUNCTION_BLOCK

@@ -1,0 +1,37 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_WB_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	wSize   :DWORD;
+	pBuffer :POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wPos     : DWORD;
+	stConfig : ST_WB_CFG;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX3_TO_BUFFER( S1:= '$n#', S2:= sHead, S3:=' - Parameters:$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax_Idle'   ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax_Idle  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax_Init'   ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax_Init  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax_DumpFwd'   ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax_DumpFwd  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax_DumpAft'   ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax_DumpAft  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax_MoveFwd'   ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax_MoveFwd  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_TimeMax_MoveAft'   ), S2:='$t', S3:= REAL_TO_STRING( stConfig.TimeMax_MoveAft  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Pump_Min' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Pump_Min ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Pump_Max' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Pump_Max ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Pump_Inc' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Pump_Inc ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EVP_Pump_Dec' ), S2:='$t', S3:= REAL_TO_STRING( stConfig.EVP_Pump_Dec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LP'        ), S2:='$t', S3:= BYTE_TO_STRING( stConfig.LP        ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EnScoopAF' ), S2:='$t', S3:= BOOL_TO_STRING( stConfig.EnScoopAF ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wPos );
+
+END_FUNCTION

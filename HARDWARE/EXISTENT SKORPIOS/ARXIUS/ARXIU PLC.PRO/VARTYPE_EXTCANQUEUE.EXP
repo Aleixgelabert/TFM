@@ -1,0 +1,12 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE VARTYPE_EXTCANQUEUE
+STRUCT
+	dummy : UINT;
+	length: UINT;
+	cobId : DWORD;
+	rxData: ARRAY [0..7] OF USINT;
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

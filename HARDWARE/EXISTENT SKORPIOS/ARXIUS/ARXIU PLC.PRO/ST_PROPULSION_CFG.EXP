@@ -1,0 +1,28 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_PROPULSION_CFG :
+STRUCT
+
+	(*Parameters*)
+	IdleDB_V  : REAL;
+	PropRPM_K : REAL;
+
+	Delay_Off : REAL; (*Second*)
+	Cycle     : REAL;
+
+	aThrt_V  : ARRAY [0..10] OF REAL;
+	aEng_RPM : ARRAY [0..10] OF REAL;
+	aEVP_mA  : ARRAY [0..10] OF REAL;
+
+	(*Coefficients*)
+	aEng_K   : ARRAY [0..9] OF REAL;
+	aEng_Off : ARRAY [0..9] OF REAL;
+
+	aEVP_K   : ARRAY [0..9] OF REAL;
+	aEVP_Off : ARRAY [0..9] OF REAL;
+
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

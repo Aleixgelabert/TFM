@@ -1,0 +1,460 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_MAST_SETUP
+VAR_INPUT
+	IN_MS  : BOOL;
+	IN_1th : BOOL;
+	IN_2th : BOOL;
+	IN_3th : BOOL;
+	IN_FH  : BOOL;
+
+	IN_HS : BOOL;
+	IN_A3 : BOOL;
+	IN_F0 : BOOL;
+	IN_J2 : BOOL;
+	IN_J4 : BOOL;
+
+	END_MS : BOOL;
+	END_HS : BOOL;
+
+END_VAR
+VAR_IN_OUT
+	FSY_P   : ST_SENSOR_BAR;
+	FSY_LS  : ST_SENSOR_POS;
+
+	BDef_P  : ST_SENSOR_BAR;
+	BDef_LS : ST_SENSOR_POS;
+
+	TDef_P  : ST_SENSOR_BAR;
+	TDef_LS : ST_SENSOR_POS;
+
+	TABLE : ST_MAST_SETUP;
+
+END_VAR
+VAR_OUTPUT
+	FSY_In   : BOOL;
+	FSY_Out  : BOOL;
+
+	BDef_In  : BOOL;
+	BDef_Out : BOOL;
+
+	TDef_In  : BOOL;
+	TDef_Out : BOOL;
+
+END_VAR
+VAR
+	SI_MS : ARRAY[0..4] OF FB_SMART_INPUT;
+	SI_HS : ARRAY[0..4] OF FB_SMART_INPUT;
+
+	Cnt_MS : REAL;
+	Cnt_HS : REAL;
+
+	State_MS : WORD;
+	State_HS : WORD;
+
+	FSY_Tgt  : REAL;
+	BDef_Tgt : REAL;
+	TDef_Tgt : REAL;
+
+END_VAR
+VAR PERSISTENT
+	Selected_MS AT %Q*: WORD;
+	Selected_HS AT %Q*: WORD;
+END_VAR
+
+(* @END_DECLARATION := '0' *)
+SI_MS[0](In:= IN_MS,  T_Cont:= T#1000ms, T_DClk:= T#0ms);
+SI_MS[1](In:= IN_1th, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_MS[2](In:= IN_2th, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_MS[3](In:= IN_3th, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_MS[4](In:= IN_FH,  T_Cont:= T#2000ms, T_DClk:= T#0ms);
+
+SI_HS[0](In:= IN_HS, T_Cont:= T#1000ms, T_DClk:= T#0ms);
+SI_HS[1](In:= IN_A3, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_HS[2](In:= IN_F0, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_HS[3](In:= IN_J2, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+SI_HS[4](In:= IN_J4, T_Cont:= T#2000ms, T_DClk:= T#0ms);
+
+Cnt_MS := Cnt_MS + TABLE.Cycle;
+Cnt_HS := Cnt_HS + TABLE.Cycle;
+
+(*Precondition*)
+IF Selected_MS < 1 OR Selected_MS > 4 THEN Selected_MS := 1; END_IF
+IF Selected_HS < 1 OR Selected_HS > 6 THEN Selected_HS := 1; END_IF
+
+
+(*MAIN SAIL*)
+CASE State_MS OF
+0:
+	Cnt_MS := 0.0;
+
+	IF State_HS = 0	THEN
+		IF SI_MS[0].Event = INIT_CONTINUOUS THEN
+			State_MS := 10;
+		ELSE
+			FSY_In   := FALSE;
+			FSY_Out  := FALSE;
+			BDef_In  := FALSE;
+			BDef_Out := FALSE;
+			TDef_In  := FALSE;
+			TDef_Out := FALSE;
+		END_IF
+	END_IF
+
+(*Select MainSail Position*)
+10:
+	IF END_MS OR Cnt_MS > 10.0 THEN
+		State_MS := 0;
+
+	(*1th*)
+	ELSIF SI_MS[1].Event = INIT_CONTINUOUS THEN
+		Cnt_MS      := 0.0;
+		Selected_MS := 1;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_MS := 0;
+		ELSE State_MS := 11;
+		END_IF
+
+	(*2th*)
+	ELSIF SI_MS[2].Event = INIT_CONTINUOUS THEN
+		Cnt_MS      := 0.0;
+		Selected_MS := 2;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_MS := 0;
+		ELSE State_MS := 12;
+		END_IF
+
+	(*3th*)
+	ELSIF SI_MS[3].Event = INIT_CONTINUOUS THEN
+		Cnt_MS      := 0.0;
+		Selected_MS := 3;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_MS := 0;
+		ELSE State_MS := 13;
+		END_IF
+
+	(*FULL*)
+	ELSIF SI_MS[4].Event = INIT_CONTINUOUS THEN
+		Cnt_MS      := 0.0;
+		Selected_MS := 4;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_MS := 0;
+		ELSE State_MS := 14;
+		END_IF
+
+	END_IF
+
+(*Wait 5 Sec*)
+11,12,13,14:
+	IF END_MS THEN
+		State_MS := 0;
+
+	ELSIF Cnt_MS > 5.0 THEN
+		Cnt_MS   := 0.0;
+
+		FSY_Tgt := TABLE.aFSY [Selected_MS,Selected_HS];
+		FSY_In  := NOT FSY_LS.Err AND FSY_LS.Pos > FSY_Tgt AND NOT FSY_P.AlMax;
+		FSY_Out := NOT FSY_LS.Err AND FSY_LS.Pos < FSY_Tgt;
+
+		State_MS := State_MS + 10;
+
+	END_IF
+
+(*Moving Forestay*)
+21,22,23,24:
+	IF END_MS OR Cnt_MS > 30.0 OR FSY_LS.Err THEN
+		State_MS := 0;
+
+	ELSIF FSY_In THEN
+		IF FSY_P.AlMax THEN
+			State_MS := 0;
+
+		ELSIF FSY_LS.Pos <= FSY_Tgt THEN
+			FSY_In   := FALSE;
+
+			BDef_Tgt := TABLE.aBDef[Selected_MS,Selected_HS];
+			BDef_In  := NOT BDef_LS.Err AND BDef_LS.Pos > BDef_Tgt AND NOT BDef_P.AlMax;
+			BDef_Out := NOT BDef_LS.Err AND BDef_LS.Pos < BDef_Tgt;
+
+			TDef_Tgt := TABLE.aTDef[Selected_MS,Selected_HS];
+			TDef_In  := NOT TDef_LS.Err AND TDef_LS.Pos > TDef_Tgt AND NOT TDef_P.AlMax;
+			TDef_Out := NOT TDef_LS.Err AND TDef_LS.Pos < TDef_Tgt;
+
+			State_MS := State_MS + 10;
+
+		END_IF
+
+	ELSIF FSY_OUT THEN
+		IF FSY_LS.Pos >= FSY_Tgt THEN
+			FSY_Out  := FALSE;
+
+			BDef_Tgt := TABLE.aBDef[Selected_MS,Selected_HS];
+			BDef_In  := NOT BDef_LS.Err AND BDef_LS.Pos > BDef_Tgt AND NOT BDef_P.AlMax;
+			BDef_Out := NOT BDef_LS.Err AND BDef_LS.Pos < BDef_Tgt;
+
+			TDef_Tgt := TABLE.aTDef[Selected_MS,Selected_HS];
+			TDef_In  := NOT TDef_LS.Err AND TDef_LS.Pos > TDef_Tgt AND NOT TDef_P.AlMax;
+			TDef_Out := NOT TDef_LS.Err AND TDef_LS.Pos < TDef_Tgt;
+
+			State_MS := State_MS + 10;
+
+		END_IF
+
+	ELSE
+		State_MS := 0;
+
+	END_IF
+
+(*Moving Deflector*)
+31,32,33,34:
+	IF END_MS OR Cnt_MS > 30.0 OR BDef_LS.Err OR TDef_LS.Err THEN
+		State_MS := 0;
+
+	ELSE
+		IF BDef_In THEN
+			IF BDef_P.AlMax THEN
+				State_MS := 0;
+			ELSIF BDef_LS.Pos <= BDef_Tgt THEN
+				BDef_In := FALSE;
+			END_IF
+
+		ELSIF BDef_Out THEN
+			IF BDef_LS.Pos >= BDef_Tgt THEN
+				BDef_Out := FALSE;
+			END_IF
+		END_IF
+
+		IF TDef_In THEN
+			IF TDef_P.AlMax THEN
+				State_MS := 0;
+			ELSIF TDef_LS.Pos <= TDef_Tgt THEN
+				TDef_In := FALSE;
+			END_IF
+
+		ELSIF TDef_Out THEN
+			IF TDef_LS.Pos >= TDef_Tgt THEN
+				TDef_Out := FALSE;
+			END_IF
+		END_IF
+
+		IF NOT BDef_In AND NOT BDef_OUT AND NOT TDef_In AND NOT TDef_Out THEN
+			State_MS := 0;
+		END_IF
+
+	END_IF
+
+END_CASE
+
+(*HEAD SAIL*)
+CASE State_HS OF
+0:
+	Cnt_HS := 0.0;
+
+	IF State_MS = 0	THEN
+		IF SI_HS[0].Event = INIT_CONTINUOUS THEN
+			State_HS := 10;
+		ELSE
+			FSY_In   := FALSE;
+			FSY_Out  := FALSE;
+			BDef_In  := FALSE;
+			BDef_Out := FALSE;
+			TDef_In  := FALSE;
+			TDef_Out := FALSE;
+		END_IF
+	END_IF
+
+(*Select HeadSail*)
+10:
+	IF END_HS OR Cnt_HS > 10.0 THEN
+		State_HS := 0;
+
+	(*A3*)
+	ELSIF SI_HS[1].Event = INIT_CONTINUOUS THEN
+		Cnt_HS      := 0.0;
+		Selected_HS := 1;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_HS := 0;
+		ELSE State_HS := 11;
+		END_IF
+
+	(*F0*)
+	ELSIF SI_HS[2].Event = INIT_CONTINUOUS THEN
+		Cnt_HS      := 0.0;
+		Selected_HS := 2;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_HS := 0;
+		ELSE State_HS := 12;
+		END_IF
+
+	(*J2*)
+	ELSIF SI_HS[3].Event = INIT_CONTINUOUS THEN
+		Cnt_HS      := 0.0;
+		Selected_HS := 3;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_HS := 0;
+		ELSE State_HS := 13;
+		END_IF
+
+	(*J4*)
+	ELSIF SI_HS[4].Event = INIT_CONTINUOUS THEN
+		Cnt_HS      := 0.0;
+		Selected_HS := 4;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_HS := 0;
+		ELSE State_HS := 14;
+		END_IF
+
+	END_IF
+
+(*Wait 5 Sec*)
+11,12,13,14,15,16:
+	IF END_HS THEN
+		State_HS := 0;
+
+	(*A3+J4*)
+	ELSIF State_HS = 11 AND SI_HS[4].Event = INIT_CONTINUOUS THEN
+		Cnt_HS      := 0.0;
+		Selected_HS := 5;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_HS := 0;
+		ELSE State_HS := 15;
+		END_IF
+
+	(*F0+J4*)
+	ELSIF State_HS = 12 AND SI_HS[4].Event = INIT_CONTINUOUS THEN
+		Cnt_HS      := 0.0;
+		Selected_HS := 6;
+
+		IF TABLE.aFSY [Selected_MS,Selected_HS] = 0
+		OR TABLE.aBDef[Selected_MS,Selected_HS] = 0
+		OR TABLE.aTDef[Selected_MS,Selected_HS] = 0
+		THEN State_HS := 0;
+		ELSE State_HS := 16;
+		END_IF
+
+	ELSIF Cnt_HS > 5.0 THEN
+		Cnt_HS   := 0.0;
+
+		FSY_Tgt := TABLE.aFSY [Selected_MS,Selected_HS];
+		FSY_In  := NOT FSY_LS.Err AND FSY_LS.Pos > FSY_Tgt AND NOT FSY_P.AlMax;
+		FSY_Out := NOT FSY_LS.Err AND FSY_LS.Pos < FSY_Tgt;
+
+		State_HS := State_HS + 10;
+
+	END_IF
+
+(*Moving Forestay*)
+21,22,23,24,25,26:
+	IF END_HS OR Cnt_HS > 30.0 OR FSY_LS.Err THEN
+		State_HS := 0;
+
+	ELSIF FSY_In THEN
+		IF FSY_P.AlMax THEN
+			State_HS := 0;
+
+		ELSIF FSY_LS.Pos <= FSY_Tgt THEN
+			FSY_In   := FALSE;
+
+			BDef_Tgt := TABLE.aBDef[Selected_MS,Selected_HS];
+			BDef_In  := NOT BDef_LS.Err AND BDef_LS.Pos > BDef_Tgt AND NOT BDef_P.AlMax;
+			BDef_Out := NOT BDef_LS.Err AND BDef_LS.Pos < BDef_Tgt;
+
+			TDef_Tgt := TABLE.aTDef[Selected_MS,Selected_HS];
+			TDef_In  := NOT TDef_LS.Err AND TDef_LS.Pos > TDef_Tgt AND NOT TDef_P.AlMax;
+			TDef_Out := NOT TDef_LS.Err AND TDef_LS.Pos < TDef_Tgt;
+
+			State_HS := State_HS + 10;
+
+		END_IF
+
+	ELSIF FSY_OUT THEN
+		IF FSY_LS.Pos >= FSY_Tgt THEN
+			FSY_Out  := FALSE;
+
+			BDef_Tgt := TABLE.aBDef[Selected_MS,Selected_HS];
+			BDef_In  := NOT BDef_LS.Err AND BDef_LS.Pos > BDef_Tgt AND NOT BDef_P.AlMax;
+			BDef_Out := NOT BDef_LS.Err AND BDef_LS.Pos < BDef_Tgt;
+
+			TDef_Tgt := TABLE.aTDef[Selected_MS,Selected_HS];
+			TDef_In  := NOT TDef_LS.Err AND TDef_LS.Pos > TDef_Tgt AND NOT TDef_P.AlMax;
+			TDef_Out := NOT TDef_LS.Err AND TDef_LS.Pos < TDef_Tgt;
+
+			State_HS := State_HS + 10;
+
+		END_IF
+
+	ELSE
+		State_HS := 0;
+
+	END_IF
+
+(*Moving Deflector*)
+31,32,33,34,35,36:
+	IF END_HS OR Cnt_HS > 30.0 OR BDef_LS.Err OR TDef_LS.Err THEN
+		State_HS := 0;
+
+	ELSE
+		IF BDef_In THEN
+			IF BDef_P.AlMax THEN
+				State_HS := 0;
+			ELSIF BDef_LS.Pos <= BDef_Tgt THEN
+				BDef_In := FALSE;
+			END_IF
+
+		ELSIF BDef_Out THEN
+			IF BDef_LS.Pos >= BDef_Tgt THEN
+				BDef_Out := FALSE;
+			END_IF
+		END_IF
+
+		IF TDef_In THEN
+			IF TDef_P.AlMax THEN
+				State_HS := 0;
+			ELSIF TDef_LS.Pos <= TDef_Tgt THEN
+				TDef_In := FALSE;
+			END_IF
+
+		ELSIF TDef_Out THEN
+			IF TDef_LS.Pos >= TDef_Tgt THEN
+				TDef_Out := FALSE;
+			END_IF
+		END_IF
+
+		IF NOT BDef_In AND NOT BDef_OUT AND NOT TDef_In AND NOT TDef_Out THEN
+			State_HS := 0;
+		END_IF
+
+	END_IF
+
+END_CASE
+END_FUNCTION_BLOCK

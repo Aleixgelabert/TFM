@@ -1,0 +1,203 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_WB_VALVE
+VAR_INPUT
+	Enable : BOOL;
+	Manual : BOOL;
+
+	B_Open  : BOOL;
+	B_Close : BOOL;
+	SF_Open  : BOOL;
+	SF_Close : BOOL;
+
+END_VAR
+VAR_IN_OUT
+	P   : ST_SENSOR_BAR;
+	CFG : ST_WB_VALVE_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_Open  : BOOL;
+	OUT_Close : BOOL;
+
+	OUT_HP    : BYTE;
+END_VAR
+VAR
+	State : WORD;
+
+	IN_Hmi_Open  : BOOL;
+	IN_Hmi_Close : BOOL;
+
+	SI_Open  : FB_SMART_INPUT;
+	SI_Close : FB_SMART_INPUT;
+
+	SI_Hmi_Open  : FB_SMART_INPUT;
+	SI_Hmi_Close : FB_SMART_INPUT;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*Check Inputs*)
+SI_Open (In:= B_Open , T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Close(In:= B_Close, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+SI_Hmi_Open (In:= IN_Hmi_Open , T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Hmi_Close(In:= IN_Hmi_Close, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	OUT_Open  := FALSE;
+	OUT_Close := FALSE;
+	OUT_HP    := 0;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );
+TimeCnt := TimeCnt + CFG.Cycle;
+
+(*Working States*)
+CASE State OF
+
+(*Init State*)
+0:
+	OUT_Open  := FALSE;
+	OUT_Close := FALSE;
+	OUT_HP    := 0;
+
+	(*Manual*)
+	IF Manual THEN
+		IF SI_Hmi_Open.Event = INIT_CONTINUOUS AND NOT P.AlMax THEN
+			OUT_Open  := TRUE;
+			OUT_HP    := 1;
+	
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1001;  (*Next State*)
+
+		ELSIF SI_Hmi_Close.Event = INIT_CONTINUOUS AND NOT P.AlMax THEN
+			OUT_Close := TRUE;
+			OUT_HP    := 1;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1002;  (*Next State*)
+
+		END_IF
+
+	(*Automatico*)
+	ELSE
+		IF SI_Open.Event = INIT_CONTINUOUS AND NOT P.AlMax THEN
+			OUT_Open  := TRUE;
+			OUT_HP    := CFG.HP;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1010;  (*Next State*)
+
+		ELSIF SI_Close.Event = INIT_CONTINUOUS AND NOT P.AlMax THEN
+			OUT_Close := TRUE;
+			OUT_HP    := CFG.HP;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1020;  (*Next State*)
+
+		END_IF
+	END_IF
+
+    TimeCnt := 0.0; (*Time Count*)
+
+(*Manual OPEN*)
+1001:
+	(*End*)
+	IF SI_Hmi_Open.Event <> NONE OR SI_Hmi_Close.Event <> NONE OR TimeOut OR NOT Manual OR P.AlMax THEN
+		OUT_Open  := FALSE;
+		OUT_HP    := 0;
+		State     := 0; (*Next State*)
+
+	END_IF
+
+(*Manual CLOSE*)
+1002:
+	(*End*)
+	IF SI_Hmi_Open.Event <> NONE OR SI_Hmi_Close.Event <> NONE OR TimeOut OR NOT Manual OR P.AlMax THEN
+		OUT_Close := FALSE;
+		OUT_HP    := 0;
+		State     := 0; (*Next State*)
+
+	END_IF
+
+(*Auto OPEN*)
+1010:
+	(*End*)
+	IF SI_Open.Event <> NONE OR TimeOut OR Manual OR P.AlMax THEN
+		OUT_Open  := FALSE;
+		OUT_HP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF SI_Close.Event = INIT_CONTINUOUS THEN
+		OUT_Open  := FALSE;
+		OUT_Close := TRUE;
+		State     := 1020; (*Next State*)
+
+	ELSIF SF_Open THEN
+		TimeCnt   := 0.0;
+		State     := 1011; (*Next State*)
+
+	END_IF
+
+(*Push OPEN*)
+1011:
+	(*End*)
+	IF SI_Open.Event <> NONE OR TimeOut OR TimeCnt > CFG.PushTime OR (CFG.PushP > 0 AND P.Bar > CFG.PushP) OR Manual OR P.AlMax THEN
+		OUT_Open  := FALSE;
+		OUT_HP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF SI_Close.Event = INIT_CONTINUOUS THEN
+		OUT_Open  := FALSE;
+		OUT_Close := TRUE;
+		State     := 1020; (*Next State*)
+
+	END_IF
+
+(*Auto CLOSE*)
+1020:
+	(*End*)
+	IF SI_Close.Event <> NONE OR TimeOut OR Manual OR P.AlMax THEN
+		OUT_Close := FALSE;
+		OUT_HP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF SI_Open.Event = INIT_CONTINUOUS THEN
+		OUT_Close := FALSE;
+		OUT_Open  := TRUE;
+		State     := 1010; (*Next State*)
+
+	ELSIF SF_Close THEN
+		TimeCnt   := 0.0;
+		State     := 1021; (*Next State*)
+
+	END_IF
+
+(*Push CLOSE*)
+1021:
+	(*End*)
+	IF SI_Close.Event <> NONE OR TimeOut OR TimeCnt > CFG.PushTime OR (CFG.PushP > 0 AND P.Bar > CFG.PushP) OR Manual OR P.AlMax THEN
+		OUT_Close := FALSE;
+		OUT_HP    := 0;
+		State     := 0; (*Next State*)
+
+	ELSIF SI_Open.Event = INIT_CONTINUOUS THEN
+		OUT_Close := FALSE;
+		OUT_Open  := TRUE;
+		State     := 1010; (*Next State*)
+
+	END_IF
+
+
+END_CASE
+END_FUNCTION_BLOCK

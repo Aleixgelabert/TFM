@@ -1,0 +1,61 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/PGN FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_CODE_F003 (*Torque / Speed Control*)
+VAR_INPUT
+	Enable   : BOOL;
+	Source   : BYTE := 16#31;
+	Priority : BYTE := 16#03;
+
+	TaskTime     : WORD; (*PLC Taks Time (ms) eg: 10ms*)
+	TransmitTime : WORD; (*Synchronous Transmision Time (ms) eg: 50ms*)
+
+	PedalPerc : REAL;
+END_VAR
+VAR_OUTPUT
+	OUT : VARTYPE_EXTCANQUEUE;
+	OUT_Enable : BOOL;
+END_VAR
+VAR
+	TimeCnt : WORD;
+	dwSrc   : DWORD;
+	dwPty   : DWORD;
+
+	bySpeedCtrl  : BYTE;
+	byTorqueCtrl : BYTE;
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF Enable THEN
+	TimeCnt := TimeCnt + TaskTime;
+
+	IF TransmitTime <= TimeCnt THEN
+		TimeCnt := 0;
+		dwSrc   := Source;
+		dwPty   := Priority AND 16#07;
+		dwPty   := SHL( dwPty, 26 );
+
+		OUT.rxData[0] := 16#00;
+
+		REAL_TO_BUFFER( pBuffer:= ADR(OUT.rxData[1]), ByteSize := 1, Value:= PedalPerc, Scale:= 0.4, Offset := 0.0 );
+
+		OUT.rxData[2] := 16#00;
+		OUT.rxData[3] := 16#00;
+		OUT.rxData[4] := 16#00;
+		OUT.rxData[5] := 16#00;
+		OUT.rxData[6] := 16#00;
+		OUT.rxData[7] := 16#00;
+
+		OUT.length := 8;
+		Out.cobId  := 16#80F00300 OR dwSrc OR dwPty;
+		OUT_Enable := TRUE;
+	ELSE
+		OUT_Enable := FALSE;
+
+	END_IF
+ELSE
+	Out_Enable := FALSE;
+
+END_IF
+END_FUNCTION_BLOCK

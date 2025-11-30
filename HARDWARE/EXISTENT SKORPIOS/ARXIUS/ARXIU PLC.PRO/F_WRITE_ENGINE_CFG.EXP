@@ -1,0 +1,54 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_WRITE_ENGINE_CFG : BOOL
+VAR_INPUT
+	sHead   : STRING;
+	wSize   : DWORD;
+	pBuffer : POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	wBufPos     : DWORD;
+	stEngineCfg : ST_ENGINE_CFG;
+END_VAR
+VAR
+	fbParamList: BOOL;
+END_VAR
+(* @END_DECLARATION := '0' *)
+F_ADD_STRINGX3_TO_BUFFER( S1:= '$n#', S2:= sHead, S3:=' - Parameters:$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Min_RPM'   ), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Min_RPM    ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Max_RPM'   ), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Max_RPM    ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Boost_RPM' ), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Boost_RPM  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Stop_RPM'  ), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Stop_RPM   ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_MaxInc_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.MaxInc_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_MaxDec_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.MaxDec_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_DlyDec_sec'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.DlyDec_sec ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_HP_Nx_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.HP_Nx_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_HP_SF_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.HP_SF_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LP_CK_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.LP_CK_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LP_1x_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.LP_1x_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LP_2x_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.LP_2x_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LP_3x_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.LP_3x_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_LP_Nx_RPM'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.LP_Nx_RPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_N_WinchWOP'), S2:='$t', S3:= INT_TO_STRING( stEngineCfg.N_Winch_WOP ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_N_WinchWK' ), S2:='$t', S3:= INT_TO_STRING( stEngineCfg.N_Winch_WK  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_N_WinchWP' ), S2:='$t', S3:= INT_TO_STRING( stEngineCfg.N_Winch_WP  ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Max_Torque'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Max_Torque ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Min_Torque'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Min_Torque ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Inc_RMP_Perc_WOP'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Inc_RMP_Perc_WOP ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Dec_Flow_Perc_WP'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Dec_Flow_Perc_WP ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_Max_HeatExch_P'), S2:='$t', S3:= REAL_TO_STRING( stEngineCfg.Max_HeatExch_P ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EnForceRPM'), S2:='$t', S3:= BOOL_TO_STRING( stEngineCfg.EnForceRPM ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+F_ADD_STRINGX4_TO_BUFFER( S1:= CONCAT(sHead, '_EnForceTHR'), S2:='$t', S3:= BOOL_TO_STRING( stEngineCfg.EnForceTHR ), S4:='$n', wSize := wSize, pBuffer := pBuffer, wPos := wBufPos );
+
+END_FUNCTION

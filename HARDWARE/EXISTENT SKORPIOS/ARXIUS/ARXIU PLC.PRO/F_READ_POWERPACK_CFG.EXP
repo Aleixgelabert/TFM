@@ -1,0 +1,25 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_POWERPACK_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_POWERPACK_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.Hyst_HP := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_HP' ), fbIdList );
+stConfig.Hyst_LP := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_LP' ), fbIdList );
+stConfig.Hyst_TM := F_IDLIST_GETREAL( CONCAT(sHead, '_Hyst_TM' ), fbIdList );
+stConfig.Thr_HP  := F_IDLIST_GETREAL( CONCAT(sHead, '_Thr_HP'  ), fbIdList );
+stConfig.Thr_LP  := F_IDLIST_GETREAL( CONCAT(sHead, '_Thr_LP'  ), fbIdList );
+stConfig.Cycle   := rTime;
+
+END_FUNCTION

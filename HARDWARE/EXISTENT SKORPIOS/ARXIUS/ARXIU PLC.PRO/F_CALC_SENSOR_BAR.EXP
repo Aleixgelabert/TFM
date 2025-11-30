@@ -1,0 +1,122 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_SENSOR_BAR : BOOL
+VAR_INPUT
+	IN    : REAL;
+	Clear : BOOL;
+END_VAR
+VAR_IN_OUT
+	Sensor : ST_SENSOR_BAR;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+
+(*AVG*)
+IF Sensor.Avg_Pos > 4 THEN Sensor.Avg_Pos := 0; END_IF
+
+Sensor.Avg_Sum := Sensor.Avg_Sum + IN - Sensor.Avg_Buf[Sensor.Avg_Pos];
+Sensor.Avg_Buf[Sensor.Avg_Pos] := IN;
+Sensor.Avg_Pos := Sensor.Avg_Pos + 1;
+
+Sensor.Raw := Sensor.Avg_Sum / 5.0;
+Sensor.Err := Sensor.Raw < Sensor.MinRaw OR Sensor.Raw > Sensor.MaxRaw;
+
+(*CALIB*)
+Sensor.Bar := Sensor.Raw * Sensor.Cal_K + Sensor.Cal_Off;
+
+(*ALARM*)
+IF Clear THEN
+	Sensor.Alarm.Alarm := FALSE;
+	Sensor.Alarm.Adver := FALSE;
+	Sensor.Alarm.AlCnt := 0;
+	Sensor.Alarm.AlLen := 0.0;
+(*	Sensor.AdverVal    := Sensor.Bar;*) (*Lo reseteo *)
+
+END_IF
+
+IF Sensor.Err THEN
+	IF NOT Sensor.Alarm.Alarm OR NOT Sensor.AlErr THEN
+		Sensor.Alarm.AlCnt  := Sensor.Alarm.AlCnt + 1;
+		Sensor.Alarm.AlLen  := 0.0;
+		Sensor.Alarm.TimeInit := INPUTS.sLocal;
+		Sensor.Alarm.AlInit   := TRUE;
+
+		Sensor.Alarm.Text := CONCAT( Sensor.Desc, ' Press. Sensor Broken/Disconnected.' );
+
+	ELSE
+		Sensor.Alarm.AlLen  := Sensor.Alarm.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Sensor.Alarm.Alarm := TRUE;
+	Sensor.Alarm.Adver := TRUE;
+
+	Sensor.AlErr    := TRUE;
+	Sensor.AlMax    := FALSE;
+	Sensor.AlMin    := FALSE;
+	Sensor.AdverVal := 0.0;
+
+ELSIF Sensor.MaxBar > 0 AND Sensor.Bar > Sensor.MaxBar THEN
+	IF NOT Sensor.Alarm.Alarm OR NOT Sensor.AlMax THEN
+		Sensor.Alarm.AlCnt  := Sensor.Alarm.AlCnt + 1;
+		Sensor.Alarm.AlLen  := 0.0;
+		Sensor.Alarm.TimeInit := INPUTS.sLocal;
+		Sensor.Alarm.AlInit   := TRUE;
+
+		Sensor.AdverVal     := Sensor.Bar;
+	ELSE
+		Sensor.Alarm.AlLen  := Sensor.Alarm.AlLen + MAIN.Cycle_Time;
+	END_IF
+
+	Sensor.Alarm.Alarm := TRUE;
+	Sensor.Alarm.Adver := TRUE;
+
+	Sensor.AlErr    := FALSE;
+	Sensor.AlMax    := TRUE;
+	Sensor.AlMin    := FALSE;
+ 	Sensor.AdverVal := MAX( Sensor.Bar, Sensor.AdverVal );
+
+	Sensor.Alarm.Text := CONCAT( Sensor.Desc      , ' Overpressured: ' );
+	Sensor.Alarm.Text := CONCAT( Sensor.Alarm.Text, REAL_TO_STRING(Sensor.AdverVal) );
+
+ELSIF Sensor.MinBar > 0 AND Sensor.Bar < Sensor.MinBar THEN
+	IF NOT Sensor.Alarm.Alarm OR NOT Sensor.AlMin THEN
+		Sensor.Alarm.AlCnt  := Sensor.Alarm.AlCnt + 1;
+		Sensor.Alarm.AlLen  := 0.0;
+		Sensor.Alarm.TimeInit := INPUTS.sLocal;
+		Sensor.Alarm.AlInit   := TRUE;
+
+		Sensor.AdverVal     := Sensor.Bar;
+	ELSE
+		Sensor.Alarm.AlLen  := Sensor.Alarm.AlLen + MAIN.Cycle_Time;
+	END_IF
+
+	Sensor.Alarm.Alarm := TRUE;
+	Sensor.Alarm.Adver := TRUE;
+
+	Sensor.AlErr    := FALSE;
+	Sensor.AlMax    := FALSE;
+	Sensor.AlMin    := TRUE;
+	Sensor.AdverVal := MIN( Sensor.Bar, Sensor.AdverVal );
+
+	Sensor.Alarm.Text     := CONCAT( Sensor.Desc      , ' Underpressured: ' );
+	Sensor.Alarm.Text     := CONCAT( Sensor.Alarm.Text, REAL_TO_STRING(Sensor.AdverVal) );
+
+ELSE
+	IF Sensor.Alarm.Alarm THEN
+		Sensor.Alarm.TimeEnd := INPUTS.sLocal;
+		Sensor.Alarm.AlEnd   := TRUE;
+
+	END_IF
+
+	Sensor.Alarm.Alarm := FALSE;
+	Sensor.AlErr       := FALSE;
+	Sensor.AlMax       := FALSE;
+	Sensor.AlMin       := FALSE;
+
+END_IF
+END_FUNCTION

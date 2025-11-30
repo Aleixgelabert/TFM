@@ -1,0 +1,1439 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @GLOBAL_VARIABLE_LIST := 'Global_Variables' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+VAR_GLOBAL
+	CAN1_STATE AT %I*: UINT;
+	CAN2_STATE AT %I*: UINT;
+	CAN3_STATE AT %I*: UINT;
+	CAN4_STATE AT %I*: UINT;
+	CAN5_STATE AT %I*: UINT;
+
+	J1939_NodeState AT %I*: USINT;
+	J1939_DiagFlag  AT %I*: BOOL;
+
+	J1939_Inputs  AT %I*: RxQueue_10;
+	J1939_Outputs AT %Q*: TxQueue_10;
+
+(*BOX Modules*)
+	N0_CNT1 AT %I*: UDINT; (* 1- Prop RPM*)
+	N0_CNT2 AT %I*: UDINT; (* 2- *)
+
+	Prop_RPM : REAL;
+
+	N0_DI1 AT %I*: BOOL; (*Emergency button*)
+	N0_DI2 AT %I*: BOOL; (*Throttle Prop FWR*)
+	N0_DI3 AT %I*: BOOL; (*Throttle Prop REV*)
+	N0_DI4 AT %I*: BOOL; (*Engine Alarm*)
+	N0_DI5 AT %I*: BOOL;
+	N0_DI6 AT %I*: BOOL;
+	N0_DI7 AT %I*: BOOL;
+	N0_DI8 AT %I*: BOOL;
+
+	(*SF000 : BOOL; (*Emergency button*)*)
+	SF000 : ST_SENSOR_SWITCH := ( Name:= 'SF000', Desc:= '(SF000) Emergency Button Pressed.' );
+
+
+	THR_Prop_Fwd : BOOL;
+	THR_Prop_Rev : BOOL;
+
+	KEY_PP1 : BOOL;
+	KEY_PP2 : BOOL;
+
+	N0_DO1 AT %Q*: BOOL; (*Buzzer *)
+	N0_DO2 AT %Q*: BOOL;
+	N0_DO3 AT %Q*: BOOL;
+	N0_DO4 AT %Q*: BOOL;
+	N0_DO5 AT %Q*: BOOL;
+	N0_DO6 AT %Q*: BOOL;
+	N0_DO7 AT %Q*: BOOL; (*Key PP1*)
+	N0_DO8 AT %Q*: BOOL; (*Key PP2*)
+
+	N0_AI1 AT %I*: INT; (*Throttle1 Prop*)
+	N0_AI2 AT %I*: INT; (*Throttle2 Prop*)
+	N0_AI3 AT %I*: INT;
+	N0_AI4 AT %I*: INT;
+	N0_AI5 AT %I*: INT;
+	N0_AI6 AT %I*: INT;
+	N0_AI7 AT %I*: INT;
+	N0_AI8 AT %I*: INT;
+
+	N0_AI1_Err AT %I*: BOOL;
+	N0_AI2_Err AT %I*: BOOL;
+	N0_AI3_Err AT %I*: BOOL;
+	N0_AI4_Err AT %I*: BOOL;
+	N0_AI5_Err AT %I*: BOOL;
+	N0_AI6_Err AT %I*: BOOL;
+	N0_AI7_Err AT %I*: BOOL;
+	N0_AI8_Err AT %I*: BOOL;
+
+	THR_Prop     : REAL;
+	THR_Prop_Err : BOOL;
+
+	N0_AO1 AT %Q*: INT; (*PP1 Trhottle*)
+	N0_AO2 AT %Q*: INT; (*PP2 Trhottle*)
+	N0_AO3 AT %Q*: INT;
+	N0_AO4 AT %Q*: INT;
+
+	THR_PP1 : REAL;
+	THR_PP2 : REAL;
+
+(***BOW Nodes***)
+(*Node36/37 - TANK + GS + MF00 + PP*)
+	N36_DI0_CH7_4 AT %I*: BOOL;
+	N36_DI1_CH7_2 AT %I*: BOOL;
+
+	N36_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N36_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N36_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N36_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+	N36_AI4_CH8_4 AT %I*: UINT; (*20mA*)
+	N36_AI5_CH8_2 AT %I*: UINT; (*20mA*)
+
+	N36_DO0_CH2_4 AT %Q*: BOOL; (*New 20220122*)
+	N36_DO1_CH2_2 AT %Q*: BOOL; (*New 20220122*)
+	N36_DO4_CH4_4 AT %Q*: BOOL; (*New 20220122*)
+	N36_DO5_CH4_2 AT %Q*: BOOL; (*New 20220122*)
+	N36_DO6_CH3_4 AT %Q*: BOOL;
+	N36_DO7_CH3_2 AT %Q*: BOOL;
+
+	N36_EVP2_CH1_4 AT %Q*: UINT;
+	N36_EVP3_CH1_2 AT %Q*: UINT;
+
+	N37_DI0_CH7_4 AT %I*: BOOL;
+	N37_DI1_CH7_2 AT %I*: BOOL;
+	N37_DI2_CH6_4 AT %I*: BOOL;
+	N37_DI3_CH6_2 AT %I*: BOOL;
+	N37_DI4_CH5_4 AT %I*: BOOL;
+	N37_DI5_CH5_2 AT %I*: BOOL;
+	N37_DI6_CH8_4 AT %I*: BOOL;
+	N37_DI7_CH8_2 AT %I*: BOOL;
+	N37_DI8_CH3_4 AT %I*: BOOL;
+	N37_DI9_CH3_2 AT %I*: BOOL;
+	N37_DI10_CH1_4 AT %I*: BOOL;
+	N37_DI11_CH1_2 AT %I*: BOOL;
+	N37_DI12_CH4_4 AT %I*: BOOL;
+	N37_DI13_CH4_2 AT %I*: BOOL;
+	N37_DI14_CH2_4 AT %I*: BOOL;
+	N37_DI15_CH2_2 AT %I*: BOOL;
+
+	SF001  : ST_SENSOR_SWITCH := ( Name:= 'SF001', Desc:= '(SF001) Oil Filter Closed' );
+	SF002  : ST_SENSOR_SWITCH := ( Name:= 'SF002', Desc:= '(SF002) Oil Filter Obstructed' );
+	SF003  : ST_SENSOR_SWITCH := ( Name:= 'SF003', Desc:= '(SF003) Tank 2 Return 1 Closed.' );
+	SF004  : ST_SENSOR_SWITCH := ( Name:= 'SF004', Desc:= '(SF004) Tank 1 Return 1 Closed.' );
+	SF005  : ST_SENSOR_SWITCH := ( Name:= 'SF005', Desc:= '(SF005) Tank 2 Return 2 Closed.' );
+	SF006  : ST_SENSOR_SWITCH := ( Name:= 'SF006', Desc:= '(SF006) Tank 1 Return 2 Closed.' );
+	SF007  : ST_SENSOR_SWITCH := ( Name:= 'SF007', Desc:= '(SF007) Tank 2 Suction Closed.' );
+	SF008  : ST_SENSOR_SWITCH := ( Name:= 'SF008', Desc:= '(SF008) Tank 1 Suction Closed.' );
+	SF009  : ST_SENSOR_SWITCH := ( Name:= 'SF009', Desc:= '(SF009) Tank Empty' );
+
+	P010  : ST_SENSOR_BAR  := ( Name:=  'P010', Desc:=  '(P010) Tank' );
+	S011  : ST_SENSOR_TEMP := ( Name:=  'S011', Desc:=  '(S011) Tank' );
+
+	P001 : ST_SENSOR_BAR  := ( Name:=  'P001', Desc:=  '(P001) GS A' );
+	P002 : ST_SENSOR_BAR  := ( Name:=  'P002', Desc:=  '(P002) GS B' );
+	P003 : ST_SENSOR_BAR  := ( Name:=  'P003', Desc:=  '(P003) Load Sense' );
+
+	P051 : ST_SENSOR_BAR  := ( Name:=  'P051', Desc:=  '(P051) Heat Exchanger IN'  );
+	P052 : ST_SENSOR_BAR  := ( Name:=  'P052', Desc:=  '(P052) Heat Exchanger OUT' );
+
+	EV1501 : BOOL;
+	EV1502 : BOOL;
+
+	EVP001 : UINT;
+	EVP002 : UINT;
+
+(*Node38 - LIGHT*)
+	N38_DI0_CH7_4 AT %I*: BOOL;
+	N38_DI1_CH7_2 AT %I*: BOOL;
+	N38_DI6_CH8_4 AT %I*: BOOL;
+	N38_DI7_CH8_2 AT %I*: BOOL;
+
+	SF1301 : BOOL;
+	SF1302 : BOOL;
+	SF402  : BOOL;
+	SF403  : BOOL;
+
+	N38_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N38_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N38_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N38_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	LS901  : ST_SENSOR_POS := ( Name:= 'LS901' , Desc:= '(LS901) Backstay Tail' );
+	LS903  : ST_SENSOR_POS := ( Name:= 'LS903' , Desc:= '(LS903) Backstay Tail' );
+	LS1303 : ST_SENSOR_POS := ( Name:= 'LS1303', Desc:= '(LS1303) Traveller'    );
+
+	N38_DO0_CH2_4 AT %Q*: BOOL;
+	N38_DO1_CH2_2 AT %Q*: BOOL;
+	N38_DO2_CH1_4 AT %Q*: BOOL;
+	N38_DO3_CH1_2 AT %Q*: BOOL;
+	N38_DO4_CH4_4 AT %Q*: BOOL;
+	N38_DO5_CH4_2 AT %Q*: BOOL;
+	N38_DO6_CH3_4 AT %Q*: BOOL;
+	N38_DO7_CH3_2 AT %Q*: BOOL;
+
+	L_Red    : BOOL;
+	L_Anchor : BOOL;
+	L_Steam  : BOOL;
+	L_Deck   : BOOL;
+	L_Nav    : BOOL;
+
+(*Node39 - MF10A - Keel*)
+	N39_DI1_CH7_2 AT %I*: BOOL;
+	N39_DI2_CH6_4 AT %I*: BOOL;
+	N39_DI3_CH6_2 AT %I*: BOOL;
+
+	SF1002 : ST_SENSOR_SWITCH := ( Name:= 'SF1002', Desc:=  '(SF1002) Keel Recovery Close.' );
+
+	N39_DO4_CH4_4 AT %Q*: BOOL;
+	N39_DO5_CH4_2 AT %Q*: BOOL;
+	N39_DO6_CH3_4 AT %Q*: BOOL;
+	N39_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV1001 : BOOL;
+	EV1002 : BOOL;
+	EV1003 : BOOL;
+	EV1004 : BOOL;
+
+	N39_EVP0_CH2_4 AT %Q*: UINT;
+	N39_EVP1_CH2_2 AT %Q*: UINT;
+	N39_EVP2_CH1_4 AT %Q*: UINT;
+	N39_EVP3_CH1_2 AT %Q*: UINT;
+
+	EVP1006 : UINT;
+	EVP1007 : UINT;
+	EVP1008 : UINT;
+	EVP1009 : UINT;
+
+(*Node40 - MF10B - Keel*)
+	N40_DI6_CH8_4 AT %I*: BOOL;
+	N40_DI7_CH8_2 AT %I*: BOOL;
+
+	SF1003 : ST_SENSOR_SWITCH := ( Name:= 'SF1003', Desc:=  '(SF1003) Keel Main Bilge Level.' );
+	SF1004 : ST_SENSOR_SWITCH := ( Name:= 'SF1004', Desc:=  '(SF1004) Keel Recovery Bilge Level.' );
+
+	N40_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N40_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N40_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N40_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	 P1001 : ST_SENSOR_BAR := ( Name:=  'P1001', Desc:=  '(P1001) Keel IN' );
+	 P1002 : ST_SENSOR_BAR := ( Name:=  'P1002', Desc:=  '(P1002) Keel OUT' );
+	LS1001 : ST_SENSOR_POS := ( Name:= 'LS1001', Desc:= '(LS1001) Keel Main' );
+	LS1002 : ST_SENSOR_POS := ( Name:= 'LS1002', Desc:= '(LS1002) Keel Recovery' );
+
+	N40_DO0_CH2_4 AT %Q*: BOOL;
+	N40_DO1_CH2_2 AT %Q*: BOOL;
+	N40_DO6_CH3_4 AT %Q*: BOOL;
+	N40_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV1011 : BOOL;
+	EV1012 : BOOL;
+
+	N40_EVP2_CH1_4 AT %Q*: UINT;
+	N40_EVP3_CH1_2 AT %Q*: UINT;
+
+	EVP1005 : ST_VALVE_BAR := ( Name:= 'EVP1005');
+	EVP1010 : ST_VALVE_BAR := ( Name:= 'EVP1010');
+
+(*Node41 - MF05*)
+	N41_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N41_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N41_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N41_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	 P501 : ST_SENSOR_BAR := ( Name:=  'P501', Desc:=  '(P501) JibInOut IN'  );
+	 P503 : ST_SENSOR_BAR := ( Name:=  'P503', Desc:=  '(P503) JibUpDw'      );
+	 P505 : ST_SENSOR_BAR := ( Name:=  'P505', Desc:=  '(P505) Vang'         );
+	 P507 : ST_SENSOR_BAR := ( Name:=  'P507', Desc:=  '(P507) JibInOut OUT' );
+
+	 L501 : ST_SENSOR_KG := ( Name:=  'L501' );
+ 	 L503 : ST_SENSOR_KG := ( Name:=  'L503' );
+	 L505 : ST_SENSOR_KG := ( Name:=  'L505' );
+	 L501_7 : REAL;
+
+	N41_DO0_CH2_4 AT %Q*: BOOL;
+	N41_DO1_CH2_2 AT %Q*: BOOL;
+	N41_DO4_CH4_4 AT %Q*: BOOL;
+	N41_DO5_CH4_2 AT %Q*: BOOL;
+	N41_DO6_CH3_4 AT %Q*: BOOL;
+	N41_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV501 : BOOL;
+	EV502 : BOOL;
+	EV503 : BOOL;
+	EV504 : BOOL;
+	EV505 : BOOL;
+	EV506 : BOOL;
+	EV507 : BOOL;
+	EV508 : BOOL;
+
+	N41_EVP3_CH1_2 AT %Q*: UINT;
+
+	EVP513 : ST_VALVE_BAR := ( Name:= 'EVP315');
+
+
+(*Node42 - MF01 EVC + PP*)
+	N42_DI0_CH7_4 AT %I*: BOOL;
+	N42_DI1_CH7_2 AT %I*: BOOL;
+
+	N42_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N42_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N42_AI2_CH5_4 AT %I*: UINT; (*20mA*) (*New 20220122*)
+	N42_AI3_CH5_2 AT %I*: UINT; (*20mA*) (*New 20220122*)
+	N42_AI4_CH8_4 AT %I*: UINT; (*20mA*) (*New 20250117*)
+	N42_AI5_CH8_2 AT %I*: UINT; (*20mA*) (*New 20250117*)
+
+	P101  : ST_SENSOR_BAR    := ( Name:=  'P101', Desc:=  '(P101) MF01 LP Line' );
+	P103  : ST_SENSOR_BAR    := ( Name:=  'P103', Desc:=  '(P103) MF01 HP Line' );
+
+	S100  : ST_SENSOR_TEMP   := ( Name:= 'S100' , Desc:= '(S100) Exaustt' );			(*42_CH8_2*)
+	SF100 : ST_SENSOR_SWITCH := ( Name:= 'SF100', Desc:= '(SF100) Engine Oil Empty' );	(*42_CH7_2*)
+
+	N42_DO0_CH2_4 AT %Q*: BOOL;
+	N42_DO1_CH2_2 AT %Q*: BOOL;
+	(*N42_DO2_CH1_4 AT %Q*: BOOL;*)
+	N42_DO3_CH1_2 AT %Q*: BOOL;
+	N42_DO4_CH4_4 AT %Q*: BOOL;
+	N42_DO5_CH4_2 AT %Q*: BOOL;
+	N42_DO6_CH3_4 AT %Q*: BOOL;
+	N42_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV101 : BOOL; (*LP PP1*)
+	EV102 : BOOL; (*LP PP2*)
+	EV103 : BOOL; (*HP PP1*)
+	EV104 : BOOL; (*HP PP2*)
+	EV105 : BOOL; (*Engine HP1*)
+	EV106 : BOOL; (*Engine HP2*)
+	EV107 : BOOL; (*Bypass HP/LP*)
+
+(*Node43 - MF03A*)
+	N43_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N43_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N43_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N43_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+	N43_AI4_CH8_4 AT %I*: UINT; (*20mA*)
+	N43_AI5_CH8_2 AT %I*: UINT; (*20mA*)
+
+	 P307 : ST_SENSOR_BAR := ( Name:=  'P307', Desc:=  '(P307) J4' );
+	 P309 : ST_SENSOR_BAR := ( Name:=  'P309', Desc:=  '(P309) Forestay' );
+	 P311 : ST_SENSOR_BAR := ( Name:=  'P311', Desc:=  '(P311) J2' );
+	LS307 : ST_SENSOR_POS := ( Name:= 'LS307', Desc:= '(LS307) J4' );
+	LS309 : ST_SENSOR_POS := ( Name:= 'LS309', Desc:= '(LS309) Forestay' );
+	LS311 : ST_SENSOR_POS := ( Name:= 'LS311', Desc:= '(LS311) J2' );
+
+	 L307 : ST_SENSOR_KG := ( Name:=  'L307' );
+	 L309 : ST_SENSOR_KG := ( Name:=  'L309' );
+	 L311 : ST_SENSOR_KG := ( Name:=  'L311' );
+
+	N43_DO0_CH2_4 AT %Q*: BOOL;
+	N43_DO1_CH2_2 AT %Q*: BOOL;
+	N43_DO2_CH1_4 AT %Q*: BOOL;
+	N43_DO3_CH1_2 AT %Q*: BOOL;
+	N43_DO6_CH3_4 AT %Q*: BOOL;
+	N43_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV307 : BOOL;
+	EV308 : BOOL;
+	EV309 : BOOL;
+	EV310 : BOOL;
+	EV311 : BOOL;
+	EV312 : BOOL;
+
+(*Node44 - MF03A*)
+	N44_DI0_CH7_4 AT %I*: BOOL;
+	N44_DI1_CH7_2 AT %I*: BOOL;
+
+	SF404 : BOOL;
+	SF405 : BOOL;
+
+	N44_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N44_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N44_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N44_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+	N44_AI4_CH8_4 AT %I*: UINT; (*20mA*)
+	N44_AI5_CH8_2 AT %I*: UINT; (*20mA*)
+
+	 P301 : ST_SENSOR_BAR := ( Name:=  'P301', Desc:=  '(P301) FRO Tack' );
+	 P303 : ST_SENSOR_BAR := ( Name:=  'P303', Desc:=  '(P303) A3 Tack' );
+	 P305 : ST_SENSOR_BAR := ( Name:=  'P305', Desc:=  '(P305) J5' );
+
+	LS301 : ST_SENSOR_POS := ( Name:= 'LS301', Desc:= '(LS301) A3 Tack' );
+	LS303 : ST_SENSOR_POS := ( Name:= 'LS303', Desc:= '(LS303) FRO Tack' );
+	LS305 : ST_SENSOR_POS := ( Name:= 'LS305', Desc:= '(LS305) J5' );
+
+	 L301 : ST_SENSOR_KG := ( Name:=  'L301' );
+	 L303 : ST_SENSOR_KG := ( Name:=  'L303' );
+	 L305 : ST_SENSOR_KG := ( Name:=  'L305' );
+
+	N44_DO0_CH2_4 AT %Q*: BOOL;
+	N44_DO1_CH2_2 AT %Q*: BOOL;
+	N44_DO4_CH4_4 AT %Q*: BOOL;
+	N44_DO5_CH4_2 AT %Q*: BOOL;
+	N44_DO6_CH3_4 AT %Q*: BOOL;
+	N44_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV301 : BOOL;
+	EV302 : BOOL;
+	EV303 : BOOL;
+	EV304 : BOOL;
+	EV305 : BOOL;
+	EV306 : BOOL;
+
+	N44_EVP3_CH1_2 AT %Q*: UINT;
+
+	EVP313 : ST_VALVE_BAR := ( Name:= 'EVP313');
+
+(***STERN Nodes***)
+(*Node20 - MF06*)
+	N20_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N20_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N20_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N20_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+	N20_AI4_CH8_4 AT %I*: UINT; (*20mA*)
+	N20_AI5_CH8_2 AT %I*: UINT; (*20mA*)
+
+	 P601 : ST_SENSOR_BAR := ( Name:=  'P601', Desc:=  '(P601) Propulsion Dw'    );
+	 P603 : ST_SENSOR_BAR := ( Name:=  'P603', Desc:=  '(P603) Propulsion Up'    );
+	 P605 : ST_SENSOR_BAR := ( Name:=  'P605', Desc:=  '(P605) Trim Tab Out'     );
+	 P607 : ST_SENSOR_BAR := ( Name:=  'P607', Desc:=  '(P607) Trim Tab In'      );
+	LS605 : ST_SENSOR_POS := ( Name:= 'LS605', Desc:= '(LS605) Trim Tab'         );
+
+	N20_DO0_CH2_4 AT %Q*: BOOL;
+	N20_DO1_CH2_2 AT %Q*: BOOL;
+	N20_DO2_CH1_4 AT %Q*: BOOL;
+	N20_DO3_CH1_2 AT %Q*: BOOL;
+	N20_DO4_CH4_4 AT %Q*: BOOL;
+	N20_DO5_CH4_2 AT %Q*: BOOL;
+	N20_DO6_CH3_4 AT %Q*: BOOL;
+	N20_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV601 : BOOL;
+	EV602 : BOOL;
+	EV603 : BOOL;
+	EV604 : BOOL;
+	EV605 : BOOL;
+	EV606 : BOOL;
+	EV607 : BOOL;
+	EV608 : BOOL;
+
+(*Node21 - MF07 - MF11*)
+	N21_DI0_CH7_4 AT %I*: BOOL; (*New 20220122*)
+	N21_DI1_CH7_2 AT %I*: BOOL; (*New 20220122*)
+
+	N21_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N21_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N21_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N21_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+	N21_AI4_CH8_4 AT %I*: UINT; (*10V*)  	(*New 20211008*)
+	N21_AI5_CH8_2 AT %I*: UINT; (*10V*) 	(*New 20211008*)
+
+	 P701 : ST_SENSOR_BAR  := ( Name:=  'P701', Desc:=  '(P701) Inner Staysail'   );
+	 P703 : ST_SENSOR_BAR  := ( Name:=  'P703', Desc:=  '(P703) Outhaul'          );
+	LS707 : ST_SENSOR_POS  := ( Name:= 'LS707', Desc:= '(LS707) Bottom Deflector' );
+	LS709 : ST_SENSOR_POS  := ( Name:= 'LS709', Desc:= '(LS709) Top Deflector'    );
+	 S101 : ST_SENSOR_TEMP := ( Name:=  'S101', Desc:=  '(S101) PowerPack 1', MinRaw:= 3, MaxRaw:= 9.5); (*Limits 3.0 = < -50 deg*)
+ 	 S102 : ST_SENSOR_TEMP := ( Name:=  'S102', Desc:=  '(S102) PowerPack 2', MinRaw:= 3, MaxRaw:= 9.5); (*Limits 9.5 = > 150 deg*)
+
+	 L701 : ST_SENSOR_KG := ( Name:=  'L701' );
+ 	 L703 : ST_SENSOR_KG := ( Name:=  'L703' );
+
+	N21_DO0_CH2_4 AT %Q*: BOOL;
+	N21_DO1_CH2_2 AT %Q*: BOOL;
+	N21_DO4_CH4_4 AT %Q*: BOOL;
+	N21_DO5_CH4_2 AT %Q*: BOOL;
+
+	EV701 : BOOL;
+	EV702 : BOOL;
+	EV703 : BOOL;
+	EV704 : BOOL;
+
+	N21_EVP3_CH1_2 AT %Q*: UINT;
+
+	EVP709 : ST_VALVE_BAR := ( Name:= 'EVP709');
+
+(*Node22 - MF07*)
+	N22_DI0_CH7_4 AT %I*: BOOL;
+	N22_DI1_CH7_2 AT %I*: BOOL;
+	N22_DI6_CH8_4 AT %I*: BOOL; (*New 20220122*)
+	N22_DI7_CH8_2 AT %I*: BOOL; (*New 20220122*)
+
+
+	(*PTC101 : ST_SENSOR_SWITCH := ( Name:= 'PTC101', Desc:=  '(PTC101) PowerPack 1 Overheated' );*)	(*New 20211008*)
+	(*PTC102 : ST_SENSOR_SWITCH := ( Name:= 'PTC102', Desc:=  '(PTC102) PowerPack 2 Overheated' );*)	(*New 20211008*)
+
+	N22_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N22_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N22_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N22_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	 P707 : ST_SENSOR_BAR := ( Name:=  'P707', Desc:=  '(P707) Bottom Deflector' );
+	 P709 : ST_SENSOR_BAR := ( Name:=  'P709', Desc:=  '(P709) Top Deflector'    );
+	 P705 : ST_SENSOR_BAR := ( Name:=  'P705', Desc:=  '(P705) Main Cunningham'  );
+
+	 L707 : ST_SENSOR_KG := ( Name:=  'L707' );
+	 L709 : ST_SENSOR_KG := ( Name:=  'L709' );
+ 	 L705 : ST_SENSOR_KG := ( Name:=  'L705' );
+
+	N22_DO0_CH2_4 AT %Q*: BOOL;
+	N22_DO1_CH2_2 AT %Q*: BOOL;
+	N22_DO2_CH1_4 AT %Q*: BOOL;
+	N22_DO3_CH1_2 AT %Q*: BOOL;
+	N22_DO6_CH3_4 AT %Q*: BOOL;
+	N22_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV705 : BOOL;
+	EV706 : BOOL;
+	EV707 : BOOL;
+	EV708 : BOOL;
+	EV709 : BOOL;
+	EV710 : BOOL;
+
+(*Node23 - MF08*)
+	N23_DI0_CH7_4 AT %I*: BOOL;
+	N23_DI1_CH7_2 AT %I*: BOOL;
+
+	SF801 : ST_SENSOR_SWITCH := ( Name:= 'SF801', Desc:= '(SF801) MAX Daggerboard Port' );
+	SF803 : ST_SENSOR_SWITCH := ( Name:= 'SF803', Desc:= '(SF803) MAX Daggerboard Stbd' );
+
+	N23_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N23_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N23_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N23_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	 P802 : ST_SENSOR_BAR := ( Name:=  'P802', Desc:=  '(P802) Daggerborad Port IN' );
+	 P804 : ST_SENSOR_BAR := ( Name:=  'P804', Desc:=  '(P804) Daggerboard Stbd IN' );
+	LS801 : ST_SENSOR_POS := ( Name:= 'LS801', Desc:= '(LS801) Daggerborad Port' );
+	LS803 : ST_SENSOR_POS := ( Name:= 'LS803', Desc:= '(LS803) Daggerboard Stbd' );
+
+	N23_DO0_CH2_4 AT %Q*: BOOL;
+	N23_DO1_CH2_2 AT %Q*: BOOL;
+	N23_DO2_CH1_4 AT %Q*: BOOL;
+	N23_DO3_CH1_2 AT %Q*: BOOL;
+
+	EV801 : BOOL;
+	EV802 : BOOL;
+	EV803 : BOOL;
+	EV804 : BOOL;
+
+(*Node24 - MF12*)
+	N24_AI0_CH6_4 AT %I*: UINT; (*10V*)
+	N24_AI1_CH6_2 AT %I*: UINT; (*10V*)
+	N24_AI2_CH5_4 AT %I*: UINT; (*10V*)
+	N24_AI3_CH5_2 AT %I*: UINT; (*10V*)
+	N24_AI4_CH8_4 AT %I*: UINT; (*10V*)
+	N24_AI5_CH8_2 AT %I*: UINT; (*10V*)
+	N24_AI6_CH3_4 AT %I*: UINT; (*10V*)
+	N24_AI7_CH3_2 AT %I*: UINT; (*10V*)
+
+	P1210 : ST_SENSOR_BAR := ( Name:=  'P1210', Desc:=  '(P1210) Primary Winch Port A'    , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1211 : ST_SENSOR_BAR := ( Name:=  'P1211', Desc:=  '(P1211) Primary Winch Port B'    , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1212 : ST_SENSOR_BAR := ( Name:=  'P1212', Desc:=  '(P1212) Secondary Winch Port A'    , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1213 : ST_SENSOR_BAR := ( Name:=  'P1213', Desc:=  '(P1213) Secondary Winch Port B'    , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1214 : ST_SENSOR_BAR := ( Name:=  'P1214', Desc:=  '(P1214) Pit Winch Port	A' , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1215 : ST_SENSOR_BAR := ( Name:=  'P1215', Desc:=  '(P1215) Pit Winch Port B' , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1216 : ST_SENSOR_BAR := ( Name:=  'P1216', Desc:=  '(P1216) Daggerborad Port OUT', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1219 : ST_SENSOR_BAR := ( Name:=  'P1219', Desc:=  '(P1219) Daggerborad Stbd OUT', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+
+(*Node25 - MF12*)
+	N25_AI0_CH6_4 AT %I*: UINT; (*10V*)
+	N25_AI1_CH6_2 AT %I*: UINT; (*10V*)
+	N25_AI2_CH5_4 AT %I*: UINT; (*10V*)
+	N25_AI3_CH5_2 AT %I*: UINT; (*10V*)
+	N25_AI4_CH8_4 AT %I*: UINT; (*10V*)
+	N25_AI5_CH8_2 AT %I*: UINT; (*10V*)
+	N25_AI6_CH3_4 AT %I*: UINT; (*10V*)
+	N25_AI7_CH3_2 AT %I*: UINT; (*10V*)
+
+	P1202 : ST_SENSOR_BAR := ( Name:=  'P1202', Desc:=  '(P1202) Primary Winch Stbd A', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1203 : ST_SENSOR_BAR := ( Name:=  'P1203', Desc:=  '(P1203) Primary Winch Stbd B', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1204 : ST_SENSOR_BAR := ( Name:=  'P1204', Desc:=  '(P1204) Pit Winch Stbd A'    , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1205 : ST_SENSOR_BAR := ( Name:=  'P1205', Desc:=  '(P1205) Pit Winch Stbd B'    , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1206 : ST_SENSOR_BAR := ( Name:=  'P1206', Desc:=  '(P1206) Mainsheet Winch A'   , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1207 : ST_SENSOR_BAR := ( Name:=  'P1207', Desc:=  '(P1207) Mainsheet Winch B'   , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1208 : ST_SENSOR_BAR := ( Name:=  'P1208', Desc:=  '(P1208) Runner Winch Port A' , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	P1209 : ST_SENSOR_BAR := ( Name:=  'P1209', Desc:=  '(P1209) Runner Winch Port B' , MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+
+(*Node26 - MF25*)
+	N26_DI6_CH8_4 AT %I*: BOOL;
+	N26_DI7_CH8_2 AT %I*: BOOL;
+
+	SF023 : BOOL;
+	SF024 : BOOL;
+
+	N26_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N26_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N26_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N26_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	 LS024 : ST_SENSOR_POS := ( Name:= 'LS024' , Desc:= '(LS024) Fwd. Tank (Stbd)' );
+	 P2500 : ST_SENSOR_BAR := ( Name:= 'P2500' , Desc:= '(P2500) Water Ballast' );
+	LS2501 : ST_SENSOR_POS := ( Name:= 'LS2501', Desc:= '(LS2501) Valve N (Stbd)' );
+	LS2505 : ST_SENSOR_POS := ( Name:= 'LS2505', Desc:= '(LS2505) Valve I (Stbd)' );
+
+	N26_DO0_CH2_4 AT %Q*: BOOL;
+	N26_DO1_CH2_2 AT %Q*: BOOL;
+	N26_DO2_CH1_4 AT %Q*: BOOL;
+	N26_DO3_CH1_2 AT %Q*: BOOL;
+	N26_DO4_CH4_4 AT %Q*: BOOL;
+	N26_DO5_CH4_2 AT %Q*: BOOL;
+	N26_DO6_CH3_4 AT %Q*: BOOL;
+	N26_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV2501 : BOOL;
+	EV2502 : BOOL;
+	EV2503 : BOOL;
+	EV2504 : BOOL;
+	EV2505 : BOOL;
+	EV2506 : BOOL;
+	EV2507 : BOOL;
+	EV2508 : BOOL;
+
+(*Node27 - MF22*)
+	N27_DI0_CH7_4 AT %I*: BOOL;
+	N27_DI1_CH7_2 AT %I*: BOOL;
+	N27_DI2_CH6_4 AT %I*: BOOL;
+	N27_DI3_CH6_2 AT %I*: BOOL;
+	N27_DI4_CH5_4 AT %I*: BOOL;
+	N27_DI5_CH5_2 AT %I*: BOOL;
+
+	SF2205 : BOOL;
+	SF2207 : BOOL;
+	SF2209 : BOOL;
+	SF2211 : BOOL;
+
+	N27_DO0_CH2_4 AT %Q*: BOOL;
+	N27_DO1_CH2_2 AT %Q*: BOOL;
+	N27_DO2_CH1_4 AT %Q*: BOOL;
+	N27_DO3_CH1_2 AT %Q*: BOOL;
+	N27_DO6_CH3_4 AT %Q*: BOOL;
+	N27_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV2201 : BOOL;
+	EV2203 : BOOL;
+	EV2205 : BOOL;
+	EV2207 : BOOL;
+	EV2209 : BOOL;
+	EV2211 : BOOL;
+
+(*Node28 - MF21*)
+	N28_DI0_CH7_4 AT %I*: BOOL;
+	N28_DI1_CH7_2 AT %I*: BOOL;
+	N28_DI2_CH6_4 AT %I*: BOOL;
+	N28_DI3_CH6_2 AT %I*: BOOL;
+	N28_DI4_CH5_4 AT %I*: BOOL;
+	N28_DI5_CH5_2 AT %I*: BOOL;
+
+	SF2101 : BOOL;
+	SF2103 : BOOL;
+	SF2105 : BOOL;
+	SF2107 : BOOL;
+	SF2109 : BOOL;
+	SF2111 : BOOL;
+
+	N28_DO0_CH2_4 AT %Q*: BOOL;
+	N28_DO1_CH2_2 AT %Q*: BOOL;
+	N28_DO2_CH1_4 AT %Q*: BOOL;
+	N28_DO3_CH1_2 AT %Q*: BOOL;
+	N28_DO6_CH3_4 AT %Q*: BOOL;
+	N28_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV2101 : BOOL;
+	EV2103 : BOOL;
+	EV2105 : BOOL;
+	EV2107 : BOOL;
+	EV2109 : BOOL;
+	EV2111 : BOOL;
+
+(*Node29 - MF24*)
+	N29_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N29_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N29_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N29_AI3_CH5_2 AT %I*: UINT; (*10V*)
+
+	LS2401 : ST_SENSOR_POS := ( Name:= 'LS2401', Desc:= '(LS2401) Scoop AftFwr (Stbd)', MinRaw:= 0.5, MaxRaw:= 10.5 );
+	LS2409 : ST_SENSOR_POS := ( Name:= 'LS2409', Desc:= '(LS2409) Valve R (Stbd)'      );
+	LS2201 : ST_SENSOR_POS := ( Name:= 'LS2201', Desc:= '(LS2201) Scoop UpDw (Stbd)'   );
+	LS023  : ST_SENSOR_POS := ( Name:= 'LS023' , Desc:= '(LS023) Aft. Tank (Stbd)'     );
+
+	N29_DI0_CH7_4 AT %I*: BOOL;
+	N29_DI1_CH7_2 AT %I*: BOOL;
+
+	SF2405 : BOOL;
+	SF2407 : BOOL;
+
+	N29_DO0_CH2_4 AT %Q*: BOOL;
+	N29_DO1_CH2_2 AT %Q*: BOOL;
+	N29_DO2_CH1_4 AT %Q*: BOOL;
+	N29_DO3_CH1_2 AT %Q*: BOOL;
+	N29_DO6_CH3_4 AT %Q*: BOOL;
+	N29_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV2401 : BOOL;
+	EV2403 : BOOL;
+	EV2405 : BOOL;
+	EV2407 : BOOL;
+	EV2409 : BOOL;
+	EV2411 : BOOL;
+
+(*Node30 - MF23 - WB*)
+	N30_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N30_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N30_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N30_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	LS2301 : ST_SENSOR_POS := ( Name:= 'LS2301', Desc:= '(LS2301) Valve S (Port)' );
+	LS2305 : ST_SENSOR_POS := ( Name:= 'LS2305', Desc:= '(LS2305) Valve B (Port)' );
+	LS021  : ST_SENSOR_POS := ( Name:= 'LS021' , Desc:= '(LS021) Aft. Tank (Port)' );
+	LS022  : ST_SENSOR_POS := ( Name:= 'LS022' , Desc:= '(LS022) Fwd. Tank (Port)' );
+
+	N30_DI0_CH7_4 AT %I*: BOOL;
+	N30_DI1_CH7_2 AT %I*: BOOL;
+	N30_DI6_CH8_4 AT %I*: BOOL;
+	N30_DI7_CH8_2 AT %I*: BOOL;
+
+	SF021 : BOOL;
+	SF022 : BOOL;
+	SF2309 : BOOL;
+	SF2311 : BOOL;
+
+	N30_DO0_CH2_4 AT %Q*: BOOL;
+	N30_DO1_CH2_2 AT %Q*: BOOL;
+	N30_DO2_CH1_4 AT %Q*: BOOL;
+	N30_DO3_CH1_2 AT %Q*: BOOL;
+	N30_DO6_CH3_4 AT %Q*: BOOL;
+	N30_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV2301 : BOOL;
+	EV2303 : BOOL;
+	EV2305 : BOOL;
+	EV2307 : BOOL;
+	EV2309 : BOOL;
+	EV2311 : BOOL;
+
+(*Node31 - MF20*)
+	N31_AI2_CH5_4 AT %I*: UINT; (*10V*)
+	N31_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	LS2001 : ST_SENSOR_POS := ( Name:= 'LS2001', Desc:= '(LS2001) Valve C (Port)' );
+	LS2005 : ST_SENSOR_POS := ( Name:= 'LS2005', Desc:= '(LS2005) Scoop AftFwd (Port)', MinRaw:= 0.5, MaxRaw:= 10.5 );
+
+	N31_DI0_CH7_4 AT %I*: BOOL;
+	N31_DI1_CH7_2 AT %I*: BOOL;
+
+	SF2009 : BOOL;
+	SF2011 : BOOL;
+
+	N31_DO0_CH2_4 AT %Q*: BOOL;
+	N31_DO1_CH2_2 AT %Q*: BOOL;
+	N31_DO2_CH1_4 AT %Q*: BOOL;
+	N31_DO3_CH1_2 AT %Q*: BOOL;
+	N31_DO6_CH3_4 AT %Q*: BOOL;
+	N31_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV2001 : BOOL;
+	EV2003 : BOOL;
+	EV2005 : BOOL;
+	EV2007 : BOOL;
+	EV2009 : BOOL;
+	EV2011 : BOOL;
+
+(*Node32 - MF19*)
+	N32_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N32_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N32_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N32_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	LS1905 : ST_SENSOR_POS := ( Name:= 'LS1905', Desc:= '(LS1905) Scoop UpDw (Port)' );
+
+	N32_DI0_CH7_4 AT %I*: BOOL;
+	N32_DI1_CH7_2 AT %I*: BOOL;
+	N32_DI6_CH8_4 AT %I*: BOOL;
+	N32_DI7_CH8_2 AT %I*: BOOL;
+
+	SF1901 : BOOL;
+	SF1903 : BOOL;
+	SF1909 : BOOL;
+	SF1911 : BOOL;
+
+	N32_DO0_CH2_4 AT %Q*: BOOL;
+	N32_DO1_CH2_2 AT %Q*: BOOL;
+	N32_DO2_CH1_4 AT %Q*: BOOL;
+	N32_DO3_CH1_2 AT %Q*: BOOL;
+	N32_DO6_CH3_4 AT %Q*: BOOL;
+	N32_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV1901 : BOOL;
+	EV1903 : BOOL;
+	EV1905 : BOOL;
+	EV1907 : BOOL;
+	EV1909 : BOOL;
+	EV1911 : BOOL;
+
+(*Node33 - MF13 - Traveller*)
+	N33_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N33_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N33_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	 P1301 : ST_SENSOR_BAR := ( Name:=  'P1301', Desc:=  '(P1301) Traveller A' );
+	 P1302 : ST_SENSOR_BAR := ( Name:=  'P1302', Desc:=  '(P1302) Traveller B' );
+
+	(*N33_DO0_CH2_4 AT %Q*: BOOL;*)
+	N33_DO1_CH2_2 AT %Q*: BOOL;
+	N33_DO2_CH1_4 AT %Q*: BOOL;
+	N33_DO3_CH1_2 AT %Q*: BOOL;
+
+	EV1302 : BOOL;
+	EV1301 : BOOL;
+	EV1303 : BOOL;
+
+(*Node34 - MF16 *)
+	N34_AI0_CH6_4 AT %I*: UINT; (*10V*)
+	N34_AI1_CH6_2 AT %I*: UINT; (*10V*)
+	N34_AI2_CH5_4 AT %I*: UINT; (*10V*)
+	N34_AI3_CH5_2 AT %I*: UINT; (*10V*)
+	N34_AI4_CH8_4 AT %I*: UINT; (*10V*)
+	N34_AI5_CH8_2 AT %I*: UINT; (*10V*)
+
+	 P1602 : ST_SENSOR_BAR := ( Name:=  'P1602', Desc:= '(P1602) Runner Winch Stbd A', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	 P1603 : ST_SENSOR_BAR := ( Name:=  'P1603', Desc:= '(P1603) Runner Winch Stbd B', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	 P1604 : ST_SENSOR_BAR := ( Name:=  'P1604', Desc:= '(P1604) Secondary Winch Stbd A', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+	 P1605 : ST_SENSOR_BAR := ( Name:=  'P1605', Desc:= '(P1605) Secondary Winch Stbd B', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+
+	 P201  : ST_SENSOR_BAR := ( Name:=  'P201', Desc:= '(P201) MF02 LP LINE', MinRaw:= 0.5, MaxRaw:= 10.5, Raw_Off := 1.0 );
+
+(*Node35 - MF09*)
+	N35_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N35_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N35_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N35_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	 P901 : ST_SENSOR_BAR := ( Name:=  'P901', Desc:=  '(P901) Backstay Tail' );
+	 P903 : ST_SENSOR_BAR := ( Name:=  'P903', Desc:=  '(P903) Backstay Tail' );
+	 P905 : ST_SENSOR_BAR := ( Name:=  'P905', Desc:=  '(P905) Traveller A' );
+	 P907 : ST_SENSOR_BAR := ( Name:=  'P907', Desc:=  '(P907) Traveller B' );
+
+ 	 L901 : ST_SENSOR_KG := ( Name:=  'L901' );
+ 	 L903 : ST_SENSOR_KG := ( Name:=  'L903' );
+
+	N35_DO0_CH2_4 AT %Q*: BOOL;
+	N35_DO1_CH2_2 AT %Q*: BOOL;
+	N35_DO2_CH1_4 AT %Q*: BOOL;
+	N35_DO3_CH1_2 AT %Q*: BOOL;
+	N35_DO4_CH4_4 AT %Q*: BOOL;
+	N35_DO5_CH4_2 AT %Q*: BOOL;
+	N35_DO6_CH3_4 AT %Q*: BOOL;
+	N35_DO7_CH3_2 AT %Q*: BOOL;
+
+	EV901 : BOOL;
+	EV902 : BOOL;
+	EV903 : BOOL;
+	EV904 : BOOL;
+	EV905 : BOOL;
+	EV906 : BOOL;
+	EV907 : BOOL;
+	EV908 : BOOL;
+
+(*Node47 - MF11*)
+	N47_AI0_CH6_4 AT %I*: UINT; (*20mA*)
+	N47_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+	N47_AI2_CH5_4 AT %I*: UINT; (*20mA*)
+	N47_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+
+	N47_AI4_CH8_4 AT %I*: UINT; (*10V*)
+	N47_AI5_CH8_2 AT %I*: UINT; (*10V*)
+
+
+	P1101 : ST_SENSOR_BAR  := ( Name:= 'P1101', Desc:= '(P1101) Propulsion' );
+	P1102 : ST_SENSOR_BAR  := ( Name:= 'P1102', Desc:= '(P1102) Propulsion' );
+
+	S1100 : ST_SENSOR_TEMP := ( Name:= 'S1100', Desc:=  '(S110) Propulsion', MinRaw:= 0, MaxRaw:= 10 );(*0..10V = 0..100deg*)
+
+	LS601 : ST_SENSOR_POS  := ( Name:= 'LS601', Desc:= '(LS601) Propulsion Up/Dw' );
+
+	N47_DO0_CH2_4 AT %Q*: BOOL;
+	N47_DO1_CH2_2 AT %Q*: BOOL;
+	N47_DO2_CH1_4 AT %Q*: BOOL;
+	N47_DO3_CH1_2 AT %Q*: BOOL;
+
+	EV1101 : BOOL;
+
+(*Node48 - DGB Seal*)
+	N48_DO0_CH2_4 AT %Q*: BOOL;
+	N48_DO1_CH2_2 AT %Q*: BOOL;
+	N48_DO2_CH1_4 AT %Q*: BOOL;
+	N48_DO3_CH1_2 AT %Q*: BOOL;
+(*	N48_DO4_CH4_4 AT %Q*: BOOL;
+	N48_DO5_CH4_2 AT %Q*: BOOL;
+	N48_DO6_CH3_4 AT %Q*: BOOL;
+	N48_DO7_CH3_2 AT %Q*: BOOL;*)
+
+(*	N48_AI0_CH6_4 AT %I*: UINT; (*20mA*)*)
+	N48_AI1_CH6_2 AT %I*: UINT; (*20mA*)
+(*	N48_AI2_CH5_4 AT %I*: UINT; (*20mA*)*)
+	N48_AI3_CH5_2 AT %I*: UINT; (*20mA*)
+(*	N48_AI4_CH8_4 AT %I*: UINT; (*20mA*)
+	N48_AI5_CH8_2 AT %I*: UINT; (*20mA*)*)
+
+	EV_SealP_V : BOOL;
+	EV_SealP_P : BOOL;
+	EV_SealS_V : BOOL;
+	EV_SealS_P : BOOL;
+
+	P_SealP : ST_SENSOR_BAR  := ( Name:= 'PSealP', Desc:= '(PSealP) DGB Seal Port' );
+	P_SealS : ST_SENSOR_BAR  := ( Name:= 'PSealS', Desc:= '(PSealS) DGB Seal Stbd' );
+
+(***HAWE CAN VALVE***)
+
+(*MF12*)
+	N50_IN AT %I*: ST_PSX_VALVE_IN;
+	N51_IN AT %I*: ST_PSX_VALVE_IN;
+	N52_IN AT %I*: ST_PSX_VALVE_IN;
+	N53_IN AT %I*: ST_PSX_VALVE_IN;
+	N54_IN AT %I*: ST_PSX_VALVE_IN;
+	N55_IN AT %I*: ST_PSX_VALVE_IN;
+	N56_IN AT %I*: ST_PSX_VALVE_IN;
+	N57_IN AT %I*: ST_PSX_VALVE_IN;
+	N58_IN AT %I*: ST_PSX_VALVE_IN;
+	N59_IN AT %I*: ST_PSX_VALVE_IN;
+
+	N50_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N51_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N52_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N53_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N54_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N55_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N56_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N57_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N58_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N59_OUT AT %Q*: ST_PSX_VALVE_OUT;
+
+	EVP1202_3 : INT;
+	EVP1204_5 : INT;
+	EVP1206_7 : INT;
+	EVP1208_9 : INT;
+	EVP1210_1 : INT;
+	EVP1212_3 : INT;
+	EVP1214_5 : INT;
+	EVP1216_7 : INT;
+	EVP1218_9 : INT;
+	EVP1220_1 : INT;
+
+(*MF16*)
+	N70_IN AT %I*: ST_PSX_VALVE_IN;
+	N71_IN AT %I*: ST_PSX_VALVE_IN;
+	N72_IN AT %I*: ST_PSX_VALVE_IN;
+	N73_IN AT %I*: ST_PSX_VALVE_IN;
+	N74_IN AT %I*: ST_PSX_VALVE_IN;
+
+	N70_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N71_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N72_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N73_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N74_OUT AT %Q*: ST_PSX_VALVE_OUT;
+
+	EVP1602_3 : INT;
+	EVP1604_5 : INT;
+	EVP1606_7 : INT;
+	EVP1608_9 : INT;
+	EVP1610_1 : INT;
+
+(*MF04*)
+	N60_IN AT %I*: ST_PSX_VALVE_IN;
+	N61_IN AT %I*: ST_PSX_VALVE_IN;
+	N64_IN AT %I*: ST_PSX_VALVE_IN;
+
+	N60_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N61_OUT AT %Q*: ST_PSX_VALVE_OUT;
+	N64_OUT AT %Q*: ST_PSX_VALVE_OUT;
+
+	EVP402_3 : INT;
+	EVP404_5 : INT;
+	EVP406_7 : INT;
+
+(*MF 48*)
+	EV4801 AT %Q*: BOOL;
+	EV4802 AT %Q*: BOOL;
+	EV4803 AT %Q*: BOOL;
+	EV4804 AT %Q*: BOOL;
+
+	p4801 : ST_SENSOR_BAR  := ( Name:= 'P4801', Desc:= '(P4801) Propulsion' );
+	P4803 : ST_SENSOR_BAR  := ( Name:= 'P4803', Desc:= '(P4803) Propulsion' );
+
+(*K-Tronic Cariboni*)
+
+	N102_IN AT %I*: WORD; (*Nodo102 -  6_V PIT STBD  *)
+	N103_IN AT %I*: WORD; (*Nodo103 -  6_H LIGHT     *)
+	N104_IN AT %I*: WORD; (*Nodo104 -  8_V BSTY STBD *)
+	N105_IN AT %I*: WORD; (*Nodo105 -  9_V BSTY PORT *)
+	N106_IN AT %I*: WORD; (*Nodo106 - 10_H W.BALLAST *)
+	N107_IN AT %I*: WORD; (*Nodo107 - 10_H W.BALLAST *)
+	N108_IN AT %I*: WORD; (*Nodo108 -  8_H HELM 2    *)
+	N109_IN AT %I*: WORD; (*Nodo109 -  8_H HELM 2    *)
+	N110_IN AT %I*: WORD; (*Nodo110 -  6_H HELM 1    *)
+	N111_IN AT %I*: WORD; (*Nodo111 -  6_H HELM 1    *)
+	N112_IN AT %I*: WORD; (*Nodo112 - 10_V COCKPIT   *)
+	N113_IN AT %I*: WORD; (*Nodo113 -  6_V PIT PORT  *)
+	N114_IN AT %I*: WORD; (*Nodo114 -  6_V JIB STBD  *)
+	N115_IN AT %I*: WORD; (*Nodo115 -  6_V JIB PORT  *)
+	N116_IN AT %I*: WORD; (*Nodo116 - 10_V MAIN STBD *)
+	N117_IN AT %I*: WORD; (*Nodo117 - 10_V MAIN PORT *)
+	N118_IN AT %I*: WORD; (*Nodo118 - 10_V MAST STBD *)
+	N119_IN AT %I*: WORD; (*Nodo119 - 10_V MAST PORT *)
+
+	N120_IN AT %I*: WORD; (*Nodo120 - Winches Stbd *)
+	N121_IN AT %I*: WORD; (*Nodo121 - Winches Port *)
+
+	N102_OUT AT %Q*: WORD;
+	N103_OUT AT %Q*: WORD;
+	N104_OUT AT %Q*: WORD;
+	N105_OUT AT %Q*: WORD;
+	N106_OUT AT %Q*: WORD;
+	N107_OUT AT %Q*: WORD;
+	N108_OUT AT %Q*: WORD;
+	N109_OUT AT %Q*: WORD;
+	N110_OUT AT %Q*: WORD;
+	N111_OUT AT %Q*: WORD;
+	N112_OUT AT %Q*: WORD;
+	N113_OUT AT %Q*: WORD;
+	N114_OUT AT %Q*: WORD;
+	N115_OUT AT %Q*: WORD;
+	N116_OUT AT %Q*: WORD;
+	N117_OUT AT %Q*: WORD;
+	N118_OUT AT %Q*: WORD;
+	N119_OUT AT %Q*: WORD;
+
+	N120_LED_R AT %Q*: WORD;
+	N120_LED_G AT %Q*: WORD;
+	N120_LED_B AT %Q*: WORD;
+	N121_LED_R AT %Q*: WORD;
+	N121_LED_G AT %Q*: WORD;
+	N121_LED_B AT %Q*: WORD;
+
+	N102_BLINK AT %Q*: WORD;
+	N103_BLINK AT %Q*: WORD;
+	N104_BLINK AT %Q*: WORD;
+	N105_BLINK AT %Q*: WORD;
+	N106_BLINK AT %Q*: WORD;
+	N107_BLINK AT %Q*: WORD;
+	N108_BLINK AT %Q*: WORD;
+	N109_BLINK AT %Q*: WORD;
+	N110_BLINK AT %Q*: WORD;
+	N111_BLINK AT %Q*: WORD;
+	N112_BLINK AT %Q*: WORD;
+	N113_BLINK AT %Q*: WORD;
+	N114_BLINK AT %Q*: WORD;
+	N115_BLINK AT %Q*: WORD;
+	N116_BLINK AT %Q*: WORD;
+	N117_BLINK AT %Q*: WORD;
+	N118_BLINK AT %Q*: WORD;
+	N119_BLINK AT %Q*: WORD;
+
+	N120_BLINK_R AT %Q*: WORD;
+	N120_BLINK_G AT %Q*: WORD;
+	N120_BLINK_B AT %Q*: WORD;
+	N121_BLINK_R AT %Q*: WORD;
+	N121_BLINK_G AT %Q*: WORD;
+	N121_BLINK_B AT %Q*: WORD;
+
+	N102_BTIME AT %Q*: BYTE;
+	N103_BTIME AT %Q*: BYTE;
+	N104_BTIME AT %Q*: BYTE;
+	N105_BTIME AT %Q*: BYTE;
+	N106_BTIME AT %Q*: BYTE;
+	N107_BTIME AT %Q*: BYTE;
+	N108_BTIME AT %Q*: BYTE;
+	N109_BTIME AT %Q*: BYTE;
+	N110_BTIME AT %Q*: BYTE;
+	N111_BTIME AT %Q*: BYTE;
+	N112_BTIME AT %Q*: BYTE;
+	N113_BTIME AT %Q*: BYTE;
+	N114_BTIME AT %Q*: BYTE;
+	N115_BTIME AT %Q*: BYTE;
+	N116_BTIME AT %Q*: BYTE;
+	N117_BTIME AT %Q*: BYTE;
+	N118_BTIME AT %Q*: BYTE;
+	N119_BTIME AT %Q*: BYTE;
+
+	N102_DIMMER AT %Q*: WORD;
+	N103_DIMMER AT %Q*: WORD;
+	N104_DIMMER AT %Q*: WORD;
+	N105_DIMMER AT %Q*: WORD;
+	N106_DIMMER AT %Q*: WORD;
+	N107_DIMMER AT %Q*: WORD;
+	N108_DIMMER AT %Q*: WORD;
+	N109_DIMMER AT %Q*: WORD;
+	N110_DIMMER AT %Q*: WORD;
+	N111_DIMMER AT %Q*: WORD;
+	N112_DIMMER AT %Q*: WORD;
+	N113_DIMMER AT %Q*: WORD;
+	N114_DIMMER AT %Q*: WORD;
+	N115_DIMMER AT %Q*: WORD;
+	N116_DIMMER AT %Q*: WORD;
+	N117_DIMMER AT %Q*: WORD;
+	N118_DIMMER AT %Q*: WORD;
+	N119_DIMMER AT %Q*: WORD;
+
+	N120_LED_Bright  AT %Q* : BYTE;
+	N121_LED_Bright  AT %Q* : BYTE;
+
+	N120_BL_Bright AT %Q* : BYTE;
+	N121_BL_Bright AT %Q* : BYTE;
+
+	N120_BL_Color AT %Q* : BYTE;
+	N121_BL_Color AT %Q* : BYTE;
+
+	CLM8_LED1   AT %Q* : BYTE;
+	CLM8_LED2   AT %Q* : BYTE;
+	CLM8_COLOR1 AT %Q* : UDINT;
+	CLM8_COLOR2 AT %Q* : UDINT;
+
+	CLM8_BRIGHT AT %Q* : BYTE;
+
+(*DECKLINK*) (*Main 0x000F, Left 0x00F0, Right 0x0F00*)
+	N10_DI0 AT %I*: BOOL;
+	N10_DI1 AT %I*: BOOL;
+	N10_DI2 AT %I*: BOOL;
+	N10_DI3 AT %I*: BOOL;
+	N10_DI4 AT %I*: BOOL;
+	N10_DI5 AT %I*: BOOL;
+	N10_DI6 AT %I*: BOOL;
+	N10_DI7 AT %I*: BOOL;
+
+	N11_DI0 AT %I*: BOOL;
+	N11_DI1 AT %I*: BOOL;
+	N11_DI2 AT %I*: BOOL;
+	N11_DI3 AT %I*: BOOL;
+	N11_DI4 AT %I*: BOOL;
+	N11_DI5 AT %I*: BOOL;
+	N11_DI6 AT %I*: BOOL;
+	N11_DI7 AT %I*: BOOL;
+
+	N12_DI0 AT %I*: BOOL;
+	N12_DI1 AT %I*: BOOL;
+	N12_DI2 AT %I*: BOOL;
+	N12_DI3 AT %I*: BOOL;
+	N12_DI4 AT %I*: BOOL;
+	N12_DI5 AT %I*: BOOL;
+	N12_DI6 AT %I*: BOOL;
+	N12_DI7 AT %I*: BOOL;
+
+	N13_DI0 AT %I*: BOOL;
+	N13_DI1 AT %I*: BOOL;
+	N13_DI2 AT %I*: BOOL;
+	N13_DI3 AT %I*: BOOL;
+	N13_DI4 AT %I*: BOOL;
+	N13_DI5 AT %I*: BOOL;
+	N13_DI6 AT %I*: BOOL;
+	N13_DI7 AT %I*: BOOL;
+
+	N20_DI0 AT %I*: BOOL;
+	N20_DI1 AT %I*: BOOL;
+	N20_DI2 AT %I*: BOOL;
+	N20_DI3 AT %I*: BOOL;
+	N20_DI4 AT %I*: BOOL;
+	N20_DI5 AT %I*: BOOL;
+	N20_DI6 AT %I*: BOOL;
+	N20_DI7 AT %I*: BOOL;
+
+(*	N02_IN  AT %I*: WORD;
+	N03_IN  AT %I*: WORD;
+	N04_IN  AT %I*: WORD;
+	N05_IN  AT %I*: WORD;
+	N06_IN  AT %I*: WORD;
+	N07_IN  AT %I*: WORD;
+	N08_IN  AT %I*: WORD;
+	N09_IN  AT %I*: WORD;
+	N10_IN  AT %I*: WORD;
+	N11_IN  AT %I*: WORD;
+	N12_IN  AT %I*: WORD;
+	N13_IN  AT %I*: WORD;
+	N14_IN  AT %I*: WORD;
+	N15_IN  AT %I*: WORD;
+	N16_IN  AT %I*: WORD;
+	N17_IN  AT %I*: WORD;
+	N18_IN  AT %I*: WORD;
+	N19_IN  AT %I*: WORD;
+	N20_IN  AT %I*: WORD;
+	N21_IN  AT %I*: WORD;
+
+	N02_SPD AT %I*: BYTE;
+	N03_SPD AT %I*: BYTE;
+	N04_SPD AT %I*: BYTE;
+	N05_SPD AT %I*: BYTE;
+	N06_SPD AT %I*: BYTE;
+	N07_SPD AT %I*: BYTE;
+	N08_SPD AT %I*: BYTE;
+	N09_SPD AT %I*: BYTE;
+	N10_SPD AT %I*: BYTE;
+	N11_SPD AT %I*: BYTE;
+	N12_SPD AT %I*: BYTE;
+	N13_SPD AT %I*: BYTE;
+	N14_SPD AT %I*: BYTE;
+	N15_SPD AT %I*: BYTE;
+	N16_SPD AT %I*: BYTE;
+	N17_SPD AT %I*: BYTE;
+	N18_SPD AT %I*: BYTE;
+	N19_SPD AT %I*: BYTE;
+	N20_SPD AT %I*: BYTE;
+	N21_SPD AT %I*: BYTE;
+
+	N02_OUT AT %Q*: BYTE;
+	N03_OUT AT %Q*: BYTE;
+	N04_OUT AT %Q*: BYTE;
+	N05_OUT AT %Q*: BYTE;
+	N06_OUT AT %Q*: BYTE;
+	N07_OUT AT %Q*: BYTE;
+	N08_OUT AT %Q*: BYTE;
+	N09_OUT AT %Q*: BYTE;
+	N10_OUT AT %Q*: BYTE;
+	N11_OUT AT %Q*: BYTE;
+	N12_OUT AT %Q*: BYTE;
+	N13_OUT AT %Q*: BYTE;
+	N14_OUT AT %Q*: BYTE;
+	N15_OUT AT %Q*: BYTE;
+	N16_OUT AT %Q*: BYTE;
+	N17_OUT AT %Q*: BYTE;
+	N18_OUT AT %Q*: BYTE;
+	N19_OUT AT %Q*: BYTE;
+	N20_OUT AT %Q*: BYTE;
+	N21_OUT AT %Q*: BYTE;
+
+	N02_DIMMER AT %Q*: BYTE;
+	N03_DIMMER AT %Q*: BYTE;
+	N04_DIMMER AT %Q*: BYTE;
+	N05_DIMMER AT %Q*: BYTE;
+	N06_DIMMER AT %Q*: BYTE;
+	N07_DIMMER AT %Q*: BYTE;
+	N08_DIMMER AT %Q*: BYTE;
+	N09_DIMMER AT %Q*: BYTE;
+	N10_DIMMER AT %Q*: BYTE;
+	N11_DIMMER AT %Q*: BYTE;
+	N12_DIMMER AT %Q*: BYTE;
+	N13_DIMMER AT %Q*: BYTE;
+	N14_DIMMER AT %Q*: BYTE;
+	N15_DIMMER AT %Q*: BYTE;
+	N16_DIMMER AT %Q*: BYTE;
+	N17_DIMMER AT %Q*: BYTE;
+	N18_DIMMER AT %Q*: BYTE;
+	N19_DIMMER AT %Q*: BYTE;
+	N20_DIMMER AT %Q*: BYTE;
+	N21_DIMMER AT %Q*: BYTE;
+
+	N02_COLOR AT %Q*: WORD;
+	N03_COLOR AT %Q*: WORD;
+	N04_COLOR AT %Q*: WORD;
+	N05_COLOR AT %Q*: WORD;
+	N06_COLOR AT %Q*: WORD;
+	N07_COLOR AT %Q*: WORD;
+	N08_COLOR AT %Q*: WORD;
+	N09_COLOR AT %Q*: WORD;
+	N10_COLOR AT %Q*: WORD;
+	N11_COLOR AT %Q*: WORD;
+	N12_COLOR AT %Q*: WORD;
+	N13_COLOR AT %Q*: WORD;
+	N14_COLOR AT %Q*: WORD;
+	N15_COLOR AT %Q*: WORD;
+	N16_COLOR AT %Q*: WORD;
+	N17_COLOR AT %Q*: WORD;
+	N18_COLOR AT %Q*: WORD;
+	N19_COLOR AT %Q*: WORD;
+	N20_COLOR AT %Q*: WORD;
+	N21_COLOR AT %Q*: WORD;*)
+
+(*Node Diagnosis*)
+	N20_NodeState AT %I*: USINT;
+	N21_NodeState AT %I*: USINT;
+	N22_NodeState AT %I*: USINT;
+	N23_NodeState AT %I*: USINT;
+	N24_NodeState AT %I*: USINT;
+	N25_NodeState AT %I*: USINT;
+	N26_NodeState AT %I*: USINT;
+	N27_NodeState AT %I*: USINT;
+	N28_NodeState AT %I*: USINT;
+	N29_NodeState AT %I*: USINT;
+	N30_NodeState AT %I*: USINT;
+	N31_NodeState AT %I*: USINT;
+	N32_NodeState AT %I*: USINT;
+	N33_NodeState AT %I*: USINT;
+	N34_NodeState AT %I*: USINT;
+	N35_NodeState AT %I*: USINT;
+	N36_NodeState AT %I*: USINT;
+	N37_NodeState AT %I*: USINT;
+	N38_NodeState AT %I*: USINT;
+	N39_NodeState AT %I*: USINT;
+	N40_NodeState AT %I*: USINT;
+	N41_NodeState AT %I*: USINT;
+	N42_NodeState AT %I*: USINT;
+	N43_NodeState AT %I*: USINT;
+	N44_NodeState AT %I*: USINT;
+	N47_NodeState AT %I*: USINT;
+	N48_NodeState AT %I*: USINT;
+
+	N50_NodeState AT %I*: USINT;
+	N51_NodeState AT %I*: USINT;
+	N52_NodeState AT %I*: USINT;
+	N53_NodeState AT %I*: USINT;
+	N54_NodeState AT %I*: USINT;
+	N55_NodeState AT %I*: USINT;
+	N56_NodeState AT %I*: USINT;
+	N57_NodeState AT %I*: USINT;
+	N58_NodeState AT %I*: USINT;
+	N59_NodeState AT %I*: USINT;
+	N60_NodeState AT %I*: USINT;
+	N61_NodeState AT %I*: USINT;
+	N64_NodeState AT %I*: USINT;
+	N70_NodeState AT %I*: USINT;
+	N71_NodeState AT %I*: USINT;
+	N72_NodeState AT %I*: USINT;
+	N73_NodeState AT %I*: USINT;
+	N74_NodeState AT %I*: USINT;
+
+	N102_NodeState AT %I*: USINT;
+	N103_NodeState AT %I*: USINT;
+	N104_NodeState AT %I*: USINT;
+	N105_NodeState AT %I*: USINT;
+	N106_NodeState AT %I*: USINT;
+	N107_NodeState AT %I*: USINT;
+	N108_NodeState AT %I*: USINT;
+	N109_NodeState AT %I*: USINT;
+	N110_NodeState AT %I*: USINT;
+	N111_NodeState AT %I*: USINT;
+	N112_NodeState AT %I*: USINT;
+	N113_NodeState AT %I*: USINT;
+	N114_NodeState AT %I*: USINT;
+	N115_NodeState AT %I*: USINT;
+	N116_NodeState AT %I*: USINT;
+	N117_NodeState AT %I*: USINT;
+	N118_NodeState AT %I*: USINT;
+	N119_NodeState AT %I*: USINT;
+	N120_NodeState AT %I*: USINT;
+	N121_NodeState AT %I*: USINT;
+
+	N10_NodeState AT %I*: USINT;
+	N11_NodeState AT %I*: USINT;
+	N12_NodeState AT %I*: USINT;
+	N13_NodeState AT %I*: USINT;
+	N20_2_NodeState AT %I*: USINT;
+
+	CAN1 : ST_CAN_NODESTATE := ( Desc:= '(CAN1) CAN Bow' );
+	CAN2 : ST_CAN_NODESTATE := ( Desc:= '(CAN2) CAN Stern' );
+	CAN3 : ST_CAN_NODESTATE := ( Desc:= '(CAN3) CAN Engine' );
+	CAN4 : ST_CAN_NODESTATE := ( Desc:= '(CAN4) CAN Panel Buttons' );
+	CAN5 : ST_CAN_NODESTATE := ( Desc:= '(CAN5) CAN Winche Buttons' );
+
+	NJ1939 : ST_CAN_NODESTATE := ( Desc:= '(J1939) Engine' );
+
+	N20 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N20) MF06' );
+	N21 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N21) MF07' );
+	N22 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N22) MF07' );
+	N23 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N23) D.BOARD' );
+	N24 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N24) MF12' );
+	N25 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N25) MF12' );
+	N26 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N26) MF25' );
+	N27 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N27) MF22' );
+	N28 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N28) MF21' );
+	N29 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N29) MF24' );
+	N30 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N30) MF23' );
+	N31 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N31) MF20' );
+	N32 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N32) MF19' );
+	N33 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N33) MF13' );
+	N34 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N34) MF16' );
+	N35 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N35) MF09' );
+	N36 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N36) TANK' );
+	N37 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N37) TANK' );
+	N38 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N38) LIGHT' );
+	N39 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N39) MF10' );
+	N40 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N40) MF10' );
+	N41 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N41) MF05' );
+	N42 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N42) MF01' );
+	N43 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N43) MF03' );
+	N44 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N44) MF03' );
+	N47 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N47) MF11' );
+	N48 : ST_CAN_NODESTATE := ( Desc:= '(CANIO N48) Vacum' );
+
+	N50 : ST_CAN_NODESTATE := ( Desc:= '(PSX N50) MF12' );
+	N51 : ST_CAN_NODESTATE := ( Desc:= '(PSX N51) MF12' );
+	N52 : ST_CAN_NODESTATE := ( Desc:= '(PSX N52) MF12' );
+	N53 : ST_CAN_NODESTATE := ( Desc:= '(PSX N53) MF12' );
+	N54 : ST_CAN_NODESTATE := ( Desc:= '(PSX N54) MF12' );
+	N55 : ST_CAN_NODESTATE := ( Desc:= '(PSX N55) MF12' );
+	N56 : ST_CAN_NODESTATE := ( Desc:= '(PSX N56) MF12' );
+	N57 : ST_CAN_NODESTATE := ( Desc:= '(PSX N57) MF12' );
+	N58 : ST_CAN_NODESTATE := ( Desc:= '(PSX N58) MF12' );
+	N59 : ST_CAN_NODESTATE := ( Desc:= '(PSX N59) MF12' );
+	N60 : ST_CAN_NODESTATE := ( Desc:= '(PSX N60) MF04' );
+	N61 : ST_CAN_NODESTATE := ( Desc:= '(PSX N61) MF04' );
+	N64 : ST_CAN_NODESTATE := ( Desc:= '(PSX N64) MF04' );
+	N70 : ST_CAN_NODESTATE := ( Desc:= '(PSX N70) MF16' );
+	N71 : ST_CAN_NODESTATE := ( Desc:= '(PSX N71) MF16' );
+	N72 : ST_CAN_NODESTATE := ( Desc:= '(PSX N72) MF16' );
+	N73 : ST_CAN_NODESTATE := ( Desc:= '(PSX N73) MF16' );
+	N74 : ST_CAN_NODESTATE := ( Desc:= '(PSX N74) MF16' );
+
+	N102 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N102) PIT' );
+	N103 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N103) LIGHT' );
+	N104 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N104) B.STAY' );
+	N105 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N105) B.STAY' );
+	N106 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N106) W.BALLAST' );
+	N107 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N107) W.BALLAST' );
+	N108 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N108) HELM 2' );
+	N109 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N109) HELM 2' );
+	N110 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N110) HELM 1' );
+	N111 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N111) HELM 1' );
+	N112 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N112) COCKPIT' );
+	N113 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N113) PIT' );
+	N114 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N114) JIB' );
+	N115 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N115) JIB' );
+	N116 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N116) MAIN' );
+	N117 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N117) MAIN' );
+	N118 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N118) MAST' );
+	N119 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N119) MAST' );
+	N120 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N120) WINCH STBD' );
+	N121 : ST_CAN_NODESTATE := ( Desc:= '(PANEL N121) WINCH PORT' );
+
+	N10 : ST_CAN_NODESTATE := ( Desc:= '(IPBOX N10) Primary, Secondary & Pit Winch Stbd' );
+	N11 : ST_CAN_NODESTATE := ( Desc:= '(IPBOX N11) Primary, Secondary & Pit Winch Port' );
+	N12 : ST_CAN_NODESTATE := ( Desc:= '(IPBOX N12) Runner Winch Stbd' );
+	N13 : ST_CAN_NODESTATE := ( Desc:= '(IPBOX N13) Runner Winch Port' );
+	N20_2 : ST_CAN_NODESTATE := ( Desc:= '(IPBOX N20) MainSheet Winch' );
+
+
+END_VAR
+(*
+	N19_DI0_CH7_4 AT %I*: BOOL;
+	N19_DI1_CH7_2 AT %I*: BOOL;
+	N19_DI2_CH6_4 AT %I*: BOOL;
+	N19_DI3_CH6_2 AT %I*: BOOL;
+	N19_DI4_CH5_4 AT %I*: BOOL;
+	N19_DI5_CH5_2 AT %I*: BOOL;
+	N19_DI6_CH8_4 AT %I*: BOOL;
+	N19_DI7_CH8_2 AT %I*: BOOL;
+
+	N19_DI8_CH3_4 AT %I*: BOOL;
+	N19_DI9_CH3_2 AT %I*: BOOL;
+	N19_DI10_CH1_4 AT %I*: BOOL;
+	N19_DI11_CH1_2 AT %I*: BOOL;
+	N19_DI12_CH4_4 AT %I*: BOOL;
+	N19_DI13_CH4_2 AT %I*: BOOL;
+	N19_DI14_CH2_4 AT %I*: BOOL;
+	N19_DI15_CH2_2 AT %I*: BOOL;
+
+
+	N39_DO0_CH2_4 AT %Q*: BOOL;
+	N39_DO1_CH2_2 AT %Q*: BOOL;
+	N39_DO2_CH1_4 AT %Q*: BOOL;
+	N39_DO3_CH1_2 AT %Q*: BOOL;
+	N39_DO4_CH4_4 AT %Q*: BOOL;
+	N39_DO5_CH4_2 AT %Q*: BOOL;
+	N39_DO6_CH3_4 AT %Q*: BOOL;
+	N39_DO7_CH3_2 AT %Q*: BOOL;*)
+
+(* @OBJECT_END := 'Global_Variables' *)
+(* @CONNECTIONS := Global_Variables
+FILENAME : ''
+FILETIME : 0
+EXPORT : 0
+NUMOFCONNECTIONS : 0
+*)

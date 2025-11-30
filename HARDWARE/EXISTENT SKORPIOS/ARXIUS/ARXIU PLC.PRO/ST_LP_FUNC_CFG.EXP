@@ -1,0 +1,25 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_LP_FUNC_CFG :
+STRUCT
+	SpdA_Min : REAL;
+	SpdA_Max : REAL;
+	SpdB_Min : REAL;
+	SpdB_Max : REAL;
+
+	Spd_Inc : REAL;
+	Spd_Dec : REAL;
+
+	A_Spd1 : BOOL;
+
+	SF1_Limit : BOOL;
+	SF2_Limit : BOOL;
+
+	Cycle   : REAL; (*Seconds*)
+	TimeMax : REAL; (*Seconds*)
+
+(*	PP : BYTE;*)
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

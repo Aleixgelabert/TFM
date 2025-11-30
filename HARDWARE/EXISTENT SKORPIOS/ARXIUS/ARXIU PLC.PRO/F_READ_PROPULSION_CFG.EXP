@@ -1,0 +1,53 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_PROPULSION_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stPropulsionCfg : ST_PROPULSION_CFG;
+	fbParamList     : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stPropulsionCfg.aThrt_V[0]  := F_IDLIST_GETREAL( CONCAT(sHead, '_Thrt0_V' ), fbParamList );
+stPropulsionCfg.aThrt_V[4]  := F_IDLIST_GETREAL( CONCAT(sHead, '_Thrt4_V' ), fbParamList );
+stPropulsionCfg.aThrt_V[5]  := F_IDLIST_GETREAL( CONCAT(sHead, '_Thrt5_V' ), fbParamList );
+stPropulsionCfg.aThrt_V[6]  := F_IDLIST_GETREAL( CONCAT(sHead, '_Thrt6_V' ), fbParamList );
+stPropulsionCfg.aThrt_V[10] := F_IDLIST_GETREAL( CONCAT(sHead, '_Thrt10_V'), fbParamList );
+stPropulsionCfg.IdleDB_V    := F_IDLIST_GETREAL( CONCAT(sHead, '_ThrDB_V' ), fbParamList );
+
+stPropulsionCfg.PropRPM_K   := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM_K' ), fbParamList );
+stPropulsionCfg.Delay_Off   := F_IDLIST_GETREAL( CONCAT(sHead, '_Delay_Off' ), fbParamList );
+stPropulsionCfg.Cycle       := rTime;
+
+stPropulsionCfg.aEng_RPM[0]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM0' ), fbParamList );
+stPropulsionCfg.aEng_RPM[1]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM1' ), fbParamList );
+stPropulsionCfg.aEng_RPM[2]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM2' ), fbParamList );
+stPropulsionCfg.aEng_RPM[3]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM3' ), fbParamList );
+stPropulsionCfg.aEng_RPM[4]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM4' ), fbParamList );
+stPropulsionCfg.aEng_RPM[5]  := 0.0;
+stPropulsionCfg.aEng_RPM[6]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM6' ), fbParamList );
+stPropulsionCfg.aEng_RPM[7]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM7' ), fbParamList );
+stPropulsionCfg.aEng_RPM[8]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM8' ), fbParamList );
+stPropulsionCfg.aEng_RPM[9]  := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM9' ), fbParamList );
+stPropulsionCfg.aEng_RPM[10] := F_IDLIST_GETREAL( CONCAT(sHead, '_RPM10'), fbParamList );
+
+stPropulsionCfg.aEVP_mA[0]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP0_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[1]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP1_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[2]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP2_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[3]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP3_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[4]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP4_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[5]  := 0.0;
+stPropulsionCfg.aEVP_mA[6]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP6_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[7]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP7_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[8]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP8_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[9]  := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP9_mA' ), fbParamList );
+stPropulsionCfg.aEVP_mA[10] := F_IDLIST_GETREAL( CONCAT(sHead, '_EVP10_mA'), fbParamList );
+
+END_FUNCTION

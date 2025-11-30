@@ -1,0 +1,44 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_LIFT_KEEL_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stConfig : ST_LIFT_KEEL_CFG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stConfig.PMax_Up := F_IDLIST_GETREAL( CONCAT(sHead, '_PMax_Up' ), fbIdList );
+stConfig.PMax_Dw := F_IDLIST_GETREAL( CONCAT(sHead, '_PMax_Dw' ), fbIdList );
+stConfig.P500_Up := F_IDLIST_GETREAL( CONCAT(sHead, '_P500_Up' ), fbIdList );
+stConfig.P500_Dw := F_IDLIST_GETREAL( CONCAT(sHead, '_P500_Dw' ), fbIdList );
+stConfig.P144_F  := F_IDLIST_GETREAL( CONCAT(sHead, '_P144_F'  ), fbIdList );
+stConfig.P144_S  := F_IDLIST_GETREAL( CONCAT(sHead, '_P144_S'  ), fbIdList );
+
+stConfig.TgtP_Dw  := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtP_Dw'  ), fbIdList );
+stConfig.TgtLS_Up := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Up' ), fbIdList );
+stConfig.TgtLS_SUp := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_SUp' ), fbIdList );
+stConfig.TgtLS_Dw := F_IDLIST_GETREAL( CONCAT(sHead, '_TgtLS_Dw' ), fbIdList );
+
+stConfig.P_DB     := F_IDLIST_GETREAL( CONCAT(sHead, '_P_DB'     ), fbIdList );
+stConfig.LS_DB    := F_IDLIST_GETREAL( CONCAT(sHead, '_LS_DB'    ), fbIdList );
+stConfig.LS_Dist  := F_IDLIST_GETREAL( CONCAT(sHead, '_LS_Dist'  ), fbIdList );
+
+stConfig.TimeMax  := F_IDLIST_GETREAL( CONCAT(sHead, '_TimeMax'  ), fbIdList );
+stConfig.Delay_Dw := F_IDLIST_GETREAL( CONCAT(sHead, '_Delay_Dw' ), fbIdList );
+stConfig.Cycle    := rTime;
+
+stConfig.PP1  := F_IDLIST_GETBOOL( CONCAT(sHead, '_PP1'  ), fbIdList );
+stConfig.PP2  := F_IDLIST_GETBOOL( CONCAT(sHead, '_PP2'  ), fbIdList );
+stConfig.HP1  := F_IDLIST_GETBOOL( CONCAT(sHead, '_HP1'  ), fbIdList );
+stConfig.HP2  := F_IDLIST_GETBOOL( CONCAT(sHead, '_HP2'  ), fbIdList );
+stConfig.HP3  := F_IDLIST_GETBOOL( CONCAT(sHead, '_HP3'  ), fbIdList );
+
+END_FUNCTION

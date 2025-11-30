@@ -1,0 +1,7 @@
+96981
+c:\plc_faro\bin\visu_background.bmp
+c:\plc_faro\bin\visu_pumps.bmp
+c:\plc_faro\bin\visu_tank.bmp
+c:\plc_faro\bin\visu_board.bmp
+c:\plc_faro\bin\visu_keel.bmp
+c:\twincat\plc\cs125_plc 20210709vis.txt

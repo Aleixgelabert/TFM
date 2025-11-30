@@ -1,0 +1,17 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_VALVE_BAR :
+STRUCT
+	Name : STRING;
+
+	Bar : REAL;
+	mA  : UINT;
+
+	(*Calib*)
+	Cal_K   : REAL;
+	Cal_Off : REAL;
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

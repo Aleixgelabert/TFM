@@ -1,0 +1,95 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_KEEL_CFG :
+STRUCT
+(*Targets*)
+	TgtLS_In  : REAL;
+	TgtLS_Mid : REAL;
+	TgtLS_Out : REAL;
+
+	TgtLS_Safe_In  : REAL;
+	TgtLS_Safe_Out : REAL;
+
+	TgtLS_Tack_Off : REAL;
+
+	LS_DB : REAL;
+
+(*Board Limits*)
+	Board_P_Min_Out : REAL;
+	Board_S_Min_Out : REAL;
+
+(*Valve Limits*)
+	EVP_In_SE_Min : REAL; (*mA*)
+	EVP_In_SE_Max : REAL;
+	EVP_In_SE_Man : REAL;
+
+	EVP_In_FE_Min : REAL;
+	EVP_In_FE_Max : REAL;
+	EVP_In_FE_Man : REAL;
+
+	EVP_In_Eng_Min : REAL;
+	EVP_In_Eng_Max : REAL;
+	EVP_In_Eng_Man : REAL;
+
+	EVP_In_P_Empty : REAL; (*bar*)
+
+	EVP_Out_SE_Min : REAL; (*mA*)
+	EVP_Out_SE_Max : REAL;
+	EVP_Out_SE_Man : REAL;
+	EVP_Out_SE_Empty : REAL;
+
+	EVP_Out_FE_Min : REAL;
+	EVP_Out_FE_Max : REAL;
+	EVP_Out_FE_Man : REAL;
+
+	EVP_Out_Eng_Min : REAL;
+	EVP_Out_Eng_Max : REAL;
+	EVP_Out_Eng_Man : REAL;
+
+	EVP_Out_Fill_Min  : REAL; (*%*)
+	EVP_Out_Fill_Max  : REAL;
+
+	EVP_Out_P_Fill : REAL; (*bar*)
+
+(*Valve Softstart*)
+	EVP_In_SE_Inc : REAL;
+	EVP_In_SE_Dec : REAL;
+
+	EVP_In_FE_Inc : REAL;
+	EVP_In_FE_Dec : REAL;
+
+	EVP_Out_SE_Inc : REAL;
+	EVP_Out_SE_Dec : REAL;
+
+	EVP_Out_FE_Inc : REAL;
+	EVP_Out_FE_Dec : REAL;
+
+	EVP_In_Eng_Inc : REAL;
+	EVP_In_Eng_Dec : REAL;
+
+	EVP_Out_Eng_Inc : REAL;
+	EVP_Out_Eng_Dec : REAL;
+
+(*Auto Ease limit*)
+	MinLoadSide_Bar   : REAL;
+	MaxUnloadSide_Bar : REAL;
+
+(*Valve Gains*)
+	EVP_In_Eng_K  : REAL;
+	EVP_Out_Eng_K : REAL;
+
+	LP : BYTE;
+
+	Cycle    : REAL; (*Seconds*)
+	TimeMax  : REAL; (*Seconds*)
+
+(*Calculated*)
+	EVP_Out_Fill_K   : REAL; (*Calculated vs EVP_Out_Eng_Min/Max*)
+	EVP_Out_Fill_Off : REAL;
+
+
+
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

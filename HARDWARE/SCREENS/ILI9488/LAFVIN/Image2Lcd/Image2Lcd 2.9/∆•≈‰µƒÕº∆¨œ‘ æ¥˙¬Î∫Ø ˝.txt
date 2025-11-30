@@ -1,0 +1,27 @@
+//取模方式 水平扫描 从左到右 低位在前
+/*
+ * x：图片显示起点的x坐标
+ * y：图片显示起点的y坐标
+ * w：显示图片的宽度
+ * h：显示图片的高度
+ * p：显示图片数据取模数组的起始地址
+*/
+void Gui_Drawbmp16(uint16_t x,uint16_t y,uint16_t w, uint16_t h, const unsigned char *p) //显示图片
+{ 
+	int32_t i; 
+	uint8_t picH,picL; 
+	LCD_SetWindows(x,y,x+w-1,y+h-1);//窗口设置
+  	for(i=0;i<w*h;i++)
+	{	
+	 	picH=*(p+i*2);	//数据低位在前
+		picL=*(p+i*2+1);				
+		LCD_WriteData_16Bit(picH<<8|picL);  						
+	}	
+	LCD_SetWindows(0,0,lcddev.width-1,lcddev.height-1);//恢复显示窗口为全屏
+}
+
+例如以（10,10）坐标为起点，显示40*40 QQ图片，可以按如下方法设置函数
+
+Gui_Drawbmp16(10,10,40,40,gImage_qq_logo);
+
+其中gImage_qq_logo为QQ图片取模的数组。

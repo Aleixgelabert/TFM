@@ -1,0 +1,163 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_CALC_SENSOR_TEMP : BOOL
+VAR_INPUT
+	IN    : REAL;
+	Clear : BOOL;
+	Cycle : REAL;
+END_VAR
+VAR_IN_OUT
+	Sensor : ST_SENSOR_TEMP;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+
+(*AVG*)
+IF Sensor.Avg_Pos > 4 THEN Sensor.Avg_Pos := 0; END_IF
+
+Sensor.Avg_Sum := Sensor.Avg_Sum + IN - Sensor.Avg_Buf[Sensor.Avg_Pos];
+Sensor.Avg_Buf[Sensor.Avg_Pos] := IN;
+Sensor.Avg_Pos := Sensor.Avg_Pos + 1;
+
+Sensor.Raw := Sensor.Avg_Sum / 5.0;
+Sensor.Err := Sensor.Raw < Sensor.MinRaw OR Sensor.Raw > Sensor.MaxRaw;
+
+(*CALIB*)
+Sensor.Deg := Sensor.Raw * Sensor.Cal_K + Sensor.Cal_Off;
+
+(*ALARM*)
+IF Clear THEN
+	Sensor.Alarm.Alarm := FALSE;
+	Sensor.Alarm.Adver := FALSE;
+	Sensor.Alarm.AlCnt := 0;
+	Sensor.Alarm.AlLen := 0.0;
+	Sensor.AdverLv     := 0;
+(*	Sensor.AdverVal    := Sensor.Deg;*)
+
+END_IF
+
+IF Sensor.Err THEN
+	IF NOT Sensor.Alarm.Alarm THEN
+		Sensor.Alarm.AlCnt  := Sensor.Alarm.AlCnt + 1;
+		Sensor.Alarm.AlLen  := 0.0;
+		Sensor.Alarm.TimeInit := INPUTS.sLocal;
+		Sensor.Alarm.AlInit   := TRUE;
+
+		Sensor.Alarm.Text := CONCAT( Sensor.Desc , ' Temperature. Sensor Broken/Disconnected.' );
+
+	ELSE
+		Sensor.Alarm.AlLen  := Sensor.Alarm.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Sensor.Alarm.Alarm := TRUE;
+	Sensor.Alarm.Adver := TRUE;
+
+	Sensor.AlErr    := TRUE;
+	Sensor.AlLow    := FALSE;
+	Sensor.AlHig    := FALSE;
+	Sensor.AlMax    := FALSE;
+	Sensor.AdverLv  := 4;
+	Sensor.AdverVal := 0.0;
+
+ELSIF Sensor.Deg > Sensor.MaxDeg THEN
+	IF NOT Sensor.Alarm.Alarm THEN
+		Sensor.Alarm.AlCnt  := Sensor.Alarm.AlCnt + 1;
+		Sensor.Alarm.AlLen  := 0.0;
+		Sensor.Alarm.TimeInit := INPUTS.sLocal;
+		Sensor.Alarm.AlInit   := TRUE;
+
+		Sensor.AdverVal     := Sensor.Deg;
+
+	ELSE
+		Sensor.Alarm.AlLen  := Sensor.Alarm.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Sensor.Alarm.Alarm := TRUE;
+	Sensor.AlErr       := FALSE;
+	Sensor.AlLow       := FALSE;
+
+	IF Sensor.Count > Sensor.Delay THEN
+		Sensor.AlHig := FALSE;
+		Sensor.AlMax := TRUE;
+	ELSE
+		Sensor.AlHig := TRUE;
+		Sensor.AlMax := FALSE;
+
+		Sensor.Count := Sensor.Count + Cycle;
+	END_IF
+
+	IF Sensor.AdverLv < 4 THEN
+		Sensor.Alarm.Adver := TRUE;
+		Sensor.AdverLv     := 3;
+		Sensor.AdverVal    := MAX( Sensor.Deg, Sensor.AdverVal );
+
+		Sensor.Alarm.Text  := CONCAT( Sensor.Desc      , ' Max. Temperature exceeded: '  );
+		Sensor.Alarm.Text  := CONCAT( Sensor.Alarm.Text, REAL_TO_STRING(Sensor.AdverVal) );
+	END_IF
+
+ELSIF Sensor.Deg > Sensor.HigDeg THEN
+	IF NOT Sensor.Alarm.Alarm THEN
+		Sensor.Alarm.AlCnt  := Sensor.Alarm.AlCnt + 1;
+		Sensor.Alarm.AlLen  := 0.0;
+		Sensor.Alarm.TimeInit := INPUTS.sLocal;
+		Sensor.Alarm.AlInit   := TRUE;
+
+		Sensor.AdverVal     := Sensor.Deg;
+
+	ELSE
+		Sensor.Alarm.AlLen  := Sensor.Alarm.AlLen + MAIN.Cycle_Time;
+
+	END_IF
+
+	Sensor.Alarm.Alarm := TRUE;
+	Sensor.AlErr       := FALSE;
+	Sensor.AlLow       := FALSE;
+	Sensor.AlHig       := TRUE;
+	Sensor.AlMax       := FALSE;
+
+	IF Sensor.AdverLv < 3 THEN
+		Sensor.Alarm.Adver := TRUE;
+		Sensor.AdverLv     := 2;
+		Sensor.AdverVal    := MAX( Sensor.Deg, Sensor.AdverVal );
+
+		Sensor.Alarm.Text  := CONCAT( Sensor.Desc      , ' High Temperature exceeded: '  );
+		Sensor.Alarm.Text  := CONCAT( Sensor.Alarm.Text, REAL_TO_STRING(Sensor.AdverVal) );
+	END_IF
+
+ELSIF Sensor.Deg > Sensor.LowDeg THEN
+	Sensor.Alarm.Alarm := FALSE;
+	Sensor.AlErr       := FALSE;
+	Sensor.AlLow       := TRUE;
+	Sensor.AlHig       := FALSE;
+	Sensor.AlMax       := FALSE;
+
+	IF Sensor.AdverLv < 2 THEN
+		Sensor.Alarm.Adver := TRUE;
+		Sensor.AdverLv     := 1;
+		Sensor.AdverVal    := MAX( Sensor.Deg, Sensor.AdverVal );
+
+		Sensor.Alarm.Text  := CONCAT( Sensor.Desc      , ' Mild Temperature exceeded: ' );
+		Sensor.Alarm.Text  := CONCAT( Sensor.Alarm.Text, REAL_TO_STRING(Sensor.AdverVal) );
+	END_IF
+ELSE
+	IF Sensor.Alarm.Alarm THEN
+		Sensor.Alarm.TimeEnd := INPUTS.sLocal;
+		Sensor.Alarm.AlEnd   := TRUE;
+
+	END_IF
+
+	Sensor.Alarm.Alarm := FALSE;
+	Sensor.AlErr       := FALSE;
+	Sensor.AlLow       := FALSE;
+	Sensor.AlHig       := FALSE;
+	Sensor.AlMax       := FALSE;
+	Sensor.Count       := 0;
+
+END_IF
+END_FUNCTION

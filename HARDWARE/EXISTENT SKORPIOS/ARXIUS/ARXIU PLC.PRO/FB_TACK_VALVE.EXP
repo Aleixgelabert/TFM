@@ -1,0 +1,417 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_TACK_VALVE
+VAR_INPUT
+	Enable : BOOL;
+	Manual : BOOL;
+	Clear  : BOOL;
+
+	Heel_Ready  : BOOL;
+	Heel_Value  : REAL;
+
+	Port_Ready : BOOL;
+	Port_Open  : BOOL;
+	Port_Close : BOOL;
+
+	Stbd_Ready : BOOL;
+	Stbd_Open  : BOOL;
+	Stbd_Close : BOOL;
+
+END_VAR
+VAR_IN_OUT
+	CFG : ST_TACK_VALVE_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_Port_Open  : BOOL;
+	OUT_Port_Close : BOOL;
+	OUT_Stbd_Open  : BOOL;
+	OUT_Stbd_Close : BOOL;
+END_VAR
+VAR
+	State   : WORD;
+
+	IN_Hmi_Port_Open  : BOOL;
+	IN_Hmi_Port_Close : BOOL;
+	IN_Hmi_Stbd_Open  : BOOL;
+	IN_Hmi_Stbd_Close : BOOL;
+
+	SI_Hmi_Port_Open  : FB_SMART_INPUT;
+	SI_Hmi_Port_Close : FB_SMART_INPUT;
+	SI_Hmi_Stbd_Open  : FB_SMART_INPUT;
+	SI_Hmi_Stbd_Close : FB_SMART_INPUT;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+	Alarm : ST_Alarm;
+
+	Hyst_Cnt : REAL;
+	Hyst_Old : WORD;
+
+	StopEngine : BOOL;
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+IF Clear THEN
+	Alarm.Alarm := FALSE;
+	Alarm.Adver := FALSE;
+	Alarm.AlCnt := 0;
+	Alarm.AlLen := 0.0;
+END_IF
+
+(*Check Inputs*)
+SI_Hmi_Port_Open (In:= IN_Hmi_Port_Open , T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Hmi_Port_Close(In:= IN_Hmi_Port_Close, T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Hmi_Stbd_Open (In:= IN_Hmi_Stbd_Open , T_Cont:= T#0ms, T_DClk:= T#0ms);
+SI_Hmi_Stbd_Close(In:= IN_Hmi_Stbd_Close, T_Cont:= T#0ms, T_DClk:= T#0ms);
+
+StopEngine := FALSE;
+
+IF NOT Enable THEN
+	OUT_Port_Open  := FALSE;
+	OUT_Port_Close := FALSE;
+	OUT_Stbd_Open  := FALSE;
+	OUT_Stbd_Close := FALSE;
+
+	Alarm.Alarm := FALSE;
+	Alarm.Adver := FALSE;
+	Alarm.AlCnt := 0;
+	Alarm.AlLen := 0.0;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );
+TimeCnt := TimeCnt + CFG.Cycle;
+
+(*Alarms*)
+	IF NOT (Stbd_Open AND NOT Stbd_Close) AND NOT (Port_Open AND NOT Port_Close) THEN
+		IF NOT Alarm.Alarm THEN
+			Alarm.AlCnt  := Alarm.AlCnt + 1;
+			Alarm.AlLen  := 0.0;
+			Alarm.TimeInit := INPUTS.sLocal;
+			Alarm.AlInit   := TRUE;
+
+		ELSE
+			Alarm.AlLen  := Alarm.AlLen + MAIN.Cycle_Time;
+
+		END_IF
+
+		Alarm.Adver := TRUE;
+		Alarm.Alarm := TRUE;
+		Alarm.Text  := '(TACK VALVE) Valve Not Open.';
+
+		StopEngine := TRUE;
+
+	ELSIF NOT Port_Ready OR NOT Stbd_Ready THEN
+		IF NOT Alarm.Alarm THEN
+			Alarm.AlCnt  := Alarm.AlCnt + 1;
+			Alarm.AlLen  := 0.0;
+			Alarm.TimeInit := INPUTS.sLocal;
+			Alarm.AlInit   := TRUE;
+
+		ELSE
+			Alarm.AlLen  := Alarm.AlLen + MAIN.Cycle_Time;
+
+		END_IF
+
+		Alarm.Adver := TRUE;
+		Alarm.Alarm := TRUE;
+
+		Alarm.Text  := '(TACK VALVE) Valves Not Available.';
+
+	ELSIF NOT Heel_Ready THEN
+		IF NOT Alarm.Alarm THEN
+			Alarm.AlCnt  := Alarm.AlCnt + 1;
+			Alarm.AlLen  := 0.0;
+			Alarm.TimeInit := INPUTS.sLocal;
+			Alarm.AlInit   := TRUE;
+
+		ELSE
+			Alarm.AlLen  := Alarm.AlLen + MAIN.Cycle_Time;
+
+		END_IF
+
+		Alarm.Adver := TRUE;
+		Alarm.Alarm := TRUE;
+
+		Alarm.Text  := '(TACK VALVE) Heel Not Available.';
+
+	ELSIF TimeOut THEN
+		IF NOT Alarm.Alarm THEN
+			Alarm.AlCnt  := Alarm.AlCnt + 1;
+			Alarm.AlLen  := 0.0;
+			Alarm.TimeInit := INPUTS.sLocal;
+			Alarm.AlInit   := TRUE;
+
+		ELSE
+			Alarm.AlLen  := Alarm.AlLen + MAIN.Cycle_Time;
+
+		END_IF
+
+		Alarm.Adver := TRUE;
+		Alarm.Alarm := TRUE;
+
+		Alarm.Text  := '(TACK VALVE) TimeOut.';
+
+	ELSE
+		IF Alarm.Alarm THEN
+			Alarm.TimeEnd := INPUTS.sLocal;
+			Alarm.AlEnd   := TRUE;
+
+		END_IF
+
+			Alarm.Alarm := FALSE;
+
+	END_IF
+
+(*Working States*)
+CASE State OF
+
+(*Init State*)
+0:
+	OUT_Port_Open  := FALSE;
+	OUT_Port_Close := FALSE;
+	OUT_Stbd_Open  := FALSE;
+	OUT_Stbd_Close := FALSE;
+
+	TimeCnt := 0.0;
+
+	(*Start Manual*)
+	IF Manual THEN
+		IF SI_Hmi_Port_Open.Event = INIT_CONTINUOUS THEN
+			OUT_Port_Open := TRUE;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1001;  (*Next State*)
+
+		ELSIF SI_Hmi_Port_Close.Event = INIT_CONTINUOUS THEN
+			OUT_Port_Close := TRUE;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1002;  (*Next State*)
+
+		ELSIF SI_Hmi_Stbd_Open.Event = INIT_CONTINUOUS THEN
+			OUT_Stbd_Open := TRUE;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1003;  (*Next State*)
+
+		ELSIF SI_Hmi_Stbd_Close.Event = INIT_CONTINUOUS THEN
+			OUT_Stbd_Close := TRUE;
+
+			TimeOut := FALSE; (*Reset TimeOut Error*)
+			State   := 1004;  (*Next State*)
+
+		END_IF
+
+		Hyst_Old := 0;
+
+(*	ELSIF NOT Heel_Ready AND Hyst_Old <> 1200 THEN
+		IF Hyst_Cnt > CFG.Hyst_Time THEN
+
+			OUT_Port_Open  := NOT (Port_Open AND NOT Port_Close);
+			OUT_Stbd_Open  := NOT (Stbd_Open AND NOT Stbd_Close);
+
+			Hyst_Cnt := 0.0;
+			Hyst_Old := 1200;
+			TimeOut  := FALSE; (*Reset TimeOut Error*)
+			State    := 1200;  (*Next State*)
+
+		ELSE
+			Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+
+		END_IF
+*)
+
+	ELSE
+		(*Need to Close Port, but first be sure to open Stbd*)
+		IF Heel_Value < -CFG.Hyst_HeelH AND Hyst_Old <> 1102 THEN
+			IF Hyst_Cnt > CFG.Hyst_Time THEN
+
+				OUT_Stbd_Open  := NOT (Stbd_Open AND NOT Stbd_Close);
+
+				Hyst_Cnt := 0.0;
+				Hyst_Old := 1102;
+				TimeOut  := FALSE; (*Reset TimeOut Error*)
+				State    := 1012;  (*Next State*)
+
+			ELSE
+				Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+
+			END_IF
+
+		(*Need to Close Stbd, but first be sure to open Port*)
+		ELSIF Heel_Value > CFG.Hyst_HeelH AND Hyst_Old <> 1104 THEN
+			IF Hyst_Cnt > CFG.Hyst_Time THEN
+
+				OUT_Port_Open  := NOT (Port_Open AND NOT Port_Close);
+
+				Hyst_Cnt := 0.0;
+				Hyst_Old := 1104;
+				TimeOut  := FALSE; (*Reset TimeOut Error*)
+				State    := 1014;  (*Next State*)
+
+			ELSE
+				Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+
+			END_IF
+
+		ELSIF ABS(Heel_Value) < CFG.Hyst_HeelL AND Hyst_Old <> 1200 THEN
+			IF Hyst_Cnt > CFG.Hyst_Time THEN
+
+				OUT_Port_Open  := NOT (Port_Open AND NOT Port_Close);
+				OUT_Stbd_Open  := NOT (Stbd_Open AND NOT Stbd_Close);
+	
+				Hyst_Cnt := 0.0;
+				Hyst_Old := 1200;
+				TimeOut  := FALSE; (*Reset TimeOut Error*)
+				State    := 1200;  (*Next State*)
+
+			ELSE
+				Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+
+			END_IF
+
+		ELSE
+			Hyst_Cnt := 0.0;
+
+		END_IF
+		(*IF ABS(Heel_Value) > CFG.Hyst_HeelH AND Hyst_Old <> 1100 THEN
+			IF Hyst_Cnt > CFG.Hyst_Time THEN
+
+				IF Heel_Value < 0 THEN
+
+					IF Stbd_Open AND NOT Stbd_Close THEN
+						OUT_Port_Close := TRUE;
+					OUT_Stbd_Open  := NOT (Stbd_Open AND NOT Stbd_Close);
+
+				ELSE
+					OUT_Stbd_Close := TRUE;
+					OUT_Port_Open  := NOT (Port_Open AND NOT Port_Close);
+
+				END_IF
+
+				Hyst_Cnt := 0.0;
+				Hyst_Old := 1100;
+				TimeOut  := FALSE; (*Reset TimeOut Error*)
+				State    := 1100;  (*Next State*)
+
+			ELSE
+				Hyst_Cnt := Hyst_Cnt + CFG.Cycle;
+
+			END_IF*)
+
+
+	END_IF
+
+(*Manual OUT_Port_Open*)
+1001:
+	IF SI_Hmi_Port_Open.Event <> NONE OR TimeOut (*OR NOT Port_Ready*) THEN
+		State := 0;  (*Next State*)
+	END_IF
+
+(*Manual OUT_Port_Close*)
+1002:
+	IF SI_Hmi_Port_Close.Event <> NONE OR TimeOut (*OR NOT Port_Ready*) THEN
+		State := 0;  (*Next State*)
+	END_IF
+
+(*Manual OUT_Stbd_Open*)
+1003:
+	IF SI_Hmi_Stbd_Open.Event <> NONE OR TimeOut (*OR NOT Port_Ready*) THEN
+		State := 0;  (*Next State*)
+	END_IF
+
+(*Manual OUT_Stbd_Close*)
+1004:
+	IF SI_Hmi_Stbd_Close.Event <> NONE OR TimeOut (*OR NOT Port_Ready*) THEN
+		State := 0;  (*Next State*)
+	END_IF
+
+(*Going OUT_Port_Close with Stbd Open*)
+1012:
+	IF NOT Heel_Ready OR Manual OR TimeOut THEN
+		State := 0; (*Next State*)
+
+	ELSIF Stbd_Open AND NOT Stbd_Close THEN
+		OUT_Stbd_Open := FALSE;
+		TimeCnt := 0.0;
+		State   := 1102; (*Next State*)
+
+	ELSE
+		OUT_Stbd_Open := TRUE;
+
+	END_IF
+
+(*Going OUT_Stbd_Close with Port Open*)
+1014:
+	IF NOT Heel_Ready OR Manual OR TimeOut THEN
+		State := 0; (*Next State*)
+
+	ELSIF Port_Open AND NOT Port_Close THEN
+		OUT_Port_Open := FALSE;
+		TimeCnt := 0.0;
+		State   := 1104; (*Next State*)
+
+	ELSE
+		OUT_Port_Open := TRUE;
+
+	END_IF
+
+(*OUT_Port_Close*)
+1102:
+	(*End IN*)
+	IF NOT Heel_Ready OR Manual OR TimeOut THEN
+		State := 0; (*Next State*)
+
+	ELSIF Port_Close AND NOT Port_Open THEN
+		State := 0; (*Next State*)
+
+	ELSE
+		OUT_Port_Close := TRUE;
+
+	END_IF
+
+(*OUT_Stbd_Close*)
+1104:
+	(*End IN*)
+	IF NOT Heel_Ready OR Manual OR TimeOut THEN
+		State := 0; (*Next State*)
+
+	ELSIF Stbd_Close AND NOT Stbd_Open THEN
+		State := 0; (*Next State*)
+
+	ELSE
+		OUT_Stbd_Close := TRUE;
+
+	END_IF
+
+(*Open Valves*)
+1200:
+	(*End IN*)
+	IF Manual OR TimeOut THEN
+		State := 0; (*Next State*)
+
+	ELSIF (Port_Open AND NOT Port_Close) AND (Stbd_Open AND NOT Stbd_Close) THEN
+		State := 0; (*Next State*)
+
+	ELSE
+		OUT_Port_Open := NOT (Port_Open AND NOT Port_Close);
+		OUT_Stbd_Open := NOT (Stbd_Open AND NOT Stbd_Close);
+
+
+	END_IF
+
+END_CASE
+
+
+
+
+END_FUNCTION_BLOCK

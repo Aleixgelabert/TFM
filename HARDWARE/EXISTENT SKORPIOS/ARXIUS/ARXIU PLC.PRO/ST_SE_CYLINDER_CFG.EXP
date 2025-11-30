@@ -1,0 +1,13 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_SE_CYLINDER_CFG :
+STRUCT
+	Ease    : REAL; (*Usually 15% more than PMax*)
+	Cycle   : REAL; (*Seconds*)
+	TimeEase: REAL; (*Seconds*)
+	TimeMax : REAL; (*Seconds*)
+	HP      : BYTE; (*Num. Pumps*)
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

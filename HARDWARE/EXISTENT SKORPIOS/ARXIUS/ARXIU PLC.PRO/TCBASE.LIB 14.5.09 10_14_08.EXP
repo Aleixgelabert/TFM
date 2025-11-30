@@ -1,0 +1,36 @@
+LIBRARY
+TcBase.lib 14.5.09 10:14:08
+(* @LIBRARYSYMFILEINFO := '0' *)
+NumOfPOUs: 30
+FW_AdsClearEvents: 0
+FW_AdsLogDINT: 0
+FW_AdsLogEvent: 0
+FW_AdsLogLREAL: 0
+FW_AdsLogSTR: 0
+FW_AdsRdWrt: 0
+FW_AdsRdWrtInd: 0
+FW_AdsRdWrtRes: 0
+FW_AdsRead: 0
+FW_AdsReadDeviceInfo: 0
+FW_AdsReadInd: 0
+FW_AdsReadRes: 0
+FW_AdsReadState: 0
+FW_AdsWrite: 0
+FW_AdsWriteControl: 0
+FW_AdsWriteInd: 0
+FW_AdsWriteRes: 0
+FW_DRand: 0
+FW_GetCpuAccount: 0
+FW_GetCpuCounter: 0
+FW_GetCurTaskIndex: 0
+FW_GetSystemTime: 0
+FW_GetVersionTcBase: 0
+FW_LptSignal: 0
+FW_MemCmp: 0
+FW_MemCpy: 0
+FW_MemMove: 0
+FW_MemSet: 0
+FW_PortRead: 2048
+FW_PortWrite: 2048
+NumOfGVLs: 0
+END_LIBRARY

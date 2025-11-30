@@ -1,0 +1,1245 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM MAIN
+VAR CONSTANT
+	Cycle_Time : REAL := 0.02; (*20ms*)
+END_VAR
+VAR
+	(*UPS Function to Sstore Persistent Vars*)
+	(*fbUPS: FB_S_UPS_CX9020_U900;*)
+
+	(*Cylinders*)
+	fbSE301 : FB_SE_CYLINDER_POS;	(* 1*)
+	fbSE303 : FB_SE_CYLINDER_POS;	(* 2*)
+	fbSE305 : FB_SE_CYLINDER_POS;	(* 3*)
+	fbSE307 : FB_SE_CYLINDER_POS;	(* 4*)
+	fbSE309 : FB_SE_CYLINDER_POS;	(* 5*)
+	fbSE311 : FB_SE_CYLINDER_POS;	(* 6*)
+
+	fbSE501 : FB_DE_CYLINDER;		(* 7*)
+	fbSE503 : FB_SE_CYLINDER;		(* 8*)
+	fbSE505 : FB_SE_CYLINDER_QR;	(* 9*)
+
+	fbDE601 : FB_LIFTING_PROPELLER;	(*10*)
+	fbDE605 : FB_DE_CYLINDER_POS;	(*11*)
+
+	fbSE701 : FB_SE_CYLINDER;		(*12*)
+	fbSE703 : FB_SE_CYLINDER;		(*13*)
+	fbSE705 : FB_SE_CYLINDER;		(*14*)
+	fbSE707 : FB_SE_CYLINDER_POS;	(*15*)
+	fbSE709 : FB_SE_CYLINDER_POS;	(*16*)
+
+	fbBSY   : FB_BACKSTAY;			(*17*)
+(*	fbSE901 : FB_SE_CYLINDER_POS_FINE;	(*17*) (* Añadir tack y Fine, mejor hacer un unico FB FB_SE_FINE_CYLINDER_POS*)
+	fbSE903 : FB_SE_CYLINDER_POS_FINE;	(*18*) (* Con 4 inputs para in Out 2 de ellos fine, y 2 inputs para el tack*)*)
+
+	fbWB   : FB_WATERBALLAST;		(*19*)
+	fbWB_A : FB_WB_VALVE;
+	fbWB_B : FB_WB_VALVE_LS;
+	fbWB_C : FB_WB_VALVE_LS;
+	fbWB_D : FB_WB_VALVE;
+	fbWB_E : FB_WB_VALVE;
+	fbWB_F : FB_WB_VALVE;
+	fbWB_G : FB_WB_VALVE;
+	fbWB_H : FB_WB_VALVE;
+	fbWB_I : FB_WB_VALVE_LS;
+	fbWB_J : FB_WB_VALVE;
+	fbWB_K : FB_WB_VALVE;
+	fbWB_L : FB_WB_VALVE;
+	fbWB_M : FB_WB_VALVE;
+	fbWB_N : FB_WB_VALVE_LS;
+	fbWB_R : FB_WB_VALVE_LS;
+	fbWB_S : FB_WB_VALVE_LS;
+
+	fbWB_PUD : FB_WB_VALVE_LS;
+    fbWB_PAF : FB_WB_VALVE_LS;
+	fbWB_SUD : FB_WB_VALVE_LS;
+    fbWB_SAF : FB_WB_VALVE_LS;
+
+	WB_Scoop_Link : BOOL;
+
+	(*Winches*)
+	fbW1202	: FB_WINCHE_V2;	(*4*)
+	fbW1204	: FB_WINCHE_V2;	(*5*)
+	fbW1206	: FB_WINCHE_V2; (*6*)
+	fbW1208	: FB_WINCHE_V2;	(*7*)
+	fbW1210	: FB_WINCHE_V2;	(*8*)
+	fbW1212	: FB_WINCHE_V2;	(*9*)
+	fbW1214	: FB_WINCHE_V2;	(*10*)
+
+	fbBoard      : FB_BOARD;	(*11,12*)
+	fbKeel       : FB_KEEL;		(*13,19*)
+
+	fbW1602	: FB_WINCHE_V2;	(*14*)
+	fbW1604	: FB_WINCHE_V2;	(*15*)
+
+	fbTraveller : FB_TRAVELLER;		(*16*)
+
+	fbBowThr     : FB_LP_FUNC_SF;	(*17*)
+	fbBowThrUpDw : FB_LP_FUNC_SF;	(*18*)
+
+	(*Extra functions*)
+	fbTackValve : FB_TACK_VALVE;
+
+	fbMastSetup : FB_MAST_SETUP;
+
+	(*SYSTEM STATUS*)
+	HMI_Enable : BOOL;
+	HMI_ShutDw : BOOL;
+
+	SIEnable : ARRAY[1..3] OF FB_SMART_INPUT;
+	SIShutDw : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	SITankEnable   : FB_SMART_INPUT;
+	SIEngineEnable : FB_SMART_INPUT;
+	SIPropEnable   : FB_SMART_INPUT;
+	SIPropUDEnable : FB_SMART_INPUT;
+
+	EventEnable : EN_SMART_INPUT_STATE;
+	EventShutDw : EN_SMART_INPUT_STATE;
+
+	SysLabel : STRING;
+	LoadLAbel: STRING;
+	SysPass  : STRING;
+	SysColor : DWORD;
+	SysState : WORD := 0;
+	SysDClick : BOOL;
+	AutoOffCnt : REAL;
+
+END_VAR
+VAR PERSISTENT
+	aHP_Enable  AT %Q*: ARRAY[1..32] OF BOOL;
+	aLP_Enable  AT %Q*: ARRAY[1..32] OF BOOL;
+	aWB_Enable  AT %Q*: ARRAY[1..32] OF BOOL;
+
+	aSys_Enable AT %Q*: ARRAY[1..16] OF BOOL;
+	(*
+	1 - Tank
+	2 - SysSail
+	3 - SysProp
+	4 - EnableHP1
+	5 - EnableHP2
+	6 - EnablePP1
+	7 - EnablePP2
+	8 - EngineEnable 
+	9 - PropEnable   
+	10 - Dimmer_ON
+	...
+	16 - TackValve
+	*)
+
+	Prop_UsedTime 	AT %Q* : REAL;
+	W1202_USedTime	AT %Q* : REAL;
+	W1204_USedTime	AT %Q* : REAL;
+	W1206_USedTime	AT %Q* : REAL;
+	W1208_USedTime	AT %Q* : REAL;
+	W1210_USedTime	AT %Q* : REAL;
+	W1212_USedTime	AT %Q* : REAL;
+	W1214_USedTime	AT %Q* : REAL;
+	W1602_USedTime	AT %Q* : REAL;
+	W1604_USedTime	AT %Q* : REAL;
+
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*PARAMS;*)
+INPUTS;
+TANK;
+
+(*SYSTEM STATE: ENABLED / PROP ONLY / DISABLE*)
+SIEnable[1](In:= HMI_Enable,  T_Cont:= T#0ms, T_DClk:= T#0ms);
+(*SIEnable[2](In:= N103_IN.0 ,  T_Cont:= T#0ms, T_DClk:= T#0ms);
+SIEnable[3](In:= N108_IN.1 ,  T_Cont:= T#0ms, T_DClk:= T#0ms);*)
+SIShutDw[1](In:= HMI_ShutDw,  T_Cont:= T#1000ms, T_DClk:= T#0ms);
+(*SIShutDw[2](In:= N103_IN.1 ,  T_Cont:= T#1000ms, T_DClk:= T#500ms);
+SIShutDw[3](In:= N108_IN.0 ,  T_Cont:= T#1000ms, T_DClk:= T#500ms);*)
+
+SITankEnable  (T_Cont:= T#1000ms, T_DClk:=T#0ms);
+SIEngineEnable(T_Cont:= T#1000ms, T_DClk:=T#0ms);
+SIPropEnable  (T_Cont:= T#1000ms, T_DClk:=T#0ms);
+SIPropUDEnable(T_Cont:= T#1000ms, T_DClk:=T#0ms);
+
+IF    SIEnable[1].Event <> NONE THEN EventEnable := SIEnable[1].Event;
+ELSIF SIEnable[2].Event <> NONE THEN EventEnable := SIEnable[2].Event;
+ELSIF SIEnable[3].Event <> NONE THEN EventEnable := SIEnable[3].Event;
+ELSE							     EventEnable := NONE;
+END_IF
+
+IF    SIShutDw[1].Event <> NONE THEN EventShutDw := SIShutDw[1].Event;
+ELSIF SIShutDw[2].Event <> NONE THEN EventShutDw := SIShutDw[2].Event;
+ELSIF SIShutDw[3].Event <> NONE THEN EventShutDw := SIShutDw[3].Event;
+ELSE							     EventShutDw := NONE;
+END_IF
+
+CASE SysState OF
+
+0:  (*DISABLED*)
+	IF EventEnable = INIT_CONTINUOUS (*SysPass = '2005062'*) THEN
+		aSys_Enable[2] := TRUE;
+		aSys_Enable[3] := TRUE;
+
+		SysState := 2;
+	END_IF
+
+	SysLabel := 'SYSTEM$nDISABLED';
+	SysColor := 16#000000FF;
+
+1: (*PROP ONLY*)
+	IF EventShutDw = INIT_CONTINUOUS THEN
+		aSys_Enable[2] := FALSE;
+		aSys_Enable[3] := FALSE;
+		SysState       := 0;
+
+	ELSIF EventEnable = INIT_CONTINUOUS (*SysPass = '2005062'*) THEN
+		aSys_Enable[2] := TRUE;
+		aSys_Enable[3] := TRUE;
+		SysState       := 2;
+
+	END_IF
+
+	SysLabel := 'ONLY$nPROPULSION';
+	SysColor := 16#00000000;
+
+2: (*ENABLE*)
+	IF EventShutDw = INIT_CONTINUOUS OR AutoOffCnt > 2400 THEN
+		aSys_Enable[2] := FALSE;
+		aSys_Enable[3] := TRUE;
+		SysPass        := '';
+		SysState       := 1;
+	END_IF
+
+	SysLabel := 'SAILING$nENABLED';
+	SysColor := 16#0000FF00;
+
+END_CASE
+
+IF SITankEnable.Event   = INIT_CONTINUOUS THEN aSys_Enable[1] := NOT aSys_Enable[1]; END_IF
+IF SIEngineEnable.Event = INIT_CONTINUOUS THEN aSys_Enable[8] := NOT aSys_Enable[8]; END_IF
+IF SIPropEnable.Event   = INIT_CONTINUOUS THEN aSys_Enable[9] := NOT aSys_Enable[9]; END_IF
+IF SIPropUDEnable.Event = INIT_CONTINUOUS THEN aHP_Enable[10] := NOT aHP_Enable[10]; END_IF
+
+(*Loadind Status*)
+IF PARAMS.Loaded THEN
+	LoadLabel := '';
+ELSE
+	LoadLabel := '(Loading...)';
+END_IF
+
+
+(*Cylinders MF03*)
+fbSE301(
+	Enable := aHP_Enable[1] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B301,
+	IN_CylOut:= INPUTS.B302,
+
+	P   :=  P301,
+	LS  := LS301,
+	CFG := PARAMS.stSE301Cfg,
+
+	OUT_CylIn => EV301,
+	OUT_CylOut=> EV302
+);
+fbSE303(
+	Enable := aHP_Enable[2] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B303,
+	IN_CylOut:= INPUTS.B304,
+
+	P   :=  P303,
+	LS  := LS303,
+	CFG := PARAMS.stSE303Cfg,
+
+	OUT_CylIn => EV303,
+	OUT_CylOut=> EV304
+);
+fbSE305(
+	Enable := aHP_Enable[3] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B305,
+	IN_CylOut:= INPUTS.B306,
+
+	P   :=  P305,
+	LS  := LS305,
+	CFG := PARAMS.stSE305Cfg,
+
+	OUT_CylIn => EV305,
+	OUT_CylOut=> EV306
+);
+fbSE307(
+	Enable := aHP_Enable[4] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B307,
+	IN_CylOut:= INPUTS.B308,
+
+	P   :=  P307,
+	LS  := LS307,
+	CFG := PARAMS.stSE307Cfg,
+
+	OUT_CylIn => EV307,
+	OUT_CylOut=> EV308
+);
+fbSE309(
+	Enable := aHP_Enable[5] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B309,
+	IN_CylOut:= INPUTS.B310,
+
+	P   :=  P309,
+	LS  := LS309,
+	CFG := PARAMS.stSE309Cfg,
+
+	OUT_CylIn => EV309,
+	OUT_CylOut=> EV310
+);
+fbSE311(
+	Enable := aHP_Enable[6] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B311,
+	IN_CylOut:= INPUTS.B312,
+
+	P   :=  P311,
+	LS  := LS311,
+	CFG := PARAMS.stSE311Cfg,
+
+	OUT_CylIn => EV311,
+	OUT_CylOut=> EV312
+);
+
+EVP313.Bar := 10000;
+IF fbSE301.OUT_CylOut THEN EVP313.Bar := MIN(fbSE301.OUT_Ease, EVP313.Bar); END_IF
+IF fbSE303.OUT_CylOut THEN EVP313.Bar := MIN(fbSE303.OUT_Ease, EVP313.Bar); END_IF
+IF fbSE305.OUT_CylOut THEN EVP313.Bar := MIN(fbSE305.OUT_Ease, EVP313.Bar); END_IF
+IF fbSE307.OUT_CylOut THEN EVP313.Bar := MIN(fbSE307.OUT_Ease, EVP313.Bar); END_IF
+IF fbSE309.OUT_CylOut THEN EVP313.Bar := MIN(fbSE309.OUT_Ease, EVP313.Bar); END_IF
+IF fbSE311.OUT_CylOut THEN EVP313.Bar := MIN(fbSE311.OUT_Ease, EVP313.Bar); END_IF
+IF EVP313.Bar = 10000 THEN EVP313.Bar := 0.0; END_IF
+
+(*Cylinders MF05*)
+fbSE501(
+	Enable := aHP_Enable[7] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B501,
+	IN_CylOut:= INPUTS.B502,
+
+	P_In  := P501,
+	P_Out := P507,
+	CFG   := PARAMS.stSE501Cfg,
+
+	OUT_CylIn => EV501,
+	OUT_CylOut=> EV502
+);
+EV507 := EV502;
+EV508 := EV501;
+
+fbSE503(
+	Enable := aHP_Enable[8] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B503,
+	IN_CylOut:= INPUTS.B504,
+
+	P   := P503,
+	CFG := PARAMS.stSE503Cfg,
+
+	OUT_CylIn => EV503,
+	OUT_CylOut=> EV504
+);
+fbSE505(
+	Enable := aHP_Enable[9] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B505,
+	IN_CylOut:= INPUTS.B506,
+	IN_CylQR := INPUTS.B506Q,
+
+	P   := P505,
+	CFG := PARAMS.stSE505Cfg,
+
+	OUT_CylIn => EV505,
+	OUT_CylOut=> EV506
+);
+
+EVP513.Bar := 10000;
+IF fbSE501.OUT_CylOut THEN EVP513.Bar := MIN(fbSE501.OUT_Ease, EVP513.Bar); END_IF
+IF fbSE503.OUT_CylOut THEN EVP513.Bar := MIN(fbSE503.OUT_Ease, EVP513.Bar); END_IF
+IF fbSE505.OUT_CylOut THEN EVP513.Bar := MIN(fbSE505.OUT_Ease, EVP513.Bar); END_IF
+IF EVP513.Bar = 10000 THEN EVP513.Bar := 0.0; END_IF
+
+(*Cylinders MF06*)
+fbDE601(
+	Enable := aHP_Enable[10] AND TANK.Enable AND aSys_Enable[3],
+	ReadyUp:= ENGINE.fbPropulsion.Idle,
+	Clear  := ALARMS.Clear,
+
+	IN_CylIn := INPUTS.B603,
+	IN_CylOut:= INPUTS.B601,
+
+	P_In  :=  P603,
+	P_Out :=  P601,
+	LS    := LS601,
+	CFG   := PARAMS.stDE601Cfg,
+
+	OUT_EV1=> EV601, (*Pump OUT*)
+	OUT_EV2=> EV602, (*Ease OUT*)
+	OUT_EV3=> EV603, (*Pump IN*)
+	OUT_EV4=> EV604  (*Ease IN*)
+);
+fbDE605(
+	Enable := aHP_Enable[11] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B607,
+	IN_CylOut:= INPUTS.B605,
+	IN_CylMid:=INPUTS.B606,
+
+	P_In  :=  P607,
+	P_Out :=  P605,
+	LS    := LS605,
+	CFG   := PARAMS.stDE605Cfg,
+
+	OUT_EV1 => EV605, (*Pump OUT*)
+	OUT_EV2 => EV606, (*Ease OUT*)
+	OUT_EV3 => EV607, (*Pump IN*)
+	OUT_EV4 => EV608  (*Ease IN*)
+);
+
+(*Cylinders MF07*)
+fbSE701(
+	Enable := aHP_Enable[12] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B701,
+	IN_CylOut:= INPUTS.B702,
+
+	P   :=  P701,
+	CFG := PARAMS.stSE701Cfg,
+
+	OUT_CylIn => EV701,
+	OUT_CylOut=> EV702
+);
+fbSE703(
+	Enable := aHP_Enable[13] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B703,
+	IN_CylOut:= INPUTS.B704,
+
+	P   :=  P703,
+	CFG := PARAMS.stSE703Cfg,
+
+	OUT_CylIn => EV703,
+	OUT_CylOut=> EV704
+);
+fbSE705(
+	Enable := aHP_Enable[14] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B705,
+	IN_CylOut:= INPUTS.B706,
+
+	P   :=  P705,
+	CFG := PARAMS.stSE705Cfg,
+
+	OUT_CylIn => EV705,
+	OUT_CylOut=> EV706
+);
+fbSE707(
+	Enable := aHP_Enable[15] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B707,
+	IN_CylOut:= INPUTS.B708,
+
+	P   :=  P707,
+	LS  := LS707,
+	CFG := PARAMS.stSE707Cfg,
+
+	OUT_CylIn => EV707,
+	OUT_CylOut=> EV708
+);
+fbSE709(
+	Enable := aHP_Enable[16] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B709,
+	IN_CylOut:= INPUTS.B710,
+
+	P   :=  P709,
+	LS  := LS709,
+	CFG := PARAMS.stSE709Cfg,
+
+	OUT_CylIn => EV709,
+	OUT_CylOut=> EV710
+);
+
+EVP709.Bar := 10000;
+IF fbSE701.OUT_CylOut THEN EVP709.Bar := MIN(fbSE701.OUT_Ease, EVP709.Bar); END_IF
+IF fbSE703.OUT_CylOut THEN EVP709.Bar := MIN(fbSE703.OUT_Ease, EVP709.Bar); END_IF
+IF fbSE705.OUT_CylOut THEN EVP709.Bar := MIN(fbSE705.OUT_Ease, EVP709.Bar); END_IF
+IF fbSE707.OUT_CylOut THEN EVP709.Bar := MIN(fbSE707.OUT_Ease, EVP709.Bar); END_IF
+IF fbSE709.OUT_CylOut THEN EVP709.Bar := MIN(fbSE709.OUT_Ease, EVP709.Bar); END_IF
+IF EVP709.Bar = 10000 THEN EVP709.Bar := 0.0; END_IF
+
+(*Cylinders MF09*)
+fbBSY(
+	Enable := aHP_Enable[17] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_P_In  := INPUTS.B901,
+	IN_P_Out := INPUTS.B902,
+	IN_S_In  := INPUTS.B903,
+	IN_S_Out := INPUTS.B904,
+
+	P_P  :=  P901,
+	P_S  :=  P903,
+	LS_P := LS901,
+	LS_S := LS903,
+	CFG  := PARAMS.stSE901Cfg,
+
+	OUT_P_In => EV901,
+	OUT_P_Out=> EV902,
+	OUT_S_In => EV903,
+	OUT_S_Out=> EV904
+);
+(*fbSE901(
+	Enable := aHP_Enable[17] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B901,
+	IN_CylOut:= INPUTS.B902,
+
+	P   :=  P901,
+	LS  := LS901,
+	CFG := PARAMS.stSE901Cfg,
+
+	OUT_CylIn => EV901,
+	OUT_CylOut=> EV902
+);
+fbSE903(
+	Enable := aHP_Enable[18] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	IN_CylIn := INPUTS.B903,
+	IN_CylOut:= INPUTS.B904,
+
+	P   :=  P903,
+	LS  := LS903,
+	CFG := PARAMS.stSE903Cfg,
+
+	OUT_CylIn => EV903,
+	OUT_CylOut=> EV904
+);*)
+
+(*WATER BALLAST***************************************************************)
+fbWB(
+	Enable := aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+	Perc   := POWERPACK.LP_Perc,
+
+	IN_P_Fwd := INPUTS.BWB_P_Fwd,
+	IN_P_Aft := INPUTS.BWB_P_Aft,
+	IN_S_Fwd := INPUTS.BWB_S_Fwd,
+	IN_S_Aft := INPUTS.BWB_S_Aft,
+	IN_Fill  := INPUTS.BWB_Fill,
+	IN_12    := INPUTS.BWB_12,
+	IN_Dump  := INPUTS.BWB_Dump,
+	IN_Move  := INPUTS.BWB_Move,
+	IN_Stop  := INPUTS.BWB_Stop,
+
+	SF_P_Aft := NOT SF021,
+	SF_P_Fwd := NOT SF022,
+	SF_S_Aft := NOT SF023,
+	SF_S_Fwd := NOT SF024,
+
+	WB_A := fbWB_A,
+	WB_B := fbWB_B,
+	WB_C := fbWB_C,
+	WB_D := fbWB_D,
+	WB_E := fbWB_E,
+	WB_F := fbWB_F,
+	WB_G := fbWB_G,
+	WB_H := fbWB_H,
+	WB_I := fbWB_I,
+	WB_J := fbWB_J,
+	WB_K := fbWB_K,
+	WB_L := fbWB_L,
+	WB_M := fbWB_M,
+	WB_N := fbWB_N,
+	WB_R := fbWB_R,
+	WB_S := fbWB_S,
+
+	WB_PUD := fbWB_PUD,
+    WB_PAF := fbWB_PAF,
+	WB_SUD := fbWB_SUD,
+    WB_SAF := fbWB_SAF,
+
+	CFG:= PARAMS.stWBCfg,
+
+	EVP_Pump => EVP1608_9
+);
+EVP1608_9 := -EVP1608_9; (*Using B*)
+
+fbWB_G(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF1901,
+	SF_Close:= SF1903,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV1903,
+	OUT_Close=> EV1901,
+);
+fbWB_PUD(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	R_Open  := fbWB_PAF.IN_Hmi_Open AND WB_Scoop_Link,
+	R_Close := fbWB_PAF.IN_Hmi_Close AND WB_Scoop_Link,
+	LS := LS1905,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV1907, (*dw*)
+	OUT_Close=> EV1905, (*up*)
+);
+fbWB_H(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF1909,
+	SF_Close:= SF1911,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV1911,
+	OUT_Close=> EV1909,
+);
+
+fbWB_C(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	LS := LS2001,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2001,
+	OUT_Close=> EV2003,
+);
+fbWB_PAF(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	R_Open  := fbWB_PUD.IN_Hmi_Open AND WB_Scoop_Link,
+	R_Close := fbWB_PUD.IN_Hmi_Close AND WB_Scoop_Link,
+	LS := LS2005,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2007,
+	OUT_Close=> EV2005,
+);
+fbWB_L(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2009,
+	SF_Close:= SF2011,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2011,
+	OUT_Close=> EV2009,
+);
+
+
+fbWB_A(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2101,
+	SF_Close:= SF2103,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2103,
+	OUT_Close=> EV2101,
+);
+fbWB_D(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2105,
+	SF_Close:= SF2107,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2107,
+	OUT_Close=> EV2105,
+);
+fbWB_E(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2109,
+	SF_Close:= SF2111,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2111,
+	OUT_Close=> EV2109,
+);
+
+fbWB_SUD(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	R_Open  := fbWB_SAF.IN_Hmi_Open AND WB_Scoop_Link,
+	R_Close := fbWB_SAF.IN_Hmi_Close AND WB_Scoop_Link,
+	LS := LS2201,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2203,
+	OUT_Close=> EV2201,
+);
+fbWB_M(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2205,
+	SF_Close:= SF2207,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2207,
+	OUT_Close=> EV2205,
+);
+fbWB_K(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2209,
+	SF_Close:= SF2211,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2211,
+	OUT_Close=> EV2209,
+);
+
+fbWB_S(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	LS := LS2301,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2301,
+	OUT_Close=> EV2303,
+);
+fbWB_B(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	LS := LS2305,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2305,
+	OUT_Close=> EV2307,
+);
+fbWB_F(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2309,
+	SF_Close:= SF2311,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2311,
+	OUT_Close=> EV2309,
+);
+
+fbWB_SAF(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	R_Open  := fbWB_SUD.IN_Hmi_Open AND WB_Scoop_Link,
+	R_Close := fbWB_SUD.IN_Hmi_Close AND WB_Scoop_Link,
+	LS := LS2401,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2403,
+	OUT_Close=> EV2401,
+);
+fbWB_J(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	SF_Open := SF2405,
+	SF_Close:= SF2407,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveSFCfg,
+	OUT_Open => EV2407,
+	OUT_Close=> EV2405,
+);
+fbWB_R(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	LS := LS2409,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2409,
+	OUT_Close=> EV2411,
+);
+
+fbWB_N(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	LS := LS2501,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2501,
+	OUT_Close=> EV2503,
+);
+EV2502 := EV2503;
+EV2504 := EV2501;
+
+fbWB_I(
+	Enable:= aHP_Enable[19] AND TANK.Enable AND aSys_Enable[2],
+	Manual:= fbWB.Manual,
+	LS := LS2505,
+	P  := P2500,
+	CFG:= PARAMS.stWBValveLSCfg,
+	OUT_Open => EV2505,
+	OUT_Close=> EV2507,
+);
+EV2506 := EV2507;
+EV2508 := EV2505;
+
+(*WINCHES*********************************************************************)
+fbW1202(
+	Enable:= aLP_Enable[4] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1202_1,
+	IN_2    := INPUTS.B1202_2,
+	IN_3    := INPUTS.B1202_G,
+
+	P_A := P1202,
+	P_B := P1203,
+	CFG := PARAMS.stW1202Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1202_3,
+);
+fbW1204(
+	Enable:= aLP_Enable[5] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1204_1,
+	IN_2    := INPUTS.B1204_2,
+	IN_3    := INPUTS.B1204_G,
+
+	P_A := P1204,
+	P_B := P1205,
+	CFG := PARAMS.stW1204Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1204_5,
+);
+fbW1206(
+	Enable:= aLP_Enable[6] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1206_1,
+	IN_2    := INPUTS.B1206_2,
+	IN_3    := INPUTS.B1206_G,
+
+	Override := INPUTS.Override_ON,
+
+	P_A := P1206,
+	P_B := P1207,
+	CFG := PARAMS.stW1206Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1206_7,
+);
+fbW1208(
+	Enable:= aLP_Enable[7] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1208_1,
+	IN_2    := INPUTS.B1208_2,
+	IN_3    := INPUTS.B1208_G,
+
+	P_A := P1208,
+	P_B := P1209,
+	CFG := PARAMS.stW1208Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1208_9,
+);
+fbW1210(
+	Enable:= aLP_Enable[8] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1210_1,
+	IN_2    := INPUTS.B1210_2,
+	IN_3    := INPUTS.B1210_G,
+
+	P_A := P1210,
+	P_B := P1211,
+	CFG := PARAMS.stW1210Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1210_1,
+);
+fbW1212(
+	Enable:= aLP_Enable[9] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1212_1,
+	IN_2    := INPUTS.B1212_2,
+	IN_3    := INPUTS.B1212_G,
+
+	P_A := P1212,
+	P_B := P1213,
+	CFG := PARAMS.stW1212Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1212_3,
+);
+fbW1214(
+	Enable:= aLP_Enable[10] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1214_1,
+	IN_2    := INPUTS.B1214_2,
+	IN_3    := INPUTS.B1214_G,
+
+	P_A := P1214,
+	P_B := P1215,
+	CFG := PARAMS.stW1214Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1214_5,
+);
+
+fbBoard(
+	Enable := aLP_Enable[11] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+
+	EngReady := ENGINE.Engine_ON AND NOT ENGINE.Propulion_ON,
+	Latching := aLP_Enable[12],
+
+	Keel_Pos := fbKeel.LS_Pos,
+	Keel_Err := fbKeel.LS_Err,
+
+	IN_P := INPUTS.BBoardP,
+	IN_S := INPUTS.BBoardS,
+	IN_C := INPUTS.BBoardC,
+
+	PA_P := P802,
+	PA_S := P804,
+	PB_P := P1216,
+	PB_S := P1219,
+
+	LS_P := LS801,
+	LS_S := LS803,
+
+	SF_P := SF801,
+	SF_S := SF803,
+
+	CFG := PARAMS.stBoardCfg,
+
+	OUT_TWC_P => EVP1216_7,
+	OUT_TWC_S => EVP1218_9,
+
+	OUT_EVB_P => EV801,
+	OUT_EVB_S => EV803,
+
+	OUT_EVT_P => EV802,
+	OUT_EVT_S => EV804
+);
+EVP1218_9 := -EVP1218_9; (*Inverted rev 19*)
+
+fbKeel(
+	Enable := aLP_Enable[13] AND TANK.Enable AND aSys_Enable[2] AND (NOT SF1002.Alarm.Alarm OR fbKeel.BypassSF),
+	Ready  := ENGINE.Pump_ON,
+
+	EngReady := ENGINE.Engine_ON AND NOT ENGINE.Propulion_ON,
+	Latching := aLP_Enable[19],
+
+	AutoEase := aLP_Enable[20],
+
+	IN_I := INPUTS.BKeelS,
+	IN_O := INPUTS.BKeelP,
+	IN_C := INPUTS.BKeelC,
+	IN_F := INPUTS.BKeelF,
+	IN_T := INPUTS.BKeelT,
+
+	LS_BOARD_P := LS801,
+	LS_BOARD_S := LS803,
+
+	P_I :=  P1001,
+	P_O :=  P1002,
+	LS1 := LS1001,
+	LS2 := LS1002,
+
+	CFG := PARAMS.stKeelCfg,
+
+	EV_Eng_PI => EV1001,
+	EV_Eng_EI => EV1003,
+	EV_Eng_PO => EV1002,
+	EV_Eng_EO => EV1004,
+	EV_PP_I  => EV1012,
+	EV_PP_O  => EV1011,
+
+(*	EVP_Eng_I : UINT;*)
+(*	EVP_Eng_O : UINT;*)
+
+	EVP_SE_I  => EVP1006,
+	EVP_SE_O  => EVP1007,
+	EVP_FE_I  => EVP1008,
+	EVP_FE_O  => EVP1009,
+
+	P_Fill  => EVP1005.Bar,
+	P_Empty => EVP1010.Bar,
+
+	EVP_Fill => EVP1220_1,
+
+);
+
+
+fbW1602(
+	Enable:= aLP_Enable[14] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1602_1,
+	IN_2    := INPUTS.B1602_2,
+	IN_3    := INPUTS.B1602_G,
+
+	P_A := P1602,
+	P_B := P1603,
+	CFG := PARAMS.stW1602Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1602_3,
+);
+fbW1604(
+	Enable:= aLP_Enable[15] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady,(* AND ENGINE.Pump_ON,*)
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1    := INPUTS.B1604_1,
+	IN_2    := INPUTS.B1604_2,
+	IN_3    := INPUTS.B1604_G,
+
+	P_A := P1604,
+	P_B := P1605,
+	CFG := PARAMS.stW1604Cfg,
+	RAMP:= PARAMS.stWRampCfg,
+
+	OUT_TWC => EVP1604_5,
+);
+
+fbTraveller(
+	Enable := aLP_Enable[16] AND TANK.Enable AND aSys_Enable[2],
+	Ready  := ENGINE.Pump_ON,
+	Perc   := POWERPACK.LP_Perc,
+
+	IN_A := INPUTS.BTravA,
+	IN_B := INPUTS.BTravB,
+	IN_T := INPUTS.BTravT,
+	IN_D := INPUTS.BTravD,
+
+	P_A :=  P1301,
+	P_B :=  P1302,
+	LS  := LS1303,
+	CFG := PARAMS.stTravellerCfg,
+
+	OUT_EVRA => EV1301,
+	OUT_EVRB => EV1302,
+	OUT_EVAB => EV1303,
+	OUT_TWC  => EVP1606_7
+);
+EV905 := EV908 := fbTraveller.OUT_EVPA;
+EV907 := EV906 := fbTraveller.OUT_EVPB;
+
+fbBowThr(
+	Enable:= aLP_Enable[17] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady AND ENGINE.Pump_ON AND (SF404 OR NOT PARAMS.stBowThrUpDwCfg.SF2_Limit),
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1 := INPUTS.BBowThrP,
+	IN_2 := INPUTS.BBowThrS,
+
+	CFG := PARAMS.stBowThrCfg,
+
+	OUT_TWC => EVP402_3,
+);
+fbBowThrUpDw(
+	Enable:= aLP_Enable[18] AND TANK.Enable AND ENGINE.Pump_ON AND aSys_Enable[2],
+	Ready := POWERPACK.WinchReady AND ENGINE.Pump_ON,
+	Perc  := POWERPACK.LP_Perc,
+
+	IN_1 := INPUTS.BBowThrU,
+	IN_2 := INPUTS.BBowThrD,
+
+	IN_SF1 := SF405,
+	IN_SF2 := SF404,
+
+	CFG := PARAMS.stBowThrUpDwCfg,
+
+	OUT_TWC => EVP404_5,
+);
+
+fbTackValve(
+	Enable := aSys_Enable[16] AND NOT SF000.Alarm.Alarm (*AND aSys_Enable[2]*),
+	Clear  := ALARMS.Clear,
+
+	Heel_Ready  := TOFARO.Recv_Live,
+	Heel_Value  := TOFARO.rHeel,
+
+	Port_Ready := N21_DI0_CH7_4,
+	Port_Open  := N22_DI0_CH7_4,
+	Port_Close := N22_DI1_CH7_2,
+
+	Stbd_Ready := N21_DI1_CH7_2,
+	Stbd_Open  := N22_DI6_CH8_4,
+	Stbd_Close := N22_DI7_CH8_2,
+
+	CFG := PARAMS.stTackValveCfg,
+
+	OUT_Port_Open  => N36_DO5_CH4_2,
+	OUT_Port_Close => N36_DO4_CH4_4,
+	OUT_Stbd_Open  => N36_DO1_CH2_2,
+	OUT_Stbd_Close => N36_DO0_CH2_4,
+
+);
+
+fbMastSetup(
+	IN_MS  := N116_IN.0,
+	IN_1th := N109_IN.2,
+	IN_2th := N109_IN.4,
+	IN_3th := N109_IN.3,
+	IN_FH  := N109_IN.0,
+
+	IN_HS := N117_IN.1,
+	IN_A3 := N108_IN.0,
+	IN_F0 := N108_IN.4,
+	IN_J2 := N108_IN.2,
+	IN_J4 := N108_IN.3,
+
+	END_MS := N109_IN.5 OR N109_IN.6 OR N109_IN.7,
+	END_HS := N108_IN.5 OR N108_IN.6 OR N108_IN.7,
+
+	FSY_P   :=  P309,
+	FSY_LS  := LS309,
+
+	BDef_P  :=  P707,
+	BDef_LS := LS707,
+
+	TDef_P  :=  P709,
+	TDef_LS := LS709,
+
+	TABLE := PARAMS.stMastSetup,
+
+	FSY_In  => fbSE309.IN_RemIn,
+	FSY_Out => fbSE309.IN_RemOut,
+
+	BDef_In  => fbSE707.IN_RemIn,
+	BDef_Out => fbSE707.IN_RemOut,
+
+	TDef_In  => fbSE709.IN_RemIn,
+	TDef_Out => fbSE709.IN_RemOut
+);
+
+(*Cylinders*)
+IF fbSE301.State <> 0
+OR fbSE303.State <> 0
+OR fbSE305.State <> 0
+OR fbSE307.State <> 0
+OR fbSE309.State <> 0
+OR fbSE311.State <> 0
+
+OR fbSE501.State <> 0
+OR fbSE503.State <> 0
+OR fbSE505.State <> 0
+
+OR fbDE601.State <> 0
+OR fbDE605.State <> 0
+
+OR fbSE701.State <> 0
+OR fbSE703.State <> 0
+OR fbSE705.State <> 0
+OR fbSE707.State <> 0
+OR fbSE709.State <> 0
+
+OR fbBSY.State_P <> 0
+OR fbBSY.State_S <> 0
+(*
+OR fbSE901.State <> 0
+OR fbSE903.State <> 0
+*)
+(*Water Ballast*)
+OR fbWB.State <> 0
+OR fbWB_A.State <> 0
+OR fbWB_B.State <> 0
+OR fbWB_C.State <> 0
+OR fbWB_D.State <> 0
+OR fbWB_E.State <> 0
+OR fbWB_F.State <> 0
+OR fbWB_G.State <> 0
+OR fbWB_H.State <> 0
+OR fbWB_I.State <> 0
+OR fbWB_J.State <> 0
+OR fbWB_K.State <> 0
+OR fbWB_L.State <> 0
+OR fbWB_M.State <> 0
+OR fbWB_N.State <> 0
+OR fbWB_R.State <> 0
+OR fbWB_S.State <> 0
+OR fbWB_PUD.State <> 0
+OR fbWB_PAF.State <> 0
+OR fbWB_SUD.State <> 0
+OR fbWB_SAF.State <> 0
+
+(*Winches*)
+OR fbW1202.State <> 0
+OR fbW1204.State <> 0
+OR fbW1206.State <> 0
+OR fbW1208.State <> 0
+OR fbW1210.State <> 0
+OR fbW1212.State <> 0
+OR fbW1214.State <> 0
+
+OR fbW1602.State <> 0
+OR fbW1604.State <> 0
+
+OR fbBoard.State       <> 0
+OR fbKeel.State        <> 0
+OR fbTraveller.State   <> 0
+
+OR fbBowThr.State     <> 0
+OR fbBowThrUpDw.State <> 0
+
+OR NOT aSys_Enable[2]
+THEN AutoOffCnt := 0.0;
+ELSE AutoOffCnt := AutoOffCnt + Cycle_Time;
+END_IF
+
+POWERPACK;
+ENGINE;
+ALARMS;
+OUTPUTS;
+TOFARO;
+
+IF ENGINE.fbPropulsion.MoveEV THEN Prop_UsedTime := Prop_UsedTime + Cycle_Time; END_IF
+
+IF fbW1202.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1204.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1206.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1208.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1210.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1212.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1214.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1602.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+IF fbW1604.OUT_TWC <> 0 THEN W1202_USedTime := W1202_USedTime + Cycle_Time; END_IF
+
+
+(*Save Persistent Vars when power down*)
+(*fbUPS();*)
+END_PROGRAM

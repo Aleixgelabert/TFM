@@ -1,0 +1,87 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+PROGRAM RECV_J1939
+VAR
+	i: INT;
+	State : WORD;
+
+	F003: FB_DECODE_F003;
+	F004: FB_DECODE_F004;
+	FEDB: FB_DECODE_FEDB;
+	FEE5: FB_DECODE_FEE5;
+	FEEE: FB_DECODE_FEEE;
+	FEEF: FB_DECODE_FEEF;
+	FEF2: FB_DECODE_FEF2;
+	FEF6: FB_DECODE_FEF6;
+	FEF7: FB_DECODE_FEF7;
+
+	RxFrame: VARTYPE_EXTCANQUEUE;
+	MaskID : DWORD;
+
+	rxData: ARRAY [0..7] OF USINT; (*for debug*)
+
+
+(*VISUALIZATION*)
+(*	 vF003 : CobIdDataVisualize;
+	strF003 : STRING;
+	 vF004 : CobIdDataVisualize;
+	strF004 : STRING;
+	 vFEEE : CobIdDataVisualize;
+	strFEEE : STRING;
+*)
+END_VAR
+(* @END_DECLARATION := '0' *)
+(*Receiving block*)
+IF J1939_Outputs.RxCounter <> J1939_Inputs.RxCounter THEN
+	FOR i := 0 TO (J1939_Inputs.NoOfRxMessages-1) BY 1 DO
+		MEMCPY( destAddr := ADR(RxFrame.length ), srcAddr := ADR(J1939_Inputs.RxMessages[i]), n := 14 );
+
+		MaskID := RxFrame.cobId AND 16#01FFFF00;
+
+		(*Case structure to catch specific CobId and parse data from it*)
+		CASE MaskID OF
+
+		16#00F00400:(*Electronic Engine Controller 1: EEC1, every 20ms*)
+			F004( IN:= RxFrame.RxData );
+			(*vF004(rxData:=ADR(RxFrame.RxData) , strRxData=>strF004 );*)
+
+		16#00F00300: (*Electronic Engine Controller 2: EEC2, every 50ms*)
+			F003( IN:= RxFrame.RxData );
+			(*vF003(rxData:=ADR(RxFrame.RxData) , strRxData=>strF003 );*)
+
+		16#00FEDB00: (*Engine Injector Metering Rail 1 Pressure, every 500ms*)
+			FEDB( IN:= RxFrame.RxData );
+
+		16#00FEE500: (*Engine Hours, Revolutions HOURS, *)
+			FEE5( IN:= RxFrame.RxData );
+
+		16#00FEEE00: (*Engine Temperature, every 1000ms*)
+			FEEE( IN:= RxFrame.RxData );
+
+		16#00FEEF00: (*Engine Fluid Level / Pressure, every 100ms*)
+			FEEF( IN:= RxFrame.RxData );
+
+		16#00FEF200: (*Fuel Economy (Liquid) LFE1, every 500ms*)
+			FEF2( IN:= RxFrame.RxData );
+
+		16#00FEF600: (*Inlet / Exhaust Conditions #1: IEC1, every 500ms*)
+			FEF6( IN:= RxFrame.RxData );
+
+		16#00FEF700: (*Vehicle Electrical Power, every 1000ms*)
+			FEF7( IN:= RxFrame.RxData );
+
+			(*MEMCPY( destAddr := ADR(rxData), srcAddr := ADR(RxFrame.RxData), n := 8 );*)
+
+
+		END_CASE
+	END_FOR
+
+	J1939_Outputs.RxCounter := J1939_Outputs.RxCounter+1;
+END_IF
+
+State := CAN1_State;
+State := State AND 16#00FF;
+END_PROGRAM

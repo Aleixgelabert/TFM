@@ -1,0 +1,17 @@
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+TYPE ST_WB_VALVE_LS_CFG :
+STRUCT
+	Cycle   : REAL; (*Seconds*)
+	TimeMax : REAL; (*Seconds*)
+	PushTime: REAL; (*Seconds*)
+	PushP   : REAL; (*Bar*)
+
+	TgtLS_Half : REAL;
+	LS_DB   : REAL;
+
+	HP      : BYTE; (*Num. Pumps*)
+END_STRUCT
+END_TYPE
+(* @END_DECLARATION := '0' *)

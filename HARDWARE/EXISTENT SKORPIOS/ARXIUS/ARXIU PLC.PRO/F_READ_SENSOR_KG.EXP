@@ -1,0 +1,20 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_SENSOR_KG : BOOL
+VAR_INPUT
+END_VAR
+VAR_IN_OUT
+	stSensor : ST_SENSOR_KG;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stSensor.Cal_K := F_IDLIST_GETREAL( CONCAT(stSensor.Name, '_K' ), fbIdList );
+stSensor.Cal_C := F_IDLIST_GETREAL( CONCAT(stSensor.Name, '_C' ), fbIdList );
+
+
+END_FUNCTION

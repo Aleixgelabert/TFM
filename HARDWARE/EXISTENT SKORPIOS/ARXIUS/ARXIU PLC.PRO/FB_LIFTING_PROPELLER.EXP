@@ -1,0 +1,412 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FB' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION_BLOCK FB_LIFTING_PROPELLER
+VAR_INPUT
+	Enable  : BOOL;
+	ReadyUp : BOOL;
+	Clear   : BOOL;
+
+	IN_CylIn  : ARRAY[1..2] OF BOOL; (*Up*)
+	IN_CylOut : ARRAY[1..2] OF BOOL; (*Dw*)
+END_VAR
+VAR_IN_OUT
+	P_In  : ST_SENSOR_BAR;
+	P_Out : ST_SENSOR_BAR;
+	LS    : ST_SENSOR_POS;
+	CFG   : ST_LIFT_PROP_CFG;
+END_VAR
+VAR_OUTPUT
+	OUT_EV1 : BOOL; (*Pump OUT*)
+	OUT_EV2 : BOOL; (*Ease OUT*)
+	OUT_EV3 : BOOL; (*Pump IN*)
+	OUT_EV4 : BOOL; (*Ease IN*)
+
+	OUT_HP  : BYTE;
+
+	PROP_UP : BOOL;
+	PROP_DW : BOOL;
+END_VAR
+VAR
+	State   : WORD;
+
+	IN_Hmi_CylIn  : BOOL;
+	IN_Hmi_CylOut : BOOL;
+
+	SIIn  : ARRAY[1..3] OF FB_SMART_INPUT;
+	SIOut : ARRAY[1..3] OF FB_SMART_INPUT;
+
+	EventIn  : EN_SMART_INPUT_STATE;
+	EventOut : EN_SMART_INPUT_STATE;
+
+	TimeCnt : REAL;
+	TimeOut : BOOL;
+
+	P_Bypass  : BOOL;
+
+	Slow : BOOL;
+	LS_Dif : REAL;
+
+	LS_Up : BOOL;
+	LS_Dw : BOOL;
+	P_Up : BOOL;
+	P_Dw : BOOL;
+
+	Alarm : ST_Alarm;
+
+	ToFaroValue : REAL;
+
+END_VAR
+VAR PERSISTENT
+	Man_Up AT %Q*: BOOL;
+	Man_Dw AT %Q*: BOOL;
+END_VAR
+
+(* @END_DECLARATION := '0' *)
+IF Clear THEN
+	Alarm.Alarm := FALSE;
+	Alarm.Adver := FALSE;
+	Alarm.AlCnt := 0;
+	Alarm.AlLen := 0.0;
+END_IF
+
+LS_Dw := NOT LS.Err AND LS.Pos > CFG.TgtLS_Dw - CFG.LS_DB;
+LS_Up := NOT LS.Err AND LS.Pos < CFG.TgtLS_Up + CFG.LS_DB;
+P_Dw  := NOT P_Out.Err AND P_Out.Bar > CFG.TgtP_Dw - CFG.P_DB;
+P_Up  := NOT P_In.Err  AND P_In.Bar  > CFG.TgtP_Up - CFG.P_DB;
+
+(*Check Inputs*)
+SIIn[1](In:= IN_CylIn[1],  T_Cont:= T#500ms, T_DClk:= T#0ms);
+SIIn[2](In:= IN_CylIn[2],  T_Cont:= T#500ms, T_DClk:= T#0ms);
+SIIn[3](In:= IN_Hmi_CylIn, T_Cont:= T#500ms, T_DClk:= T#0ms);
+
+SIOut[1](In:= IN_CylOut[1],  T_Cont:= T#500ms, T_DClk:= T#0ms);
+SIOut[2](In:= IN_CylOut[2],  T_Cont:= T#500ms, T_DClk:= T#0ms);
+SIOut[3](In:= IN_Hmi_CylOut, T_Cont:= T#500ms, T_DClk:= T#0ms);
+
+IF NOT Enable THEN
+	OUT_EV1 := FALSE;
+	OUT_EV2 := FALSE;
+	OUT_EV3 := FALSE;
+	OUT_EV4 := FALSE;
+
+	OUT_HP   := 0;
+
+	PROP_UP := FALSE;
+	PROP_DW := FALSE;
+
+	ToFaroValue := 0.0;
+
+	Alarm.Alarm := FALSE;
+	Alarm.Adver := FALSE;
+	Alarm.AlCnt := 0;
+	Alarm.AlLen := 0.0;
+
+	TimeCnt := 0.0;
+	State   := 0;
+	RETURN;
+END_IF
+
+(*Check Time*)
+TimeOut := TimeOut OR ( CFG.TimeMax > 0  AND TimeCnt > CFG.TimeMax );
+TimeCnt := TimeCnt + CFG.Cycle;
+
+IF    SIIn[1].Event <> NONE THEN EventIn := SIIn[1].Event;
+ELSIF SIIn[2].Event <> NONE THEN EventIn := SIIn[2].Event;
+ELSIF SIIn[3].Event <> NONE THEN EventIn := SIIn[3].Event;
+ELSE							 EventIn := NONE;
+END_IF
+
+IF    SIOut[1].Event <> NONE THEN EventOut := SIOut[1].Event;
+ELSIF SIOut[2].Event <> NONE THEN EventOut := SIOut[2].Event;
+ELSIF SIOut[3].Event <> NONE THEN EventOut := SIOut[3].Event;
+ELSE							  EventOut := NONE;
+END_IF
+
+(*Working States*)
+CASE State OF
+
+(*Init State*)
+0:
+	OUT_EV1 := FALSE;
+	OUT_EV2 := FALSE;
+	OUT_EV3 := FALSE;
+	OUT_EV4 := FALSE;
+	OUT_HP  := 0;
+
+    TimeCnt  := 0.0; (*Time Count*)
+
+	ToFaroValue := 0.0;
+
+	(*Start Manual IN/UP*)
+	IF EventIn = INIT_CONTINUOUS AND ReadyUp THEN
+		(*PROP_UP := FALSE;*)
+		PROP_DW := FALSE;
+		TimeOut := FALSE;
+
+		(*Next State*)
+		IF LS.Err OR Man_Up OR Man_Dw
+		THEN State := 100;
+		ELSE State := 110;
+		END_IF
+
+		ToFaroValue := 1.0;
+
+	(*Start Manual OUT/DW*)
+	ELSIF EventOut = INIT_CONTINUOUS THEN
+		PROP_UP := FALSE;
+		(*PROP_DW := FALSE;*)
+		TimeOut := FALSE;
+
+		(*Next State*)
+		IF LS.Err OR Man_Up OR Man_Dw
+		THEN State := 200;
+		ELSE State := 210;
+		END_IF
+
+		ToFaroValue := -1.0;
+
+	ELSE
+		(*Override mode*)
+		IF Man_Up OR Man_Dw THEN
+			Man_Dw := Man_Dw AND NOT Man_Up;
+
+			PROP_UP := Man_Up;
+			PROP_DW := Man_Dw;
+
+			IF Man_Up THEN Alarm.Adver := TRUE; Alarm.Text := 'Propulsion Up/Dw. Manual Override UP Position.'; END_IF
+			IF Man_Dw THEN Alarm.Adver := TRUE; Alarm.Text := 'Propulsion Up/Dw. Manual Override DW Position.'; END_IF
+
+		(*Init state *)
+		ELSIF NOT PROP_UP AND NOT PROP_DW THEN
+			PROP_UP := LS_Up AND P_Up;
+			PROP_DW := LS_Dw AND P_Dw;
+
+			(*Alarm := LS.Err;*)
+
+		ELSE
+			(*Prevent propulsion OFF in case of sensors problem*)
+			IF PROP_DW THEN
+
+				IF NOT P_Dw  THEN Alarm.Adver := TRUE; Alarm.Text :=  '(P601) Propulsion Up/Dw. Missing DW Press. Target.';   END_IF
+
+				IF NOT LS_Dw THEN
+					IF NOT Alarm.Alarm THEN
+						Alarm.AlCnt  := Alarm.AlCnt + 1;
+						Alarm.AlLen  := 0.0;
+						Alarm.TimeInit := INPUTS.sLocal;
+						Alarm.AlInit   := TRUE;
+
+					ELSE
+						Alarm.AlLen  := Alarm.AlLen + MAIN.Cycle_Time;
+
+					END_IF
+
+					Alarm.Adver := TRUE;
+					Alarm.Alarm := TRUE;
+
+					Alarm.Text  := '(LS601) Propulsion Up/Dw. Missing DW Position Target.';
+
+				ELSE
+					IF Alarm.Alarm THEN
+						Alarm.TimeEnd := INPUTS.sLocal;
+						Alarm.AlEnd   := TRUE;
+
+					END_IF
+
+					Alarm.Alarm := FALSE;
+
+				END_IF
+
+			END_IF
+
+			IF PROP_UP THEN
+				IF NOT P_Up  THEN Alarm.Adver := TRUE; Alarm.Text :=  '(P603) Propulsion Up/Dw. Missing UP Press. Target.';   END_IF
+				IF NOT LS_Up THEN Alarm.Adver := TRUE; Alarm.Text := '(LS601) Propulsion Up/Dw. Missing UP Position Target.'; END_IF
+			END_IF
+
+		END_IF
+
+	END_IF
+
+	IF NOT PROP_DW THEN
+		IF Alarm.Alarm THEN
+			Alarm.TimeEnd := INPUTS.sLocal;
+			Alarm.AlEnd   := TRUE;
+
+		END_IF
+
+		Alarm.Alarm := FALSE;
+
+	END_IF
+
+
+(*** MANUAL ***)
+(*IN/UP*)
+100:
+	IF EventIn = END_CONTINUOUS OR EventOut <> NONE OR NOT ReadyUp OR TimeOut OR P_In.AlMax THEN
+		Out_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSE
+		OUT_EV1 := FALSE;
+		OUT_EV2 := TRUE;
+		OUT_EV3 := TRUE;
+		OUT_EV4 := FALSE;
+
+		OUT_HP := 1; (*Manual Slow*)
+		Slow   := TRUE;
+
+	END_IF
+
+(*** AUTO ***)
+(*Pumping IN/UP*)
+110:
+	IF EventIn = END_CONTINUOUS OR EventOut <> NONE OR NOT ReadyUp OR TimeOut OR LS.Err OR Man_Up OR Man_Dw OR P_In.AlMax THEN
+		OUT_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF LS.Pos <= CFG.TgtLS_Up THEN
+		OUT_EV1 := FALSE;
+		OUT_EV2 := FALSE; (*Close to presurize*)
+		OUT_EV3 := TRUE;
+		OUT_EV4 := FALSE;
+
+		OUT_HP := 1; (*Slow*)
+		Slow   := TRUE;
+		State  := 120;
+
+	ELSIF (LS.Pos - CFG.TgtLS_Up) < CFG.LS_DB THEN
+		OUT_EV1 := FALSE;
+		OUT_EV2 := TRUE;
+		OUT_EV3 := TRUE;
+		OUT_EV4 := FALSE;
+
+		OUT_HP := 1; (*Slow*)
+		Slow   := TRUE;
+
+	ELSE
+		OUT_EV1 := FALSE;
+		OUT_EV2 := TRUE;
+		OUT_EV3 := TRUE;
+		OUT_EV4 := FALSE;
+
+		OUT_HP := CFG.HP_Up;
+		Slow   := FALSE;
+
+	END_IF
+
+(*Pressurize IN/UP *)
+120:
+	IF EventIn = END_CONTINUOUS OR EventOut <> NONE OR NOT ReadyUp OR TimeOut OR LS.Err OR Man_Up OR Man_Dw OR P_In.AlMax THEN
+		OUT_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF P_In.Bar > CFG.TgtP_Up OR P_In.AlErr THEN
+		TimeCnt := 0.0;
+		State   := 130;
+
+	END_IF
+
+(*Delay IN/UP *)
+130:
+	IF EventIn = END_CONTINUOUS OR EventOut <> NONE OR NOT ReadyUp OR TimeOut OR LS.Err OR Man_Up OR Man_Dw OR P_In.AlMax THEN
+		OUT_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF TimeCnt > CFG.Delay_Up THEN
+		PROP_UP := TRUE;
+		OUT_EV3 := FALSE;
+		OUT_HP  := 0;
+		State   := 0;
+
+	END_IF
+
+(*** MANUAL ***)
+(*OUT/DW*)
+200:
+	IF EventOut = END_CONTINUOUS OR EventIn <> NONE OR TimeOut OR P_Out.AlMax THEN (*OR NOT Ready*)
+		OUT_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSE
+		OUT_EV1 := TRUE;
+		OUT_EV2 := FALSE;
+		OUT_EV3 := FALSE;
+		OUT_EV4 := TRUE;
+
+		OUT_HP := 1;
+		Slow   := TRUE;
+	END_IF
+
+(*** AUTO ***)
+(*Pumping OUT/DW*)
+210:
+	IF EventOut = END_CONTINUOUS OR EventIn <> NONE OR TimeOut OR LS.Err OR Man_Up OR Man_Dw OR P_Out.AlMax THEN (*OR NOT Ready*)
+		OUT_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF LS.Pos >= CFG.TgtLS_Dw THEN
+		PROP_DW := TRUE; (*Better activate here*)
+
+		OUT_EV1 := TRUE;
+		OUT_EV2 := FALSE;
+		OUT_EV3 := FALSE;
+		OUT_EV4 := FALSE; (*Close to presurize*)
+
+		OUT_HP := 1; (*Slow*)
+		Slow   := TRUE;
+		State  := 220;
+
+	ELSIF (CFG.TgtLS_Dw - LS.Pos) < CFG.LS_DB THEN
+		OUT_EV1 := TRUE;
+		OUT_EV2 := FALSE;
+		OUT_EV3 := FALSE;
+		OUT_EV4 := TRUE;
+
+		OUT_HP := 1; (*Slow*)
+		Slow   := TRUE;
+
+	ELSE
+		OUT_EV1 := TRUE;
+		OUT_EV2 := FALSE;
+		OUT_EV3 := FALSE;
+		OUT_EV4 := TRUE;
+
+		OUT_HP := CFG.HP_Dw;
+		Slow   := FALSE;
+
+	END_IF
+
+(*Pressurize OUT/DW *)
+220:
+	IF EventOut = END_CONTINUOUS OR EventIn <> NONE OR TimeOut OR LS.Err OR Man_Up OR Man_Dw OR P_Out.AlMax THEN (*OR NOT Ready*)
+		OUT_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF P_Out.Bar > CFG.TgtP_Dw OR P_Out.Err THEN
+		PROP_DW := TRUE;
+		TimeCnt := 0.0;
+		State   := 230;
+
+	END_IF
+
+(*Delay OUT/DW *)
+230:
+	IF EventOut = END_CONTINUOUS OR EventIn <> NONE OR TimeOut OR LS.Err OR Man_Up OR Man_Dw OR P_Out.AlMax THEN (*OR NOT Ready*)
+		OUT_HP := 0;
+		State  := 0;  (*Next State*)
+
+	ELSIF TimeCnt > CFG.Delay_Dw THEN
+		PROP_DW := TRUE;
+		OUT_EV1 := FALSE;
+		OUT_HP  := 0;
+		State   := 0;
+
+	END_IF
+
+END_CASE
+
+END_FUNCTION_BLOCK

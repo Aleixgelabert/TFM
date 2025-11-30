@@ -1,0 +1,104 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '\/FUN\/PARAMETERS' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION F_READ_MAST_SETUP_CFG : BOOL
+VAR_INPUT
+	sHead : STRING;
+	rTime : REAL;
+END_VAR
+VAR_IN_OUT
+	stTABLE  : ST_MAST_SETUP;
+	fbIdList : FB_IDLIST;
+END_VAR
+VAR
+END_VAR
+(* @END_DECLARATION := '0' *)
+stTABLE.Cycle    := rTime;
+
+stTABLE.aFSY[1,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_1_1' ), fbIdList );
+stTABLE.aFSY[1,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_1_2' ), fbIdList );
+stTABLE.aFSY[1,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_1_3' ), fbIdList );
+stTABLE.aFSY[1,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_1_4' ), fbIdList );
+stTABLE.aFSY[1,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_1_5' ), fbIdList );
+stTABLE.aFSY[1,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_1_6' ), fbIdList );
+
+stTABLE.aFSY[2,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_2_1' ), fbIdList );
+stTABLE.aFSY[2,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_2_2' ), fbIdList );
+stTABLE.aFSY[2,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_2_3' ), fbIdList );
+stTABLE.aFSY[2,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_2_4' ), fbIdList );
+stTABLE.aFSY[2,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_2_5' ), fbIdList );
+stTABLE.aFSY[2,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_2_6' ), fbIdList );
+
+stTABLE.aFSY[3,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_3_1' ), fbIdList );
+stTABLE.aFSY[3,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_3_2' ), fbIdList );
+stTABLE.aFSY[3,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_3_3' ), fbIdList );
+stTABLE.aFSY[3,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_3_4' ), fbIdList );
+stTABLE.aFSY[3,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_3_5' ), fbIdList );
+stTABLE.aFSY[3,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_3_6' ), fbIdList );
+
+stTABLE.aFSY[4,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_4_1' ), fbIdList );
+stTABLE.aFSY[4,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_4_2' ), fbIdList );
+stTABLE.aFSY[4,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_4_3' ), fbIdList );
+stTABLE.aFSY[4,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_4_4' ), fbIdList );
+stTABLE.aFSY[4,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_4_5' ), fbIdList );
+stTABLE.aFSY[4,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_FSY_4_6' ), fbIdList );
+
+stTABLE.aBDef[1,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_1_1' ), fbIdList );
+stTABLE.aBDef[1,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_1_2' ), fbIdList );
+stTABLE.aBDef[1,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_1_3' ), fbIdList );
+stTABLE.aBDef[1,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_1_4' ), fbIdList );
+stTABLE.aBDef[1,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_1_5' ), fbIdList );
+stTABLE.aBDef[1,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_1_6' ), fbIdList );
+
+stTABLE.aBDef[2,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_2_1' ), fbIdList );
+stTABLE.aBDef[2,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_2_2' ), fbIdList );
+stTABLE.aBDef[2,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_2_3' ), fbIdList );
+stTABLE.aBDef[2,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_2_4' ), fbIdList );
+stTABLE.aBDef[2,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_2_5' ), fbIdList );
+stTABLE.aBDef[2,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_2_6' ), fbIdList );
+
+stTABLE.aBDef[3,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_3_1' ), fbIdList );
+stTABLE.aBDef[3,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_3_2' ), fbIdList );
+stTABLE.aBDef[3,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_3_3' ), fbIdList );
+stTABLE.aBDef[3,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_3_4' ), fbIdList );
+stTABLE.aBDef[3,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_3_5' ), fbIdList );
+stTABLE.aBDef[3,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_3_6' ), fbIdList );
+
+stTABLE.aBDef[4,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_4_1' ), fbIdList );
+stTABLE.aBDef[4,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_4_2' ), fbIdList );
+stTABLE.aBDef[4,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_4_3' ), fbIdList );
+stTABLE.aBDef[4,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_4_4' ), fbIdList );
+stTABLE.aBDef[4,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_4_5' ), fbIdList );
+stTABLE.aBDef[4,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_BDEF_4_6' ), fbIdList );
+
+stTABLE.aTDef[1,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_1_1' ), fbIdList );
+stTABLE.aTDef[1,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_1_2' ), fbIdList );
+stTABLE.aTDef[1,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_1_3' ), fbIdList );
+stTABLE.aTDef[1,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_1_4' ), fbIdList );
+stTABLE.aTDef[1,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_1_5' ), fbIdList );
+stTABLE.aTDef[1,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_1_6' ), fbIdList );
+
+stTABLE.aTDef[2,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_2_1' ), fbIdList );
+stTABLE.aTDef[2,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_2_2' ), fbIdList );
+stTABLE.aTDef[2,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_2_3' ), fbIdList );
+stTABLE.aTDef[2,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_2_4' ), fbIdList );
+stTABLE.aTDef[2,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_2_5' ), fbIdList );
+stTABLE.aTDef[2,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_2_6' ), fbIdList );
+
+stTABLE.aTDef[3,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_3_1' ), fbIdList );
+stTABLE.aTDef[3,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_3_2' ), fbIdList );
+stTABLE.aTDef[3,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_3_3' ), fbIdList );
+stTABLE.aTDef[3,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_3_4' ), fbIdList );
+stTABLE.aTDef[3,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_3_5' ), fbIdList );
+stTABLE.aTDef[3,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_3_6' ), fbIdList );
+
+stTABLE.aTDef[4,1] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_4_1' ), fbIdList );
+stTABLE.aTDef[4,2] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_4_2' ), fbIdList );
+stTABLE.aTDef[4,3] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_4_3' ), fbIdList );
+stTABLE.aTDef[4,4] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_4_4' ), fbIdList );
+stTABLE.aTDef[4,5] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_4_5' ), fbIdList );
+stTABLE.aTDef[4,6] := F_IDLIST_GETREAL( CONCAT(sHead, '_TDEF_4_6' ), fbIdList );
+
+END_FUNCTION
