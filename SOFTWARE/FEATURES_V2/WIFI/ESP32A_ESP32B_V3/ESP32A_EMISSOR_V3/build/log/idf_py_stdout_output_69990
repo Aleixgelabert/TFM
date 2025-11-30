@@ -1,0 +1,3632 @@
+Command: /Users/aleixgelabert/.espressif/python_env/idf5.5_py3.13_env/bin/python /Users/aleixgelabert/esp/v5.5.1/esp-idf/tools/idf_monitor.py -p /dev/cu.usbserial-1410 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 /Users/aleixgelabert/Desktop/CODE_TFM/C/WIFI/ESP32A_ESP32B_V3/ESP32A_EMISSOR_V3/build/ESP32A_EMISSOR_V3.elf /Users/aleixgelabert/Desktop/CODE_TFM/C/WIFI/ESP32A_ESP32B_V3/ESP32A_EMISSOR_V3/build/bootloader/bootloader.elf -m '/Users/aleixgelabert/.espressif/python_env/idf5.5_py3.13_env/bin/python' '/Users/aleixgelabert/esp/v5.5.1/esp-idf/tools/idf.py' '-p' '/dev/cu.usbserial-1410'
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6380
+ho 0 tail 12 room 4
+load:0x40078000,len:15916
+load:0x40080400,len:3860
+entry 0x40080638
+[0;32mI (29) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader[0m
+[0;32mI (29) boot: compile time Nov  2 2025 16:30:06[0m
+[0;32mI (29) boot: Multicore bootloader[0m
+[0;32mI (31) boot: chip revision: v3.1[0m
+[0;32mI (34) boot.esp32: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32: SPI Mode       : DIO[0m
+[0;32mI (41) boot.esp32: SPI Flash Size : 2MB[0m
+[0;32mI (45) boot: Enabling RNG early entropy source...[0m
+[0;32mI (49) boot: Partition Table:[0m
+[0;32mI (52) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (65) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (71) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (78) boot: End of partition table[0m
+[0;32mI (81) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=1a424h (107556) map[0m
+[0;32mI (125) esp_image: segment 1: paddr=0002a44c vaddr=3ffb0000 size=03f1ch ( 16156) load[0m
+[0;32mI (131) esp_image: segment 2: paddr=0002e370 vaddr=40080000 size=01ca8h (  7336) load[0m
+[0;32mI (135) esp_image: segment 3: paddr=00030020 vaddr=400d0020 size=895d0h (562640) map[0m
+[0;32mI (329) esp_image: segment 4: paddr=000b95f8 vaddr=40081ca8 size=161b8h ( 90552) load[0m
+[0;32mI (364) esp_image: segment 5: paddr=000cf7b8 vaddr=50000000 size=00020h (    32) load[0m
+[0;32mI (376) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (376) boot: Disabling RNG early entropy source...[0m
+[0;32mI (387) cpu_start: Multicore app[0m
+[0;32mI (395) cpu_start: Pro cpu start user code[0m
+[0;32mI (395) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (395) app_init: Application information:[0m
+[0;32mI (395) app_init: Project name:     ESP32B_RECEPTOR_V3[0m
+[0;32mI (400) app_init: App version:      1[0m
+[0;32mI (404) app_init: Compile time:     Nov  2 2025 16:29:32[0m
+[0;32mI (409) app_init: ELF file SHA256:  95e2605ee...[0m
+[0;32mI (413) app_init: ESP-IDF:          v5.5.1-dirty[0m
+[0;32mI (417) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (421) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (425) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (429) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (435) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM[0m
+[0;32mI (440) heap_init: At 3FFB8038 len 00027FC8 (159 KiB): DRAM[0m
+[0;32mI (446) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM[0m
+[0;32mI (451) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM[0m
+[0;32mI (456) heap_init: At 40097E60 len 000081A0 (32 KiB): IRAM[0m
+[0;33mW (463) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig[0m
+[0;32mI (475) spi_flash: detected chip: generic[0m
+[0;32mI (478) spi_flash: flash io: dio[0m
+[0;33mW (481) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.[0m
+[0;33mW (494) ADC: legacy driver is deprecated, please migrate to `esp_adc/adc_oneshot.h`[0m
+[0;32mI (502) main_task: Started on CPU0[0m
+[0;32mI (512) main_task: Calling app_main()[0m
+[0;32mI (552) wifi:wifi driver task: 3ffc00d8, prio:23, stack:6656, core=0[0m
+[0;32mI (572) wifi:wifi firmware version: 14da9b7[0m
+[0;32mI (572) wifi:wifi certification version: v7.0[0m
+[0;32mI (572) wifi:config NVS flash: enabled[0m
+[0;32mI (572) wifi:config nano formatting: disabled[0m
+[0;32mI (572) wifi:Init data frame dynamic rx buffer num: 32[0m
+[0;32mI (582) wifi:Init static rx mgmt buffer num: 5[0m
+[0;32mI (582) wifi:Init management short buffer num: 32[0m
+[0;32mI (582) wifi:Init dynamic tx buffer num: 32[0m
+[0;32mI (592) wifi:Init static rx buffer size: 1600[0m
+[0;32mI (592) wifi:Init static rx buffer num: 10[0m
+[0;32mI (602) wifi:Init dynamic rx buffer num: 32[0m
+[0;32mI (602) wifi_init: rx ba win: 6[0m
+[0;32mI (602) wifi_init: accept mbox: 6[0m
+[0;32mI (612) wifi_init: tcpip mbox: 32[0m
+[0;32mI (612) wifi_init: udp mbox: 6[0m
+[0;32mI (612) wifi_init: tcp mbox: 6[0m
+[0;32mI (612) wifi_init: tcp tx win: 5760[0m
+[0;32mI (622) wifi_init: tcp rx win: 5760[0m
+[0;32mI (622) wifi_init: tcp mss: 1440[0m
+[0;32mI (622) wifi_init: WiFi IRAM OP enabled[0m
+[0;32mI (632) wifi_init: WiFi RX IRAM OP enabled[0m
+[0;33mW (632) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2[0m
+[0;32mI (642) phy_init: phy_version 4861,b71b5ad,Aug  5 2025,11:16:06[0m
+[0;32mI (732) wifi:mode : sta (88:57:21:68:e2:34)[0m
+[0;32mI (732) wifi:enable tsf[0m
+[0;32mI (732) ESP32B_RECEPTOR_V3: Connectant a la xarxa Wi-Fi: joystick_esp ...[0m
+[0;32mI (762) wifi:new:<1,1>, old:<1,0>, ap:<255,255>, sta:<1,1>, prof:1, snd_ch_cfg:0x0[0m
+[0;32mI (762) wifi:state: init -> auth (0xb0)[0m
+[0;32mI (802) wifi:state: auth -> assoc (0x0)[0m
+[0;32mI (812) wifi:Association refused temporarily time 1500, comeback time 1600 (TUs)[0m
+[0;32mI (2452) wifi:state: assoc -> assoc (0x0)[0m
+[0;32mI (2462) wifi:state: assoc -> run (0x10)[0m
+[0;32mI (2552) wifi:connected with joystick_esp, aid = 1, channel 1, 40U, bssid = 84:1f:e8:27:b9:c5[0m
+[0;32mI (2552) wifi:security: WPA2-PSK, phy: bgn, rssi: -24[0m
+[0;32mI (2562) wifi:pm start, type: 1[0m
+
+[0;32mI (2562) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us[0m
+[0;32mI (2602) wifi:AP's beacon interval = 102400 us, DTIM period = 1[0m
+[0;32mI (3732) esp_netif_handlers: sta ip: 192.168.4.2, mask: 255.255.255.0, gw: 192.168.4.1[0m
+[0;32mI (5742) ESP32B_RECEPTOR_V3: Connexió Wi-Fi iniciada (verifica logs per estat)[0m
+[0;32mI (5742) WIFI_SIGNAL: RSSI: -29 dBm[0m
+[0;32mI (5742) ESP32B_RECEPTOR_V3: Servidor UDP escoltant al port 3333[0m
+Joystick X=1921 Y=1884 Button=0
+[0;32mI (5802) wifi:<ba-add>idx:0 (ifx:0, 84:1f:e8:27:b9:c5), tid:0, ssn:0, winSize:64[0m
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1916 Y=1878 Button=0
+Joystick X=1911 Y=1881 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1933 Y=1889 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1930 Y=1883 Button=0
+[0;32mI (7742) WIFI_SIGNAL: RSSI: -34 dBm[0m
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1933 Y=1874 Button=0
+Joystick X=1917 Y=1882 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1920 Y=1884 Button=0
+Joystick X=1930 Y=1874 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1914 Y=1873 Button=0
+Joystick X=1926 Y=1879 Button=0
+[0;32mI (9742) WIFI_SIGNAL: RSSI: -31 dBm[0m
+Joystick X=1917 Y=1874 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1920 Y=1872 Button=0
+Joystick X=1933 Y=1893 Button=0
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1922 Y=1873 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1917 Y=1875 Button=0
+Joystick X=1917 Y=1873 Button=0
+[0;32mI (11742) WIFI_SIGNAL: RSSI: -34 dBm[0m
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1932 Y=1877 Button=0
+Joystick X=1922 Y=1883 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1917 Y=1879 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1914 Y=1874 Button=0
+Joystick X=1920 Y=1875 Button=0
+[0;32mI (13742) WIFI_SIGNAL: RSSI: -28 dBm[0m
+Joystick X=1929 Y=1878 Button=0
+Joystick X=1935 Y=1873 Button=0
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1924 Y=1883 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1930 Y=1878 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1923 Y=1879 Button=0
+[0;32mI (15742) WIFI_SIGNAL: RSSI: -34 dBm[0m
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1920 Y=1874 Button=0
+Joystick X=1919 Y=1880 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1917 Y=1877 Button=0
+Joystick X=1913 Y=1873 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1922 Y=1878 Button=0
+[0;32mI (17742) WIFI_SIGNAL: RSSI: -30 dBm[0m
+Joystick X=1918 Y=1873 Button=0
+Joystick X=1935 Y=1889 Button=0
+Joystick X=1921 Y=1883 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1923 Y=1870 Button=0
+Joystick X=1931 Y=1876 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1922 Y=1881 Button=0
+[0;32mI (19742) WIFI_SIGNAL: RSSI: -29 dBm[0m
+Joystick X=1931 Y=1882 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1924 Y=1873 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1925 Y=1886 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1924 Y=1886 Button=0
+[0;32mI (21742) WIFI_SIGNAL: RSSI: -35 dBm[0m
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1923 Y=1870 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1921 Y=1882 Button=1
+Joystick X=1930 Y=1874 Button=1
+Joystick X=1924 Y=1874 Button=1
+Joystick X=1925 Y=4095 Button=1
+Joystick X=1936 Y=4095 Button=1
+[0;32mI (23742) WIFI_SIGNAL: RSSI: -41 dBm[0m
+Joystick X=1939 Y=4095 Button=1
+Joystick X=1934 Y=4095 Button=1
+Joystick X=1927 Y=4095 Button=1
+Joystick X=1929 Y=4095 Button=1
+Joystick X=1923 Y=4095 Button=1
+Joystick X=1925 Y=4095 Button=1
+Joystick X=1934 Y=4095 Button=1
+Joystick X=1933 Y=4095 Button=1
+Joystick X=1927 Y=4095 Button=1
+Joystick X=1933 Y=4095 Button=1
+[0;32mI (25742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1931 Y=4095 Button=1
+Joystick X=1924 Y=4095 Button=1
+Joystick X=1919 Y=4095 Button=1
+Joystick X=1923 Y=4095 Button=1
+Joystick X=1922 Y=4095 Button=1
+Joystick X=1935 Y=4095 Button=1
+Joystick X=1929 Y=4095 Button=0
+Joystick X=1918 Y=1882 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1929 Y=1877 Button=0
+[0;32mI (27742) WIFI_SIGNAL: RSSI: -35 dBm[0m
+Joystick X=1943 Y=1889 Button=0
+Joystick X=1914 Y=1872 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1919 Y=1877 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1926 Y=1878 Button=0
+[0;32mI (29742) WIFI_SIGNAL: RSSI: -38 dBm[0m
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1918 Y=1875 Button=0
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1923 Y=1872 Button=0
+Joystick X=1928 Y=1878 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1930 Y=1873 Button=0
+Joystick X=1922 Y=1879 Button=0
+[0;32mI (31742) WIFI_SIGNAL: RSSI: -40 dBm[0m
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1933 Y=1879 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1922 Y=1878 Button=0
+[0;32mI (33742) WIFI_SIGNAL: RSSI: -38 dBm[0m
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1927 Y=1872 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1918 Y=1878 Button=0
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1924 Y=1872 Button=0
+[0;32mI (35742) WIFI_SIGNAL: RSSI: -40 dBm[0m
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1921 Y=1875 Button=0
+[1;31mE (35952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1882 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1924 Y=1879 Button=0
+[1;31mE (36552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1934 Y=1875 Button=0
+Joystick X=1926 Y=1878 Button=0
+[1;31mE (36952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1885 Button=0
+[1;31mE (37152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1920 Y=1873 Button=0
+[0;32mI (37742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1927 Y=1875 Button=1
+Joystick X=1922 Y=1875 Button=1
+Joystick X=1925 Y=1874 Button=1
+[1;31mE (38152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1873 Button=1
+[1;31mE (38352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1872 Button=1
+Joystick X=1923 Y=1875 Button=1
+Joystick X=1927 Y=1881 Button=1
+Joystick X=1923 Y=1875 Button=1
+[1;31mE (39152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1879 Button=1
+Joystick X=1926 Y=1872 Button=1
+[0;32mI (39742) WIFI_SIGNAL: RSSI: -44 dBm[0m
+Joystick X=1921 Y=1881 Button=1
+[1;31mE (39752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1897 Y=1883 Button=1
+Joystick X=1920 Y=1877 Button=1
+[1;31mE (40152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1877 Button=1
+[1;31mE (40352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1880 Button=1
+Joystick X=1923 Y=1879 Button=1
+[1;31mE (40752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1882 Button=0
+[1;31mE (40952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1928 Y=1882 Button=0
+Joystick X=1919 Y=1872 Button=0
+Joystick X=1933 Y=1874 Button=0
+[0;32mI (41742) WIFI_SIGNAL: RSSI: -49 dBm[0m
+Joystick X=1934 Y=1881 Button=0
+Joystick X=1930 Y=1872 Button=0
+Joystick X=1935 Y=1877 Button=0
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1930 Y=1875 Button=1
+[1;31mE (42552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1883 Button=1
+Joystick X=1923 Y=1872 Button=1
+[1;31mE (42952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=0 Button=1
+[1;31mE (43152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=0 Button=1
+Joystick X=1927 Y=0 Button=1
+[1;31mE (43552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (43742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1931 Y=0 Button=1
+Joystick X=1929 Y=0 Button=1
+[1;31mE (43952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=0 Button=1
+[1;31mE (44152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=0 Button=1
+Joystick X=1932 Y=0 Button=1
+[1;31mE (44552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=0 Button=1
+Joystick X=1925 Y=0 Button=1
+[1;31mE (44952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=0 Button=1
+[1;31mE (45152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=0 Button=1
+Joystick X=1930 Y=0 Button=1
+[1;31mE (45552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (45742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1933 Y=0 Button=1
+Joystick X=1931 Y=0 Button=1
+[1;31mE (45952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=0 Button=1
+[1;31mE (46152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1934 Y=0 Button=1
+Joystick X=1926 Y=0 Button=1
+[1;31mE (46552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1932 Y=0 Button=1
+Joystick X=1927 Y=0 Button=1
+[1;31mE (46952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=0 Button=1
+[1;31mE (47152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=0 Button=1
+[1;31mE (47552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (47742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1929 Y=0 Button=1
+Joystick X=1925 Y=0 Button=1
+[1;31mE (47952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1918 Y=0 Button=1
+[1;31mE (48152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1934 Y=0 Button=1
+Joystick X=1935 Y=0 Button=1
+[1;31mE (48552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=0 Button=1
+[1;31mE (48752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=0 Button=1
+Joystick X=1929 Y=0 Button=1
+[1;31mE (49152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=0 Button=1
+Joystick X=1926 Y=0 Button=1
+[1;31mE (49552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (49742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1930 Y=0 Button=1
+[1;31mE (49752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1935 Y=0 Button=1
+Joystick X=1927 Y=0 Button=1
+[1;31mE (50152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=0 Button=1
+[1;31mE (50352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=0 Button=1
+Joystick X=1926 Y=0 Button=1
+Joystick X=1933 Y=0 Button=1
+Joystick X=1923 Y=0 Button=1
+Joystick X=1934 Y=0 Button=1
+Joystick X=1933 Y=0 Button=0
+[0;32mI (51742) WIFI_SIGNAL: RSSI: -44 dBm[0m
+Joystick X=1931 Y=1875 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1923 Y=1887 Button=0
+Joystick X=1920 Y=1873 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1922 Y=1875 Button=0
+[0;32mI (53742) WIFI_SIGNAL: RSSI: -37 dBm[0m
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1933 Y=1876 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1925 Y=1888 Button=0
+Joystick X=1932 Y=1872 Button=0
+Joystick X=1925 Y=1877 Button=0
+[0;32mI (55742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1929 Y=1872 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1925 Y=1876 Button=0
+Joystick X=1927 Y=1883 Button=0
+[0;32mI (57742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1917 Y=1881 Button=0
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1934 Y=1880 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1918 Y=1882 Button=0
+Joystick X=1919 Y=1875 Button=1
+Joystick X=1921 Y=1879 Button=1
+Joystick X=1923 Y=1875 Button=1
+[0;32mI (59742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1922 Y=1873 Button=1
+Joystick X=1930 Y=0 Button=1
+Joystick X=1931 Y=0 Button=1
+Joystick X=1924 Y=0 Button=1
+Joystick X=1936 Y=0 Button=1
+Joystick X=1929 Y=1880 Button=1
+Joystick X=1925 Y=1876 Button=1
+Joystick X=1394 Y=0 Button=1
+Joystick X=1410 Y=0 Button=1
+Joystick X=1470 Y=0 Button=1
+[0;32mI (61742) WIFI_SIGNAL: RSSI: -42 dBm[0m
+Joystick X=1535 Y=0 Button=1
+Joystick X=1664 Y=0 Button=1
+Joystick X=1694 Y=0 Button=1
+Joystick X=1725 Y=0 Button=1
+Joystick X=1933 Y=0 Button=1
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1931 Y=1891 Button=0
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1930 Y=1883 Button=0
+[0;32mI (63742) WIFI_SIGNAL: RSSI: -36 dBm[0m
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1917 Y=1879 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1920 Y=1870 Button=0
+Joystick X=1930 Y=1872 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1911 Y=1872 Button=0
+Joystick X=1913 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1931 Y=1877 Button=0
+[0;32mI (65742) WIFI_SIGNAL: RSSI: -37 dBm[0m
+Joystick X=1919 Y=1880 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1931 Y=1876 Button=0
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1925 Y=1881 Button=0
+[0;32mI (67742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1919 Y=1882 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1920 Y=1888 Button=0
+Joystick X=1922 Y=1882 Button=0
+[0;32mI (69742) WIFI_SIGNAL: RSSI: -40 dBm[0m
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1919 Y=1877 Button=0
+Joystick X=1920 Y=1874 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1915 Y=1877 Button=0
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1922 Y=1872 Button=0
+[0;32mI (71742) WIFI_SIGNAL: RSSI: -38 dBm[0m
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1919 Y=1882 Button=0
+Joystick X=1930 Y=1878 Button=0
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1923 Y=1884 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1917 Y=1878 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1923 Y=1883 Button=0
+[0;32mI (73742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1918 Y=1877 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1927 Y=1879 Button=0
+[0;32mI (75742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1923 Y=1874 Button=0
+[1;31mE (76752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1873 Button=0
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1920 Y=1885 Button=0
+[0;32mI (77742) WIFI_SIGNAL: RSSI: -40 dBm[0m
+Joystick X=1935 Y=1874 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1919 Y=1872 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1925 Y=1874 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1926 Y=1872 Button=0
+[1;31mE (79552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (79742) WIFI_SIGNAL: RSSI: -38 dBm[0m
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1932 Y=1887 Button=0
+Joystick X=1920 Y=1879 Button=0
+[0;32mI (81742) WIFI_SIGNAL: RSSI: -44 dBm[0m
+Joystick X=1932 Y=1875 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1931 Y=1874 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1927 Y=1882 Button=0
+[0;32mI (83742) WIFI_SIGNAL: RSSI: -42 dBm[0m
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1925 Y=1885 Button=0
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1933 Y=1886 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1923 Y=1887 Button=0
+Joystick X=1932 Y=1890 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1924 Y=1883 Button=0
+Joystick X=1923 Y=1875 Button=0
+[0;32mI (85742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1910 Y=1879 Button=0
+Joystick X=1929 Y=1878 Button=0
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1923 Y=1886 Button=0
+Joystick X=1920 Y=1882 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1923 Y=1870 Button=0
+Joystick X=1936 Y=1878 Button=0
+Joystick X=1922 Y=1878 Button=0
+[0;32mI (87742) WIFI_SIGNAL: RSSI: -42 dBm[0m
+Joystick X=1927 Y=1873 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1931 Y=1882 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1931 Y=1890 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1922 Y=1879 Button=0
+[0;32mI (89742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1927 Y=1876 Button=0
+Joystick X=1918 Y=1873 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1928 Y=1881 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1930 Y=1867 Button=0
+Joystick X=1932 Y=1879 Button=0
+Joystick X=1918 Y=1876 Button=0
+[0;32mI (91742) WIFI_SIGNAL: RSSI: -42 dBm[0m
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1922 Y=1883 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1922 Y=1876 Button=0
+[0;32mI (93742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1916 Y=1881 Button=0
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1933 Y=1881 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1924 Y=1879 Button=0
+[0;32mI (95742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1924 Y=1872 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1918 Y=1872 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1921 Y=1873 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1921 Y=1872 Button=0
+[0;32mI (97742) WIFI_SIGNAL: RSSI: -43 dBm[0m
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1924 Y=1873 Button=0
+Joystick X=1919 Y=1877 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1926 Y=1872 Button=0
+Joystick X=1935 Y=1872 Button=0
+[0;32mI (99742) WIFI_SIGNAL: RSSI: -43 dBm[0m
+Joystick X=1919 Y=1873 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1924 Y=1870 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1925 Y=1884 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1920 Y=1879 Button=0
+[0;32mI (101742) WIFI_SIGNAL: RSSI: -44 dBm[0m
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1924 Y=1869 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1925 Y=1883 Button=0
+[0;32mI (103742) WIFI_SIGNAL: RSSI: -44 dBm[0m
+Joystick X=1934 Y=1891 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1929 Y=1883 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1920 Y=1876 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1923 Y=1886 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1923 Y=1879 Button=0
+[0;32mI (105742) WIFI_SIGNAL: RSSI: -45 dBm[0m
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1929 Y=1879 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1919 Y=1886 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1930 Y=1873 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1930 Y=1877 Button=0
+[0;32mI (107742) WIFI_SIGNAL: RSSI: -49 dBm[0m
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1920 Y=1869 Button=0
+Joystick X=1936 Y=1881 Button=0
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1933 Y=1885 Button=0
+[0;32mI (109742) WIFI_SIGNAL: RSSI: -49 dBm[0m
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1925 Y=1872 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1928 Y=1882 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1918 Y=1876 Button=0
+[0;32mI (111742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1913 Y=1876 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1924 Y=1889 Button=0
+Joystick X=1931 Y=1874 Button=0
+[1;31mE (112352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1915 Y=1878 Button=0
+Joystick X=1921 Y=1878 Button=0
+[1;31mE (112952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1877 Button=0
+[1;31mE (113152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1921 Y=1878 Button=0
+[0;32mI (113742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1925 Y=1873 Button=0
+[1;31mE (113952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1923 Y=1877 Button=0
+[1;31mE (114352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1928 Y=1877 Button=0
+Joystick X=1927 Y=1876 Button=0
+[1;31mE (114752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1885 Button=0
+[1;31mE (114952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1924 Y=1882 Button=0
+[0;32mI (115742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1915 Y=1881 Button=0
+[1;31mE (115952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1873 Button=0
+Joystick X=1920 Y=1875 Button=0
+[1;31mE (116352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1881 Button=0
+[1;31mE (116552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1931 Y=1879 Button=0
+[1;31mE (116952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1882 Button=0
+[1;31mE (117152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1923 Y=1874 Button=0
+[1;31mE (117552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (117742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1922 Y=1873 Button=0
+Joystick X=1921 Y=1884 Button=0
+[1;31mE (117952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1876 Button=0
+[1;31mE (118152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1922 Y=1882 Button=0
+[1;31mE (118552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1927 Y=1877 Button=0
+[1;31mE (118952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1917 Y=1881 Button=0
+[1;31mE (119152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1926 Y=1881 Button=0
+[1;31mE (119552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (119742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1930 Y=1877 Button=0
+[1;31mE (119752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1934 Y=1874 Button=0
+[1;31mE (120352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1922 Y=1877 Button=0
+[1;31mE (120752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1873 Button=0
+[1;31mE (120952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1925 Y=1876 Button=0
+[1;31mE (121352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1875 Button=0
+[0;32mI (121742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1924 Y=1879 Button=0
+[1;31mE (121752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1887 Button=0
+[1;31mE (121952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1933 Y=1877 Button=0
+Joystick X=1922 Y=1888 Button=0
+[1;31mE (122352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1913 Y=1879 Button=0
+[1;31mE (122752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=1877 Button=0
+[1;31mE (122952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1872 Button=0
+Joystick X=1914 Y=1878 Button=0
+[1;31mE (123352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1881 Button=0
+[0;32mI (123742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1922 Y=1873 Button=0
+[1;31mE (123952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=1867 Button=0
+Joystick X=1923 Y=1875 Button=0
+[1;31mE (124352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1874 Button=0
+[1;31mE (124552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1923 Y=1879 Button=0
+[1;31mE (125152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1876 Button=0
+[1;31mE (125352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1881 Button=0
+[0;32mI (125742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1929 Y=1872 Button=0
+Joystick X=1927 Y=1875 Button=0
+[1;31mE (126152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1928 Y=1879 Button=0
+[1;31mE (126552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1878 Button=0
+[1;31mE (126752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1926 Y=1876 Button=0
+[1;31mE (127152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1873 Button=0
+Joystick X=1923 Y=1879 Button=0
+[1;31mE (127552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (127742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+[1;31mE (127752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1881 Button=0
+Joystick X=1927 Y=1883 Button=0
+[1;31mE (128152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1873 Button=0
+Joystick X=1923 Y=1873 Button=0
+Joystick X=1933 Y=1882 Button=0
+[1;31mE (128752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1914 Y=1879 Button=0
+[1;31mE (128952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1923 Y=1880 Button=0
+[1;31mE (129352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1877 Button=0
+[1;31mE (129552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (129742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1921 Y=1877 Button=0
+[1;31mE (129952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1917 Y=1878 Button=0
+Joystick X=1922 Y=1887 Button=0
+[1;31mE (130352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1882 Button=0
+[1;31mE (130552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1933 Y=1878 Button=0
+[1;31mE (130952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1918 Y=1873 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1920 Y=1873 Button=0
+[1;31mE (131552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (131742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1932 Y=1877 Button=0
+[1;31mE (131752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1921 Y=1873 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1924 Y=1887 Button=0
+[1;31mE (132552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1925 Y=1877 Button=0
+[1;31mE (133152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (133552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (133742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1925 Y=1876 Button=0
+[1;31mE (133752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1921 Y=1875 Button=0
+[1;31mE (134152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1873 Button=0
+[1;31mE (134352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1873 Button=0
+Joystick X=1921 Y=1877 Button=0
+[1;31mE (134752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1886 Button=0
+Joystick X=1928 Y=1877 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1926 Y=1877 Button=0
+[0;32mI (135742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1925 Y=1877 Button=0
+[1;31mE (135752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1918 Y=1878 Button=0
+[1;31mE (135952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1926 Y=1882 Button=0
+[1;31mE (136352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1925 Y=1875 Button=0
+[1;31mE (136752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1878 Button=0
+[1;31mE (136952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1918 Y=1875 Button=0
+[1;31mE (137352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1876 Button=0
+[1;31mE (137552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (137742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1930 Y=1874 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1928 Y=1874 Button=0
+Joystick X=1928 Y=1879 Button=0
+[1;31mE (138552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1929 Y=1874 Button=0
+[1;31mE (138952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1923 Y=1881 Button=0
+[1;31mE (139352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1917 Y=1876 Button=0
+[0;32mI (139742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1925 Y=1876 Button=0
+[1;31mE (139752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1878 Button=0
+[1;31mE (139952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1919 Y=1876 Button=0
+Joystick X=1922 Y=1882 Button=0
+[1;31mE (140752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1922 Y=1885 Button=0
+Joystick X=1924 Y=1881 Button=0
+Joystick X=1921 Y=1874 Button=0
+[0;32mI (141742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1929 Y=1872 Button=0
+Joystick X=1930 Y=1877 Button=0
+[1;31mE (141952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=1873 Button=0
+Joystick X=1923 Y=1882 Button=0
+[1;31mE (142352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1922 Y=1871 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1915 Y=1872 Button=0
+Joystick X=1919 Y=1877 Button=0
+[0;32mI (143742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1936 Y=1874 Button=0
+[1;31mE (143752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1922 Y=1879 Button=0
+[1;31mE (144352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1918 Y=1874 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1918 Y=1874 Button=0
+Joystick X=1926 Y=1873 Button=0
+[1;31mE (145152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1907 Y=1873 Button=0
+Joystick X=1924 Y=1872 Button=0
+[1;31mE (145552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (145742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1925 Y=1874 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1922 Y=1879 Button=0
+[1;31mE (146152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1933 Y=1875 Button=0
+Joystick X=1929 Y=1867 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1931 Y=1876 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1924 Y=1876 Button=0
+[0;32mI (147742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1920 Y=1884 Button=0
+[1;31mE (147952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1876 Button=0
+[1;31mE (148152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1924 Y=1876 Button=0
+[1;31mE (148552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1928 Y=1878 Button=0
+[1;31mE (148752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1871 Button=0
+Joystick X=1921 Y=1874 Button=0
+[1;31mE (149152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1875 Button=0
+Joystick X=1931 Y=1877 Button=0
+[1;31mE (149552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (149742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1920 Y=1879 Button=0
+[1;31mE (149752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1933 Y=1874 Button=0
+Joystick X=1915 Y=1895 Button=0
+[1;31mE (150152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1921 Y=1881 Button=0
+[1;31mE (150552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (150752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=1873 Button=0
+Joystick X=1931 Y=1874 Button=0
+[1;31mE (151152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1926 Y=1881 Button=0
+[1;31mE (151552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (151742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1924 Y=1877 Button=0
+[1;31mE (151752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1873 Button=0
+Joystick X=1930 Y=1881 Button=0
+[1;31mE (152152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1875 Button=0
+[1;31mE (152352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1929 Y=1873 Button=0
+[1;31mE (152752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1920 Y=1872 Button=0
+[1;31mE (153152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1882 Button=0
+[1;31mE (153352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1877 Button=0
+[0;32mI (153742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1922 Y=1877 Button=0
+[1;31mE (153752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1877 Button=0
+[1;31mE (153952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (154352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1920 Y=1878 Button=0
+[1;31mE (154752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1875 Button=0
+[1;31mE (154952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1931 Y=1875 Button=0
+Joystick X=1923 Y=1872 Button=0
+[1;31mE (155352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1876 Button=0
+[0;32mI (155742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1930 Y=1877 Button=0
+[1;31mE (155752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1877 Button=0
+[1;31mE (155952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1928 Y=1881 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1925 Y=1875 Button=0
+[1;31mE (156952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1915 Y=1877 Button=0
+Joystick X=1927 Y=1875 Button=0
+[1;31mE (157552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (157742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (158152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (158552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1874 Button=0
+[1;31mE (158752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1926 Y=1882 Button=0
+[1;31mE (159152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1920 Y=1875 Button=0
+[0;32mI (159742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1919 Y=1876 Button=0
+[1;31mE (159752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1927 Y=1877 Button=0
+[1;31mE (160152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1876 Button=0
+[1;31mE (160352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1923 Y=1879 Button=0
+[1;31mE (160952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1926 Y=1875 Button=0
+[1;31mE (161352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1882 Button=0
+[1;31mE (161552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (161742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1925 Y=1881 Button=0
+[1;31mE (161952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1871 Button=0
+[1;31mE (162152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1923 Y=1883 Button=0
+[1;31mE (162552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1924 Y=1882 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1922 Y=1874 Button=0
+[1;31mE (163352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1935 Y=1878 Button=0
+[0;32mI (163742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1920 Y=1882 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1922 Y=1873 Button=0
+[1;31mE (164752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1880 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1926 Y=1879 Button=0
+[1;31mE (165352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1915 Y=1876 Button=0
+[0;32mI (165742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1923 Y=1881 Button=0
+[1;31mE (165752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1923 Y=1873 Button=0
+[1;31mE (166152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1917 Y=1878 Button=0
+[1;31mE (166352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1930 Y=1883 Button=0
+[1;31mE (166952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1872 Button=0
+Joystick X=1924 Y=1883 Button=0
+[1;31mE (167352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1879 Button=0
+[0;32mI (167742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1925 Y=1874 Button=0
+[1;31mE (167752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1879 Button=0
+[1;31mE (167952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1932 Y=1881 Button=0
+Joystick X=1921 Y=1875 Button=0
+[1;31mE (168352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1882 Button=0
+[1;31mE (168552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1874 Button=0
+Joystick X=1923 Y=1881 Button=0
+[1;31mE (168952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1918 Y=1882 Button=0
+[0;32mI (169742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1923 Y=1872 Button=0
+Joystick X=1921 Y=1883 Button=0
+[1;31mE (169952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1922 Y=1879 Button=0
+[1;31mE (170352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1878 Button=0
+[1;31mE (170552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1929 Y=1880 Button=0
+[1;31mE (170952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1877 Button=0
+[1;31mE (171152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1926 Y=1875 Button=0
+[0;32mI (171742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1929 Y=1881 Button=0
+[1;31mE (171752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1879 Button=0
+[1;31mE (171952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1873 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1924 Y=1872 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1920 Y=1878 Button=0
+[1;31mE (173552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (173742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1934 Y=1879 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1930 Y=1883 Button=0
+[1;31mE (174752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1927 Y=1876 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (175552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (175742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1933 Y=1873 Button=0
+[1;31mE (175952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1928 Y=1881 Button=0
+Joystick X=1918 Y=1883 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1923 Y=1879 Button=0
+[1;31mE (177552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (177742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1915 Y=1877 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1922 Y=1883 Button=0
+[1;31mE (178752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1877 Button=0
+[1;31mE (178952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1922 Y=1873 Button=0
+[0;32mI (179742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1930 Y=1875 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1918 Y=1872 Button=0
+Joystick X=1923 Y=1878 Button=0
+[1;31mE (180352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1927 Y=1881 Button=0
+[1;31mE (180952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (181352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1915 Y=1877 Button=0
+[0;32mI (181742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1931 Y=1879 Button=0
+[1;31mE (181752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1923 Y=1878 Button=0
+[1;31mE (183152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1922 Y=1878 Button=0
+[1;31mE (183552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (183742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1920 Y=1882 Button=0
+Joystick X=1931 Y=1882 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1921 Y=1878 Button=0
+[1;31mE (184552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1883 Button=0
+Joystick X=1927 Y=1877 Button=0
+[1;31mE (184952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1916 Y=1877 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1921 Y=1879 Button=0
+[0;32mI (185742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1925 Y=1872 Button=0
+[1;31mE (185952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1883 Button=0
+[1;31mE (186152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1924 Y=1881 Button=0
+[1;31mE (186752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1875 Button=0
+[1;31mE (186952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1915 Y=1879 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1918 Y=1880 Button=0
+[0;32mI (187742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1920 Y=1876 Button=0
+[1;31mE (187952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1881 Button=0
+Joystick X=1934 Y=1881 Button=0
+[1;31mE (188352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1927 Y=1877 Button=0
+[1;31mE (188752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1878 Button=0
+Joystick X=1919 Y=1884 Button=0
+[1;31mE (189152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1870 Button=0
+Joystick X=1926 Y=1881 Button=0
+[1;31mE (189552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (189742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1921 Y=1877 Button=0
+[1;31mE (189752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1926 Y=1875 Button=0
+[1;31mE (190152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1923 Y=1874 Button=0
+[1;31mE (190552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1886 Button=0
+Joystick X=1926 Y=1888 Button=0
+[1;31mE (190952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1923 Y=1875 Button=0
+[1;31mE (191352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1874 Button=0
+[0;32mI (191742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1930 Y=1875 Button=0
+[1;31mE (191952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1923 Y=1877 Button=0
+[1;31mE (192352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1930 Y=1881 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1920 Y=1875 Button=0
+[1;31mE (192952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1921 Y=1875 Button=0
+[1;31mE (193552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (193742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1921 Y=1878 Button=0
+[1;31mE (193752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1931 Y=1877 Button=0
+[1;31mE (194152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1924 Y=1886 Button=0
+[1;31mE (194552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1923 Y=1879 Button=0
+[1;31mE (194952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1874 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1920 Y=1878 Button=0
+[0;32mI (195742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1931 Y=1872 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1926 Y=1881 Button=0
+[1;31mE (196552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1927 Y=1872 Button=0
+[1;31mE (196952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1923 Y=1888 Button=0
+[1;31mE (197352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1919 Y=1881 Button=0
+[1;31mE (197552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+[0;32mI (197742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1923 Y=1880 Button=0
+Joystick X=1931 Y=1876 Button=0
+[1;31mE (197952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1872 Button=0
+[1;31mE (198152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1917 Y=1873 Button=0
+[1;31mE (198752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1926 Y=1877 Button=0
+[1;31mE (199152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1921 Y=1885 Button=0
+Joystick X=1922 Y=1882 Button=0
+[0;32mI (199742) WIFI_SIGNAL: RSSI: -56 dBm[0m
+Joystick X=1934 Y=1877 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1932 Y=1885 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1933 Y=1878 Button=0
+[0;32mI (201742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1932 Y=1878 Button=0
+[0;32mI (203742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1930 Y=1872 Button=0
+Joystick X=1929 Y=1879 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1931 Y=1874 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1923 Y=1883 Button=0
+[0;32mI (205742) WIFI_SIGNAL: RSSI: -56 dBm[0m
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1927 Y=1872 Button=0
+Joystick X=1930 Y=1876 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1927 Y=1880 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1924 Y=1881 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1925 Y=1875 Button=0
+[0;32mI (207742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1921 Y=1887 Button=0
+Joystick X=1934 Y=1879 Button=0
+Joystick X=1925 Y=1872 Button=0
+Joystick X=1917 Y=1876 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1923 Y=1872 Button=0
+[0;32mI (209742) WIFI_SIGNAL: RSSI: -56 dBm[0m
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1927 Y=1873 Button=0
+Joystick X=1920 Y=1874 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1923 Y=1873 Button=0
+Joystick X=1927 Y=1879 Button=0
+[0;32mI (211742) WIFI_SIGNAL: RSSI: -58 dBm[0m
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1925 Y=1876 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1919 Y=1882 Button=0
+[0;32mI (213742) WIFI_SIGNAL: RSSI: -56 dBm[0m
+Joystick X=1926 Y=1879 Button=0
+[1;31mE (213752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1879 Button=0
+[1;31mE (213952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1935 Y=1877 Button=0
+[0;32mI (215742) WIFI_SIGNAL: RSSI: -58 dBm[0m
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1921 Y=1872 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1926 Y=1881 Button=0
+[1;31mE (216952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1921 Y=1879 Button=0
+[0;32mI (217742) WIFI_SIGNAL: RSSI: -60 dBm[0m
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1925 Y=1882 Button=0
+[1;31mE (217952) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1920 Y=1876 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1927 Y=1872 Button=0
+Joystick X=1922 Y=1878 Button=0
+[1;31mE (218752) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1930 Y=1882 Button=0
+[1;31mE (219152) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1923 Y=1879 Button=0
+[1;31mE (219352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1927 Y=1880 Button=0
+[0;32mI (219742) WIFI_SIGNAL: RSSI: -59 dBm[0m
+Joystick X=1924 Y=1882 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1918 Y=1877 Button=0
+Joystick X=1915 Y=1879 Button=0
+Joystick X=1923 Y=1877 Button=0
+[0;32mI (221742) WIFI_SIGNAL: RSSI: -59 dBm[0m
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1918 Y=1873 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1930 Y=1875 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1931 Y=1874 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1935 Y=1875 Button=0
+Joystick X=1922 Y=1877 Button=0
+[0;32mI (223742) WIFI_SIGNAL: RSSI: -58 dBm[0m
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1919 Y=1885 Button=0
+[1;31mE (224552) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1925 Y=1881 Button=0
+[0;32mI (225742) WIFI_SIGNAL: RSSI: -58 dBm[0m
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1926 Y=1884 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1918 Y=1874 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1929 Y=1879 Button=0
+[0;32mI (227742) WIFI_SIGNAL: RSSI: -58 dBm[0m
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1922 Y=1887 Button=0
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1923 Y=1875 Button=0
+[0;32mI (229742) WIFI_SIGNAL: RSSI: -58 dBm[0m
+Joystick X=1929 Y=1882 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1930 Y=1874 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1928 Y=1871 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1932 Y=1882 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1923 Y=1871 Button=0
+[0;32mI (231742) WIFI_SIGNAL: RSSI: -59 dBm[0m
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1919 Y=1873 Button=0
+Joystick X=1933 Y=1877 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1932 Y=1878 Button=0
+Joystick X=1926 Y=1886 Button=0
+Joystick X=1928 Y=1877 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1934 Y=1882 Button=0
+[0;32mI (233742) WIFI_SIGNAL: RSSI: -59 dBm[0m
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1921 Y=1875 Button=0
+[0;32mI (235742) WIFI_SIGNAL: RSSI: -60 dBm[0m
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1927 Y=1873 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1919 Y=1879 Button=0
+[0;32mI (237742) WIFI_SIGNAL: RSSI: -60 dBm[0m
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1924 Y=1872 Button=0
+[0;32mI (239742) WIFI_SIGNAL: RSSI: -59 dBm[0m
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1925 Y=1874 Button=0
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1928 Y=1872 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1933 Y=1873 Button=0
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1926 Y=1873 Button=0
+[0;32mI (241742) WIFI_SIGNAL: RSSI: -61 dBm[0m
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1919 Y=1876 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1939 Y=1883 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1917 Y=1880 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1936 Y=1875 Button=0
+[0;32mI (243742) WIFI_SIGNAL: RSSI: -61 dBm[0m
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1933 Y=1888 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1923 Y=1886 Button=0
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1935 Y=1879 Button=0
+[0;32mI (245742) WIFI_SIGNAL: RSSI: -61 dBm[0m
+Joystick X=1930 Y=1884 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1934 Y=1881 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1937 Y=1888 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1913 Y=1878 Button=0
+[0;32mI (247742) WIFI_SIGNAL: RSSI: -60 dBm[0m
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1929 Y=1883 Button=0
+Joystick X=1907 Y=1873 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1938 Y=1889 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1926 Y=1889 Button=0
+Joystick X=1927 Y=1889 Button=0
+Joystick X=1939 Y=1884 Button=0
+Joystick X=1935 Y=1885 Button=0
+[0;32mI (249742) WIFI_SIGNAL: RSSI: -60 dBm[0m
+Joystick X=1929 Y=1880 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1921 Y=1881 Button=0
+[0;32mI (251742) WIFI_SIGNAL: RSSI: -62 dBm[0m
+Joystick X=1929 Y=1889 Button=0
+Joystick X=1932 Y=1882 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1919 Y=1882 Button=0
+Joystick X=1927 Y=1876 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1932 Y=1883 Button=0
+Joystick X=1934 Y=1885 Button=0
+[0;32mI (253742) WIFI_SIGNAL: RSSI: -62 dBm[0m
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1927 Y=1892 Button=0
+Joystick X=1934 Y=1881 Button=0
+Joystick X=1924 Y=1883 Button=0
+Joystick X=1924 Y=1888 Button=0
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1929 Y=1874 Button=0
+Joystick X=1937 Y=1888 Button=0
+[0;32mI (255742) WIFI_SIGNAL: RSSI: -63 dBm[0m
+Joystick X=1933 Y=1881 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1930 Y=1884 Button=0
+[0;32mI (257742) WIFI_SIGNAL: RSSI: -63 dBm[0m
+Joystick X=1925 Y=1884 Button=0
+Joystick X=1915 Y=1882 Button=0
+Joystick X=1930 Y=1878 Button=0
+Joystick X=1928 Y=1881 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1921 Y=1876 Button=0
+[0;32mI (259742) WIFI_SIGNAL: RSSI: -62 dBm[0m
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1928 Y=1884 Button=0
+Joystick X=1919 Y=1873 Button=0
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1931 Y=1882 Button=0
+Joystick X=1930 Y=1881 Button=0
+Joystick X=1929 Y=1884 Button=0
+[0;32mI (261742) WIFI_SIGNAL: RSSI: -63 dBm[0m
+Joystick X=1921 Y=1873 Button=0
+Joystick X=1914 Y=1874 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1932 Y=1879 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1924 Y=1876 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1929 Y=1879 Button=0
+Joystick X=1926 Y=1881 Button=0
+[0;32mI (263742) WIFI_SIGNAL: RSSI: -63 dBm[0m
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1923 Y=1884 Button=0
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1934 Y=1890 Button=0
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1932 Y=1887 Button=0
+[0;32mI (265742) WIFI_SIGNAL: RSSI: -63 dBm[0m
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1926 Y=1886 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1931 Y=1889 Button=0
+Joystick X=1926 Y=1884 Button=0
+[0;32mI (267742) WIFI_SIGNAL: RSSI: -64 dBm[0m
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1918 Y=1881 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1926 Y=1882 Button=0
+[0;32mI (269742) WIFI_SIGNAL: RSSI: -64 dBm[0m
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1918 Y=1876 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1931 Y=1889 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1923 Y=1877 Button=0
+[0;32mI (271742) WIFI_SIGNAL: RSSI: -65 dBm[0m
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1932 Y=1883 Button=0
+Joystick X=1937 Y=1881 Button=0
+Joystick X=1935 Y=1882 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1921 Y=1879 Button=0
+[0;32mI (273742) WIFI_SIGNAL: RSSI: -64 dBm[0m
+Joystick X=1927 Y=1876 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1930 Y=1875 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1921 Y=1884 Button=0
+Joystick X=1922 Y=1879 Button=0
+[0;32mI (275742) WIFI_SIGNAL: RSSI: -65 dBm[0m
+Joystick X=1926 Y=1889 Button=0
+Joystick X=1929 Y=1873 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1932 Y=1883 Button=0
+Joystick X=1928 Y=1887 Button=0
+Joystick X=1934 Y=1891 Button=0
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1930 Y=1886 Button=0
+[0;32mI (277742) WIFI_SIGNAL: RSSI: -64 dBm[0m
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1917 Y=1878 Button=0
+Joystick X=1920 Y=1874 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1932 Y=1887 Button=0
+Joystick X=1928 Y=1882 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1923 Y=1878 Button=0
+[0;32mI (279742) WIFI_SIGNAL: RSSI: -66 dBm[0m
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1935 Y=1875 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1930 Y=1878 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1920 Y=1879 Button=0
+[0;32mI (281742) WIFI_SIGNAL: RSSI: -65 dBm[0m
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1925 Y=1887 Button=0
+[0;32mI (283742) WIFI_SIGNAL: RSSI: -65 dBm[0m
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1932 Y=1877 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1935 Y=1884 Button=0
+Joystick X=1931 Y=1890 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1933 Y=1892 Button=0
+[0;32mI (285742) WIFI_SIGNAL: RSSI: -65 dBm[0m
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1940 Y=1885 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1924 Y=1878 Button=0
+[0;32mI (287742) WIFI_SIGNAL: RSSI: -66 dBm[0m
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1924 Y=1874 Button=0
+Joystick X=1915 Y=1883 Button=0
+Joystick X=1920 Y=1878 Button=0
+[0;32mI (289742) WIFI_SIGNAL: RSSI: -66 dBm[0m
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1930 Y=1889 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1929 Y=1879 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1927 Y=1877 Button=0
+[0;32mI (291742) WIFI_SIGNAL: RSSI: -66 dBm[0m
+Joystick X=1913 Y=1876 Button=0
+Joystick X=1933 Y=1879 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1925 Y=1876 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1933 Y=1884 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1934 Y=1888 Button=0
+[0;32mI (293742) WIFI_SIGNAL: RSSI: -67 dBm[0m
+Joystick X=1937 Y=1883 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1924 Y=1880 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1937 Y=1882 Button=0
+Joystick X=1928 Y=1888 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1933 Y=1878 Button=0
+Joystick X=1929 Y=1881 Button=0
+[0;32mI (295742) WIFI_SIGNAL: RSSI: -67 dBm[0m
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1931 Y=1884 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1932 Y=1888 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1927 Y=1884 Button=0
+[0;32mI (297742) WIFI_SIGNAL: RSSI: -67 dBm[0m
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1932 Y=1884 Button=0
+Joystick X=1935 Y=1889 Button=0
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1924 Y=1881 Button=0
+Joystick X=1929 Y=1873 Button=0
+Joystick X=1919 Y=1876 Button=0
+Joystick X=1920 Y=1874 Button=0
+[0;32mI (299742) WIFI_SIGNAL: RSSI: -68 dBm[0m
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1933 Y=1882 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1929 Y=1873 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1936 Y=1893 Button=0
+Joystick X=1926 Y=1872 Button=0
+Joystick X=1930 Y=1887 Button=0
+[0;32mI (301742) WIFI_SIGNAL: RSSI: -68 dBm[0m
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1934 Y=1879 Button=0
+Joystick X=1934 Y=1891 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1925 Y=1888 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1924 Y=1872 Button=0
+[0;32mI (303742) WIFI_SIGNAL: RSSI: -68 dBm[0m
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1928 Y=1886 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1934 Y=1884 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1922 Y=1882 Button=0
+[0;32mI (305742) WIFI_SIGNAL: RSSI: -69 dBm[0m
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1924 Y=1889 Button=0
+Joystick X=1928 Y=1876 Button=0
+Joystick X=1933 Y=1888 Button=0
+Joystick X=1930 Y=1889 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1925 Y=1884 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1926 Y=1879 Button=0
+[0;32mI (307742) WIFI_SIGNAL: RSSI: -69 dBm[0m
+Joystick X=1924 Y=1881 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1922 Y=1883 Button=0
+Joystick X=1928 Y=1873 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1927 Y=1878 Button=0
+[0;32mI (309742) WIFI_SIGNAL: RSSI: -70 dBm[0m
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1936 Y=1881 Button=0
+Joystick X=1931 Y=1887 Button=0
+[0;32mI (311742) WIFI_SIGNAL: RSSI: -71 dBm[0m
+Joystick X=1929 Y=1882 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1928 Y=1884 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1930 Y=1881 Button=0
+Joystick X=1936 Y=1881 Button=0
+Joystick X=1933 Y=1875 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1934 Y=1885 Button=0
+[0;32mI (313742) WIFI_SIGNAL: RSSI: -71 dBm[0m
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1932 Y=1883 Button=0
+Joystick X=1924 Y=1887 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1917 Y=1874 Button=0
+Joystick X=1924 Y=1876 Button=0
+[0;32mI (315742) WIFI_SIGNAL: RSSI: -72 dBm[0m
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1928 Y=1886 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1925 Y=1881 Button=0
+[0;32mI (317742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1930 Y=1884 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1922 Y=1885 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1929 Y=1881 Button=0
+[0;32mI (319742) WIFI_SIGNAL: RSSI: -16 dBm[0m
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1928 Y=1883 Button=0
+Joystick X=1932 Y=1881 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1925 Y=1874 Button=0
+Joystick X=1927 Y=1878 Button=0
+[0;32mI (321742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1930 Y=1881 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1923 Y=1873 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1929 Y=1878 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1926 Y=1878 Button=0
+[0;32mI (323742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1931 Y=1891 Button=0
+Joystick X=1933 Y=1886 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1926 Y=1881 Button=0
+[0;32mI (325742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1935 Y=1890 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1930 Y=1875 Button=0
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1926 Y=1882 Button=0
+[0;32mI (327742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1923 Y=1873 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1919 Y=1881 Button=0
+[0;32mI (329742) WIFI_SIGNAL: RSSI: -14 dBm[0m
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1931 Y=1884 Button=0
+Joystick X=1934 Y=1893 Button=0
+Joystick X=1934 Y=1880 Button=0
+[0;32mI (331742) WIFI_SIGNAL: RSSI: -13 dBm[0m
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1937 Y=1891 Button=0
+Joystick X=1930 Y=1891 Button=0
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1936 Y=1891 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1926 Y=1878 Button=0
+[0;32mI (333742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1926 Y=1888 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1934 Y=1891 Button=0
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1934 Y=1891 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1926 Y=1877 Button=0
+[0;32mI (335742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1932 Y=1883 Button=0
+Joystick X=1930 Y=1878 Button=0
+Joystick X=1932 Y=1880 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1934 Y=1889 Button=0
+Joystick X=1933 Y=1884 Button=0
+Joystick X=1932 Y=1888 Button=0
+Joystick X=1933 Y=1891 Button=0
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1930 Y=1878 Button=0
+[0;32mI (337742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1929 Y=1878 Button=0
+Joystick X=1920 Y=1873 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1937 Y=1890 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1931 Y=1890 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1932 Y=1887 Button=0
+[0;32mI (339742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1931 Y=1890 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1927 Y=1884 Button=0
+Joystick X=1919 Y=1883 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1932 Y=1882 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1933 Y=1878 Button=0
+Joystick X=1924 Y=1876 Button=0
+[0;32mI (341742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1931 Y=1882 Button=0
+[0;32mI (343742) WIFI_SIGNAL: RSSI: -16 dBm[0m
+Joystick X=1936 Y=1881 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1933 Y=1879 Button=0
+Joystick X=1930 Y=1876 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1928 Y=1883 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1932 Y=1887 Button=0
+[0;32mI (345742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1933 Y=1889 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1933 Y=1878 Button=0
+Joystick X=1926 Y=1876 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1925 Y=1877 Button=0
+[0;32mI (347742) WIFI_SIGNAL: RSSI: -16 dBm[0m
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1934 Y=1891 Button=0
+Joystick X=1932 Y=1890 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1931 Y=1891 Button=0
+Joystick X=1930 Y=1878 Button=0
+[0;32mI (349742) WIFI_SIGNAL: RSSI: -17 dBm[0m
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1932 Y=1877 Button=0
+Joystick X=1923 Y=1889 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1928 Y=1875 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1928 Y=1882 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1919 Y=1879 Button=0
+[0;32mI (351742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1937 Y=1887 Button=0
+Joystick X=1931 Y=1874 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1933 Y=1891 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1924 Y=1885 Button=0
+Joystick X=1932 Y=1885 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1920 Y=1881 Button=0
+[0;32mI (353742) WIFI_SIGNAL: RSSI: -15 dBm[0m
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1929 Y=1886 Button=0
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1924 Y=1889 Button=0
+[0;32mI (355742) WIFI_SIGNAL: RSSI: -16 dBm[0m
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1921 Y=1883 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1927 Y=1885 Button=0
+[0;32mI (357742) WIFI_SIGNAL: RSSI: -16 dBm[0m
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1935 Y=1889 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1933 Y=1881 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1934 Y=1881 Button=0
+[0;32mI (359742) WIFI_SIGNAL: RSSI: -19 dBm[0m
+Joystick X=1933 Y=1882 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1932 Y=1884 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1931 Y=1875 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1937 Y=1887 Button=0
+[0;32mI (361742) WIFI_SIGNAL: RSSI: -17 dBm[0m
+Joystick X=1925 Y=1884 Button=0
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1930 Y=1876 Button=0
+Joystick X=1934 Y=1884 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1930 Y=1875 Button=0
+Joystick X=1938 Y=1884 Button=0
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1936 Y=1889 Button=0
+[0;32mI (363742) WIFI_SIGNAL: RSSI: -16 dBm[0m
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1926 Y=1886 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1935 Y=1888 Button=0
+Joystick X=1925 Y=1888 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1922 Y=1885 Button=0
+[0;32mI (365742) WIFI_SIGNAL: RSSI: -17 dBm[0m
+Joystick X=1925 Y=1885 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1932 Y=1889 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1933 Y=1884 Button=0
+Joystick X=1935 Y=1893 Button=0
+Joystick X=1930 Y=1876 Button=0
+[0;32mI (367742) WIFI_SIGNAL: RSSI: -16 dBm[0m
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1922 Y=1884 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1932 Y=1879 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1924 Y=1873 Button=0
+Joystick X=1925 Y=1885 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1934 Y=1888 Button=0
+[0;32mI (369742) WIFI_SIGNAL: RSSI: -17 dBm[0m
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1929 Y=1876 Button=0
+Joystick X=1918 Y=1879 Button=0
+Joystick X=1938 Y=1886 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1930 Y=1884 Button=0
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1934 Y=1889 Button=0
+[0;32mI (371742) WIFI_SIGNAL: RSSI: -17 dBm[0m
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1922 Y=1885 Button=0
+Joystick X=1926 Y=1876 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1922 Y=1883 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1937 Y=1891 Button=0
+[0;32mI (373742) WIFI_SIGNAL: RSSI: -18 dBm[0m
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1925 Y=1884 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1930 Y=1884 Button=0
+Joystick X=1933 Y=1884 Button=0
+Joystick X=1922 Y=1879 Button=0
+[0;32mI (375742) WIFI_SIGNAL: RSSI: -18 dBm[0m
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1928 Y=1875 Button=0
+Joystick X=1917 Y=1876 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1926 Y=1876 Button=0
+Joystick X=1927 Y=1876 Button=0
+Joystick X=1915 Y=1875 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1926 Y=1873 Button=0
+[0;32mI (377742) WIFI_SIGNAL: RSSI: -17 dBm[0m
+Joystick X=1924 Y=1883 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1923 Y=1881 Button=0
+[0;32mI (379742) WIFI_SIGNAL: RSSI: -18 dBm[0m
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1919 Y=1884 Button=0
+Joystick X=1923 Y=1872 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1923 Y=1876 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1927 Y=1879 Button=0
+[0;32mI (381742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1931 Y=1882 Button=0
+Joystick X=1927 Y=1880 Button=0
+Joystick X=1919 Y=1877 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1928 Y=1881 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1936 Y=1889 Button=0
+[0;32mI (383742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1928 Y=1875 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1927 Y=1886 Button=0
+[0;32mI (385742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1922 Y=1880 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1928 Y=1881 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1929 Y=1878 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1935 Y=1883 Button=0
+[0;32mI (387742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1928 Y=1883 Button=0
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1933 Y=1879 Button=0
+Joystick X=1931 Y=1891 Button=0
+Joystick X=1931 Y=1879 Button=0
+[0;32mI (389742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1931 Y=1889 Button=0
+Joystick X=1934 Y=1888 Button=0
+Joystick X=1929 Y=1886 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1934 Y=1887 Button=0
+[0;32mI (391742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1937 Y=1893 Button=0
+Joystick X=1932 Y=1886 Button=0
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1923 Y=1872 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1926 Y=1887 Button=0
+[0;32mI (393742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1922 Y=1882 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1929 Y=1882 Button=0
+[0;32mI (395742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1927 Y=1873 Button=0
+Joystick X=1929 Y=1883 Button=0
+Joystick X=1927 Y=1890 Button=0
+Joystick X=1932 Y=1887 Button=0
+Joystick X=1932 Y=1873 Button=0
+Joystick X=1929 Y=1882 Button=0
+Joystick X=1929 Y=1885 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1926 Y=1875 Button=0
+[0;32mI (397742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1932 Y=1881 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1934 Y=1884 Button=0
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1937 Y=1888 Button=0
+Joystick X=1923 Y=1889 Button=0
+[0;32mI (399742) WIFI_SIGNAL: RSSI: -19 dBm[0m
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1933 Y=1889 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1939 Y=1885 Button=0
+Joystick X=1927 Y=1878 Button=0
+[0;32mI (401742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1933 Y=1882 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1927 Y=1889 Button=0
+Joystick X=1935 Y=1883 Button=0
+[0;32mI (403742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1928 Y=1879 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1924 Y=1876 Button=0
+Joystick X=1926 Y=1880 Button=0
+[0;32mI (405742) WIFI_SIGNAL: RSSI: -20 dBm[0m
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1927 Y=1873 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1929 Y=1883 Button=0
+[0;32mI (407742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1917 Y=1883 Button=0
+Joystick X=1932 Y=1887 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1934 Y=1886 Button=0
+[0;32mI (409742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1933 Y=1869 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1920 Y=1885 Button=0
+Joystick X=1919 Y=1871 Button=0
+Joystick X=1926 Y=1881 Button=0
+[0;32mI (411742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1918 Y=1877 Button=0
+Joystick X=1922 Y=1876 Button=0
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1925 Y=1881 Button=0
+[0;32mI (413742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1926 Y=1876 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1922 Y=1878 Button=0
+[0;32mI (415742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1917 Y=1878 Button=0
+Joystick X=1923 Y=1873 Button=0
+Joystick X=1929 Y=1877 Button=0
+Joystick X=1924 Y=1882 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1919 Y=1882 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1933 Y=1879 Button=0
+[0;32mI (417742) WIFI_SIGNAL: RSSI: -21 dBm[0m
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1928 Y=1880 Button=0
+Joystick X=1924 Y=1872 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1926 Y=1879 Button=0
+[0;32mI (419742) WIFI_SIGNAL: RSSI: -22 dBm[0m
+Joystick X=1929 Y=1876 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1920 Y=1876 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1915 Y=1867 Button=0
+Joystick X=1927 Y=1873 Button=0
+Joystick X=1921 Y=1883 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1927 Y=1877 Button=0
+[0;32mI (421742) WIFI_SIGNAL: RSSI: -23 dBm[0m
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1929 Y=1874 Button=0
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1923 Y=1881 Button=0
+[0;32mI (423742) WIFI_SIGNAL: RSSI: -23 dBm[0m
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1921 Y=1876 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1934 Y=1875 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1928 Y=1878 Button=0
+Joystick X=1922 Y=1880 Button=0
+[0;32mI (425742) WIFI_SIGNAL: RSSI: -24 dBm[0m
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1929 Y=1872 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1922 Y=1875 Button=0
+[0;32mI (427742) WIFI_SIGNAL: RSSI: -24 dBm[0m
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1921 Y=1878 Button=0
+[1;31mE (428352) ESP32B_RECEPTOR_V3: Error enviant missatge UDP: errno 12[0m
+Joystick X=1924 Y=1881 Button=0
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1925 Y=1874 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1922 Y=1878 Button=0
+[0;32mI (429742) WIFI_SIGNAL: RSSI: -25 dBm[0m
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1925 Y=1876 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1930 Y=1879 Button=0
+[0;32mI (431742) WIFI_SIGNAL: RSSI: -29 dBm[0m
+Joystick X=1921 Y=1879 Button=0
+Joystick X=1933 Y=1881 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1928 Y=1877 Button=0
+Joystick X=1922 Y=1883 Button=0
+Joystick X=1927 Y=1876 Button=0
+Joystick X=1924 Y=1881 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1926 Y=1881 Button=0
+[0;32mI (433742) WIFI_SIGNAL: RSSI: -30 dBm[0m
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1929 Y=1879 Button=0
+Joystick X=1931 Y=1875 Button=0
+Joystick X=1918 Y=1879 Button=0
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1929 Y=1879 Button=0
+[0;32mI (435742) WIFI_SIGNAL: RSSI: -30 dBm[0m
+Joystick X=1919 Y=1873 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1929 Y=1875 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1918 Y=1876 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1927 Y=1884 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1922 Y=1874 Button=0
+[0;32mI (437742) WIFI_SIGNAL: RSSI: -25 dBm[0m
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1919 Y=1876 Button=0
+Joystick X=1926 Y=1877 Button=0
+[0;32mI (439742) WIFI_SIGNAL: RSSI: -27 dBm[0m
+Joystick X=1932 Y=1887 Button=0
+Joystick X=1935 Y=1889 Button=0
+Joystick X=1932 Y=1874 Button=0
+Joystick X=1926 Y=1876 Button=0
+Joystick X=1933 Y=1889 Button=0
+Joystick X=1929 Y=1883 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1934 Y=1884 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1921 Y=1882 Button=0
+[0;32mI (441742) WIFI_SIGNAL: RSSI: -32 dBm[0m
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1931 Y=1889 Button=0
+Joystick X=1935 Y=1891 Button=0
+Joystick X=1926 Y=1883 Button=0
+[0;32mI (443742) WIFI_SIGNAL: RSSI: -32 dBm[0m
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1918 Y=1878 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1919 Y=1881 Button=0
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1933 Y=1886 Button=0
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1931 Y=1877 Button=0
+[0;32mI (445742) WIFI_SIGNAL: RSSI: -33 dBm[0m
+Joystick X=1920 Y=1878 Button=0
+Joystick X=1928 Y=1889 Button=0
+Joystick X=1933 Y=1884 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1935 Y=1882 Button=0
+[0;32mI (447742) WIFI_SIGNAL: RSSI: -33 dBm[0m
+Joystick X=1925 Y=1884 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1936 Y=1881 Button=0
+Joystick X=1934 Y=1888 Button=0
+Joystick X=1927 Y=1879 Button=0
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1936 Y=1886 Button=0
+[0;32mI (449742) WIFI_SIGNAL: RSSI: -27 dBm[0m
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1935 Y=1888 Button=0
+Joystick X=1918 Y=1875 Button=0
+Joystick X=1932 Y=1888 Button=0
+Joystick X=1936 Y=1876 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1927 Y=1884 Button=0
+[0;32mI (451742) WIFI_SIGNAL: RSSI: -33 dBm[0m
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1929 Y=1876 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1925 Y=1889 Button=0
+[0;32mI (453742) WIFI_SIGNAL: RSSI: -33 dBm[0m
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1926 Y=1887 Button=0
+Joystick X=1911 Y=1879 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1920 Y=1881 Button=0
+Joystick X=1926 Y=1876 Button=0
+[0;32mI (455742) WIFI_SIGNAL: RSSI: -34 dBm[0m
+Joystick X=1932 Y=1876 Button=0
+Joystick X=1922 Y=1885 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1921 Y=1880 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1911 Y=1876 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1936 Y=1889 Button=0
+[0;32mI (457742) WIFI_SIGNAL: RSSI: -34 dBm[0m
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1935 Y=1884 Button=0
+Joystick X=1919 Y=1887 Button=0
+Joystick X=1934 Y=1890 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1934 Y=1889 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1935 Y=1888 Button=0
+Joystick X=1936 Y=1877 Button=0
+[0;32mI (459742) WIFI_SIGNAL: RSSI: -35 dBm[0m
+Joystick X=1933 Y=1882 Button=0
+Joystick X=1935 Y=1874 Button=0
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1935 Y=1881 Button=0
+Joystick X=1934 Y=1889 Button=0
+Joystick X=1933 Y=1888 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1919 Y=1877 Button=0
+[0;32mI (461742) WIFI_SIGNAL: RSSI: -36 dBm[0m
+Joystick X=1933 Y=1886 Button=0
+Joystick X=1933 Y=1888 Button=0
+Joystick X=1935 Y=1882 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1934 Y=1879 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1932 Y=1882 Button=0
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1923 Y=1879 Button=0
+[0;32mI (463742) WIFI_SIGNAL: RSSI: -36 dBm[0m
+Joystick X=1922 Y=1872 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1933 Y=1882 Button=0
+Joystick X=1935 Y=1884 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1937 Y=1890 Button=0
+Joystick X=1921 Y=1887 Button=0
+[0;32mI (465742) WIFI_SIGNAL: RSSI: -37 dBm[0m
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1932 Y=1883 Button=0
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1914 Y=1875 Button=0
+Joystick X=1923 Y=1890 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1923 Y=1886 Button=0
+[0;32mI (467742) WIFI_SIGNAL: RSSI: -37 dBm[0m
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1934 Y=1876 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1936 Y=1878 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1938 Y=1887 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1931 Y=1892 Button=0
+[0;32mI (469742) WIFI_SIGNAL: RSSI: -36 dBm[0m
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1919 Y=1886 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1926 Y=1884 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1929 Y=1886 Button=0
+Joystick X=1928 Y=1882 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1921 Y=1882 Button=0
+[0;32mI (471742) WIFI_SIGNAL: RSSI: -36 dBm[0m
+Joystick X=1923 Y=1886 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1924 Y=1883 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1918 Y=1878 Button=0
+Joystick X=1934 Y=1888 Button=0
+[0;32mI (473742) WIFI_SIGNAL: RSSI: -35 dBm[0m
+Joystick X=1928 Y=1881 Button=0
+Joystick X=1929 Y=1885 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1933 Y=1877 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1925 Y=1872 Button=0
+Joystick X=1911 Y=1882 Button=0
+Joystick X=1928 Y=1881 Button=0
+[0;32mI (475742) WIFI_SIGNAL: RSSI: -36 dBm[0m
+Joystick X=1929 Y=1884 Button=0
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1933 Y=1886 Button=0
+Joystick X=1919 Y=1883 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1930 Y=1875 Button=0
+Joystick X=1929 Y=1882 Button=0
+Joystick X=1933 Y=1877 Button=0
+Joystick X=1931 Y=1884 Button=0
+Joystick X=1926 Y=1878 Button=0
+[0;32mI (477742) WIFI_SIGNAL: RSSI: -36 dBm[0m
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1925 Y=1876 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1917 Y=1879 Button=0
+Joystick X=1928 Y=1875 Button=0
+[0;32mI (479742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1933 Y=1889 Button=0
+Joystick X=1935 Y=1880 Button=0
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1926 Y=1874 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1929 Y=1891 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1921 Y=1878 Button=0
+[0;32mI (481742) WIFI_SIGNAL: RSSI: -37 dBm[0m
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1930 Y=1893 Button=0
+Joystick X=1933 Y=1889 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1916 Y=1876 Button=0
+Joystick X=1930 Y=1881 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1929 Y=1887 Button=0
+[0;32mI (483742) WIFI_SIGNAL: RSSI: -39 dBm[0m
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1936 Y=1891 Button=0
+Joystick X=1943 Y=1888 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1931 Y=1891 Button=0
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1926 Y=1876 Button=0
+[0;32mI (485742) WIFI_SIGNAL: RSSI: -43 dBm[0m
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1929 Y=1888 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1935 Y=1889 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1909 Y=1872 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1931 Y=1886 Button=0
+[0;32mI (487742) WIFI_SIGNAL: RSSI: -37 dBm[0m
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1934 Y=1888 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1935 Y=1888 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1934 Y=1881 Button=0
+Joystick X=1932 Y=1884 Button=0
+Joystick X=1931 Y=1887 Button=0
+[0;32mI (489742) WIFI_SIGNAL: RSSI: -43 dBm[0m
+Joystick X=1924 Y=1887 Button=0
+Joystick X=1933 Y=1888 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1926 Y=1884 Button=0
+Joystick X=1931 Y=1882 Button=0
+Joystick X=1927 Y=1880 Button=0
+Joystick X=1925 Y=1878 Button=0
+[0;32mI (491742) WIFI_SIGNAL: RSSI: -43 dBm[0m
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1922 Y=1883 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1930 Y=1884 Button=0
+[0;32mI (493742) WIFI_SIGNAL: RSSI: -40 dBm[0m
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1926 Y=1874 Button=0
+[0;32mI (495742) WIFI_SIGNAL: RSSI: -40 dBm[0m
+Joystick X=1917 Y=1878 Button=0
+Joystick X=1930 Y=1884 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1930 Y=1885 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1930 Y=1884 Button=0
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1935 Y=1888 Button=0
+Joystick X=1934 Y=1879 Button=0
+[0;32mI (497742) WIFI_SIGNAL: RSSI: -40 dBm[0m
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1931 Y=1884 Button=0
+Joystick X=1936 Y=1881 Button=0
+Joystick X=1919 Y=1888 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1932 Y=1885 Button=0
+[0;32mI (499742) WIFI_SIGNAL: RSSI: -41 dBm[0m
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1925 Y=1874 Button=0
+Joystick X=1918 Y=1888 Button=0
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1931 Y=1889 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1931 Y=1885 Button=0
+[0;32mI (501742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1929 Y=1884 Button=0
+Joystick X=1936 Y=1879 Button=0
+Joystick X=1931 Y=1884 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1914 Y=1878 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1922 Y=1881 Button=0
+[0;32mI (503742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1915 Y=1879 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1936 Y=1884 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1933 Y=1885 Button=0
+[0;32mI (505742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1932 Y=1875 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1919 Y=1887 Button=0
+[0;32mI (507742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1934 Y=1888 Button=0
+Joystick X=1929 Y=1885 Button=0
+Joystick X=1920 Y=1873 Button=0
+Joystick X=1926 Y=1886 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1926 Y=1883 Button=0
+[0;32mI (509742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1932 Y=1885 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1926 Y=1886 Button=0
+Joystick X=1935 Y=1878 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1929 Y=1886 Button=0
+Joystick X=1931 Y=1888 Button=0
+[0;32mI (511742) WIFI_SIGNAL: RSSI: -43 dBm[0m
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1930 Y=1873 Button=0
+Joystick X=1937 Y=1885 Button=0
+Joystick X=1930 Y=1884 Button=0
+Joystick X=1925 Y=1890 Button=0
+Joystick X=1919 Y=1877 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1930 Y=1885 Button=0
+[0;32mI (513742) WIFI_SIGNAL: RSSI: -44 dBm[0m
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1929 Y=1885 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1925 Y=1876 Button=0
+Joystick X=1932 Y=1885 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1928 Y=1887 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1923 Y=1878 Button=0
+[0;32mI (515742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1929 Y=1874 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1929 Y=1889 Button=0
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1923 Y=1889 Button=0
+[0;32mI (517742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1915 Y=1881 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1929 Y=1885 Button=0
+Joystick X=1938 Y=1888 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1937 Y=1883 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1935 Y=1888 Button=0
+[0;32mI (519742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1919 Y=1888 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1938 Y=1885 Button=0
+Joystick X=1929 Y=1886 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1930 Y=1878 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1930 Y=1886 Button=0
+[0;32mI (521742) WIFI_SIGNAL: RSSI: -43 dBm[0m
+Joystick X=1930 Y=1878 Button=0
+Joystick X=1939 Y=1887 Button=0
+Joystick X=1932 Y=1879 Button=0
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1933 Y=1889 Button=0
+[0;32mI (523742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1933 Y=1886 Button=0
+Joystick X=1943 Y=1887 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1925 Y=1886 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1917 Y=1885 Button=0
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1921 Y=1874 Button=0
+[0;32mI (525742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1925 Y=1888 Button=0
+Joystick X=1929 Y=1889 Button=0
+Joystick X=1921 Y=1886 Button=0
+Joystick X=1929 Y=1883 Button=0
+Joystick X=1922 Y=1886 Button=0
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1924 Y=1882 Button=0
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1929 Y=1883 Button=0
+[0;32mI (527742) WIFI_SIGNAL: RSSI: -46 dBm[0m
+Joystick X=1924 Y=1883 Button=0
+Joystick X=1940 Y=1883 Button=0
+Joystick X=1938 Y=1888 Button=0
+Joystick X=1929 Y=1886 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1920 Y=1890 Button=0
+Joystick X=1932 Y=1882 Button=0
+Joystick X=1923 Y=1885 Button=0
+Joystick X=1923 Y=1882 Button=0
+[0;32mI (529742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1923 Y=1872 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1934 Y=1881 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1934 Y=1884 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1921 Y=1883 Button=0
+Joystick X=1933 Y=1885 Button=0
+[0;32mI (531742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1927 Y=1874 Button=0
+Joystick X=1935 Y=1887 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1935 Y=1884 Button=0
+Joystick X=1932 Y=1890 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1935 Y=1889 Button=0
+Joystick X=1935 Y=1885 Button=0
+[0;32mI (533742) WIFI_SIGNAL: RSSI: -47 dBm[0m
+Joystick X=1933 Y=1888 Button=0
+Joystick X=1934 Y=1874 Button=0
+Joystick X=1930 Y=1877 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1916 Y=1879 Button=0
+Joystick X=1938 Y=1885 Button=0
+Joystick X=1933 Y=1886 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1922 Y=1874 Button=0
+Joystick X=1935 Y=1888 Button=0
+[0;32mI (535742) WIFI_SIGNAL: RSSI: -44 dBm[0m
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1931 Y=1876 Button=0
+Joystick X=1934 Y=1879 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1935 Y=1873 Button=0
+Joystick X=1928 Y=1886 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1916 Y=1874 Button=0
+[0;32mI (537742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1921 Y=1878 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1925 Y=1875 Button=0
+Joystick X=1919 Y=1874 Button=0
+Joystick X=1920 Y=1883 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1923 Y=1881 Button=0
+Joystick X=1926 Y=1877 Button=0
+Joystick X=1927 Y=1878 Button=0
+Joystick X=1934 Y=1878 Button=0
+[0;32mI (539742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1928 Y=1883 Button=0
+Joystick X=1933 Y=1894 Button=0
+Joystick X=1925 Y=1878 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1923 Y=1888 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1931 Y=1886 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1925 Y=1883 Button=0
+[0;32mI (541742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1930 Y=1879 Button=0
+Joystick X=1931 Y=1891 Button=0
+Joystick X=1933 Y=1888 Button=0
+Joystick X=1929 Y=1887 Button=0
+Joystick X=1913 Y=1878 Button=0
+Joystick X=1920 Y=1872 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1933 Y=1894 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1938 Y=1885 Button=0
+[0;32mI (543742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1920 Y=1873 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1927 Y=1877 Button=0
+Joystick X=1926 Y=1888 Button=0
+Joystick X=1932 Y=1883 Button=0
+Joystick X=1923 Y=1888 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1922 Y=1882 Button=0
+[0;32mI (545742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1934 Y=1894 Button=0
+Joystick X=1933 Y=1889 Button=0
+Joystick X=1922 Y=1883 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1934 Y=1890 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1921 Y=1877 Button=0
+Joystick X=1917 Y=1876 Button=0
+Joystick X=1927 Y=1876 Button=0
+[0;32mI (547742) WIFI_SIGNAL: RSSI: -49 dBm[0m
+Joystick X=1915 Y=1882 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1922 Y=1881 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1921 Y=1873 Button=0
+Joystick X=1922 Y=1873 Button=0
+Joystick X=1920 Y=1885 Button=0
+[0;32mI (549742) WIFI_SIGNAL: RSSI: -49 dBm[0m
+Joystick X=1935 Y=1888 Button=0
+Joystick X=1923 Y=1872 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1922 Y=1878 Button=0
+Joystick X=1928 Y=1889 Button=0
+Joystick X=1933 Y=1882 Button=0
+Joystick X=1928 Y=1888 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1927 Y=1888 Button=0
+Joystick X=1934 Y=1885 Button=0
+[0;32mI (551742) WIFI_SIGNAL: RSSI: -49 dBm[0m
+Joystick X=1932 Y=1889 Button=0
+Joystick X=1927 Y=1881 Button=0
+Joystick X=1909 Y=1878 Button=0
+Joystick X=1931 Y=1884 Button=0
+Joystick X=1935 Y=1875 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1923 Y=1879 Button=0
+Joystick X=1926 Y=1878 Button=0
+[0;32mI (553742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1925 Y=1882 Button=0
+Joystick X=1931 Y=1885 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1929 Y=1882 Button=0
+Joystick X=1920 Y=1879 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1919 Y=1875 Button=0
+Joystick X=1934 Y=1879 Button=0
+[0;32mI (555742) WIFI_SIGNAL: RSSI: -48 dBm[0m
+Joystick X=1929 Y=1879 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1925 Y=1877 Button=0
+Joystick X=1923 Y=1882 Button=0
+Joystick X=1929 Y=1890 Button=0
+Joystick X=1926 Y=1890 Button=0
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1930 Y=1890 Button=0
+Joystick X=1934 Y=1884 Button=0
+Joystick X=1926 Y=1887 Button=0
+[0;32mI (557742) WIFI_SIGNAL: RSSI: -49 dBm[0m
+Joystick X=1926 Y=1883 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1933 Y=1884 Button=0
+Joystick X=1934 Y=1888 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1923 Y=1876 Button=0
+[0;32mI (559742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1920 Y=1875 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1933 Y=1882 Button=0
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1922 Y=1875 Button=0
+Joystick X=1924 Y=1875 Button=0
+Joystick X=1923 Y=1875 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1926 Y=1881 Button=0
+[0;32mI (561742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1933 Y=1879 Button=0
+Joystick X=1930 Y=1886 Button=0
+Joystick X=1924 Y=1879 Button=0
+Joystick X=1920 Y=1877 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1932 Y=1887 Button=0
+Joystick X=1925 Y=1881 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1921 Y=1879 Button=0
+[0;32mI (563742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1922 Y=1872 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1923 Y=1878 Button=0
+Joystick X=1931 Y=1877 Button=0
+Joystick X=1930 Y=1888 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1931 Y=1889 Button=0
+Joystick X=1921 Y=1881 Button=0
+Joystick X=1930 Y=1890 Button=0
+[0;32mI (565742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1923 Y=1877 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1923 Y=1874 Button=0
+Joystick X=1929 Y=1885 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1929 Y=1889 Button=0
+Joystick X=1923 Y=1883 Button=0
+Joystick X=1921 Y=1881 Button=0
+[0;32mI (567742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1920 Y=1874 Button=0
+Joystick X=1929 Y=1881 Button=0
+Joystick X=1934 Y=1880 Button=0
+Joystick X=1925 Y=1874 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1936 Y=1889 Button=0
+Joystick X=1919 Y=1883 Button=0
+Joystick X=1921 Y=1879 Button=0
+[0;32mI (569742) WIFI_SIGNAL: RSSI: -50 dBm[0m
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1931 Y=1889 Button=0
+Joystick X=1926 Y=1875 Button=0
+Joystick X=1923 Y=1886 Button=0
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1921 Y=1872 Button=0
+Joystick X=1919 Y=1877 Button=0
+Joystick X=1939 Y=1884 Button=0
+[0;32mI (571742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1921 Y=1875 Button=0
+Joystick X=1934 Y=1887 Button=0
+Joystick X=1931 Y=1887 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1918 Y=1873 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1934 Y=1883 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1935 Y=1885 Button=0
+Joystick X=1932 Y=1885 Button=0
+[0;32mI (573742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1930 Y=1883 Button=0
+Joystick X=1922 Y=1879 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1927 Y=1887 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1924 Y=1878 Button=0
+Joystick X=1931 Y=1882 Button=0
+[0;32mI (575742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1925 Y=1883 Button=0
+Joystick X=1935 Y=1877 Button=0
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1933 Y=1880 Button=0
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1928 Y=1883 Button=0
+Joystick X=1934 Y=1886 Button=0
+Joystick X=1933 Y=1876 Button=0
+[0;32mI (577742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1928 Y=1884 Button=0
+Joystick X=1931 Y=1888 Button=0
+Joystick X=1921 Y=1882 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1915 Y=1877 Button=0
+Joystick X=1924 Y=1887 Button=0
+Joystick X=1931 Y=1882 Button=0
+Joystick X=1927 Y=1889 Button=0
+Joystick X=1932 Y=1882 Button=0
+Joystick X=1930 Y=1885 Button=0
+[0;32mI (579742) WIFI_SIGNAL: RSSI: -53 dBm[0m
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1922 Y=1872 Button=0
+Joystick X=1929 Y=1882 Button=0
+Joystick X=1925 Y=1873 Button=0
+Joystick X=1926 Y=1878 Button=0
+Joystick X=1927 Y=1875 Button=0
+Joystick X=1919 Y=1878 Button=0
+Joystick X=1922 Y=1872 Button=0
+Joystick X=1930 Y=1882 Button=0
+Joystick X=1933 Y=1883 Button=0
+[0;32mI (581742) WIFI_SIGNAL: RSSI: -52 dBm[0m
+Joystick X=1926 Y=1886 Button=0
+Joystick X=1937 Y=1885 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1919 Y=1880 Button=0
+Joystick X=1926 Y=1882 Button=0
+Joystick X=1936 Y=1888 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1926 Y=1873 Button=0
+Joystick X=1922 Y=1877 Button=0
+Joystick X=1919 Y=1874 Button=0
+[0;32mI (583742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1919 Y=1879 Button=0
+Joystick X=1916 Y=1877 Button=0
+Joystick X=1925 Y=1887 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1926 Y=1881 Button=0
+Joystick X=1932 Y=1888 Button=1
+Joystick X=1923 Y=1877 Button=1
+Joystick X=1933 Y=1878 Button=1
+Joystick X=0 Y=1873 Button=1
+Joystick X=0 Y=1888 Button=1
+[0;32mI (585742) WIFI_SIGNAL: RSSI: -56 dBm[0m
+Joystick X=1935 Y=1879 Button=1
+Joystick X=1935 Y=1887 Button=1
+Joystick X=1936 Y=1884 Button=1
+Joystick X=4095 Y=1879 Button=1
+Joystick X=4095 Y=1883 Button=1
+Joystick X=1935 Y=1886 Button=1
+Joystick X=1921 Y=1872 Button=1
+Joystick X=1923 Y=1885 Button=1
+Joystick X=1938 Y=3280 Button=1
+Joystick X=1926 Y=4095 Button=1
+[0;32mI (587742) WIFI_SIGNAL: RSSI: -57 dBm[0m
+Joystick X=1919 Y=1887 Button=1
+Joystick X=1917 Y=1873 Button=1
+Joystick X=1919 Y=1865 Button=1
+Joystick X=1901 Y=0 Button=1
+Joystick X=1928 Y=0 Button=1
+Joystick X=1935 Y=1887 Button=1
+Joystick X=1917 Y=1881 Button=1
+Joystick X=1936 Y=1874 Button=0
+Joystick X=1919 Y=1877 Button=0
+Joystick X=1919 Y=1875 Button=0
+[0;32mI (589742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1927 Y=1885 Button=0
+Joystick X=1936 Y=1887 Button=0
+Joystick X=1930 Y=1886 Button=1
+Joystick X=1925 Y=1883 Button=1
+Joystick X=923 Y=4095 Button=1
+Joystick X=914 Y=4095 Button=1
+Joystick X=1350 Y=4095 Button=1
+Joystick X=1927 Y=1885 Button=1
+Joystick X=1929 Y=1883 Button=1
+Joystick X=1929 Y=1882 Button=1
+[0;32mI (591742) WIFI_SIGNAL: RSSI: -51 dBm[0m
+Joystick X=4095 Y=1878 Button=1
+Joystick X=4095 Y=1879 Button=1
+Joystick X=4095 Y=1881 Button=1
+Joystick X=1923 Y=1873 Button=1
+Joystick X=1908 Y=1879 Button=1
+Joystick X=1929 Y=1779 Button=1
+Joystick X=1919 Y=0 Button=1
+Joystick X=1920 Y=0 Button=1
+Joystick X=1925 Y=0 Button=1
+[0;32mI (593742) WIFI_SIGNAL: RSSI: -57 dBm[0m
+Joystick X=1930 Y=0 Button=1
+Joystick X=1927 Y=0 Button=1
+Joystick X=1923 Y=1878 Button=1
+Joystick X=1921 Y=1887 Button=1
+Joystick X=1919 Y=1877 Button=1
+Joystick X=1917 Y=1889 Button=1
+Joystick X=1924 Y=1875 Button=1
+Joystick X=951 Y=4095 Button=1
+Joystick X=931 Y=4095 Button=1
+Joystick X=1138 Y=4095 Button=1
+[0;32mI (595742) WIFI_SIGNAL: RSSI: -56 dBm[0m
+Joystick X=1915 Y=1885 Button=1
+Joystick X=1928 Y=1889 Button=1
+Joystick X=1931 Y=1881 Button=1
+Joystick X=1564 Y=4095 Button=1
+Joystick X=1582 Y=4095 Button=1
+Joystick X=1559 Y=4095 Button=1
+Joystick X=1571 Y=4095 Button=1
+Joystick X=1929 Y=1888 Button=1
+Joystick X=1934 Y=1882 Button=0
+Joystick X=1936 Y=1882 Button=0
+[0;32mI (597742) WIFI_SIGNAL: RSSI: -56 dBm[0m
+Joystick X=1935 Y=1876 Button=0
+Joystick X=1920 Y=1876 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1935 Y=1883 Button=0
+Joystick X=1924 Y=1895 Button=0
+Joystick X=1933 Y=1883 Button=0
+Joystick X=1931 Y=1878 Button=0
+Joystick X=1920 Y=1887 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1925 Y=1877 Button=0
+[0;32mI (599742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1936 Y=1886 Button=0
+Joystick X=1918 Y=1883 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1936 Y=1882 Button=0
+Joystick X=1943 Y=1887 Button=0
+Joystick X=1921 Y=1874 Button=0
+Joystick X=1926 Y=1885 Button=0
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1927 Y=1886 Button=0
+Joystick X=1936 Y=1889 Button=0
+[0;32mI (601742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1937 Y=1886 Button=0
+Joystick X=1940 Y=1886 Button=0
+Joystick X=1911 Y=1875 Button=0
+Joystick X=1913 Y=1875 Button=0
+Joystick X=1931 Y=1881 Button=0
+Joystick X=1921 Y=1883 Button=0
+Joystick X=1936 Y=1885 Button=0
+Joystick X=1934 Y=1885 Button=0
+Joystick X=1920 Y=1886 Button=0
+[0;32mI (603742) WIFI_SIGNAL: RSSI: -54 dBm[0m
+Joystick X=1935 Y=1886 Button=0
+Joystick X=1933 Y=1887 Button=0
+Joystick X=1934 Y=1889 Button=0
+Joystick X=1927 Y=1883 Button=0
+Joystick X=1935 Y=1884 Button=0
+Joystick X=1930 Y=1887 Button=0
+Joystick X=1938 Y=1883 Button=0
+Joystick X=1933 Y=1885 Button=0
+Joystick X=1931 Y=1883 Button=0
+Joystick X=1933 Y=1883 Button=0
+[0;32mI (605742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1936 Y=1883 Button=0
+Joystick X=1927 Y=1882 Button=0
+Joystick X=1909 Y=1873 Button=0
+Joystick X=1924 Y=1877 Button=0
+Joystick X=1926 Y=1879 Button=0
+Joystick X=1936 Y=1881 Button=0
+Joystick X=1917 Y=1882 Button=0
+Joystick X=1931 Y=1879 Button=0
+Joystick X=1919 Y=1882 Button=0
+Joystick X=1936 Y=1881 Button=0
+[0;32mI (607742) WIFI_SIGNAL: RSSI: -55 dBm[0m
+Joystick X=1934 Y=1877 Button=0
+Joystick X=1925 Y=1879 Button=0
+Joystick X=1919 Y=1875 Button=
