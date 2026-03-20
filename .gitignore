@@ -1,0 +1,18 @@
+# Build folders
+build/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# ESP-IDF / CMake
+sdkconfig
+sdkconfig.old
+
+# Logs / temporals
+*.log
+
+# Dependències (si aplica)
+dependencies.lock
