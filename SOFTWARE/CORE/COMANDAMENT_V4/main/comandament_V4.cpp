@@ -14,6 +14,7 @@
 // Drivers perifèrics
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
+#include "driver/adc.h"
 
 // Driver (controlador) TCA9554, expansor de input/output que comunica normalment per I2C
 #include "esp_io_expander_tca9554.h"
@@ -87,6 +88,13 @@ static const char *TAG_UDP = "udp_receiver"; // Etiqueta que surt als missatges 
 #define UDP_PORT 3333                    // Port UDP on rebrem els missatges
 #define RECV_BUF_SIZE 256                // Mida del buffer per llegir dades rebudes
 
+// Definició dels pins del Joystick i del botó Confirm
+#define JOY_X ADC1_CHANNEL_8
+#define JOY_Y ADC1_CHANNEL_9
+#define BUTTON GPIO_NUM_38
+
+#define DEADZONE 400 // Zona morta
+
 
 // Variables per a bus I2C, controladors de pantalla, tàctils, expansor, LVGL
 static const char *TAG_LVGL = "lvgl_system";
@@ -144,6 +152,80 @@ static void udp_receive_task(void *arg)
     }
 }
 
+static void joystick_task(void *arg)
+{
+    const char *dest_ip = "192.168.4.1";   // IP del receptor
+    const int dest_port = 3333;            // Port UDP
+    struct sockaddr_in dest_addr;
+    char msg[64];
+    int s1, s2;
+
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (sock < 0) {
+        ESP_LOGE(TAG_UDP, "joystick_task: no es pot crear socket");
+        vTaskDelete(NULL);
+        return;
+    }
+
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(dest_port);
+    dest_addr.sin_addr.s_addr = inet_addr(dest_ip);
+    if (dest_addr.sin_addr.s_addr == INADDR_NONE) {
+        ESP_LOGW(TAG_UDP, "joystick_task: dest_ip invalida, enviament desactivat");
+    }
+    
+
+    while (1)
+    {
+        // Llegeix ADC (0..4095)
+        s1 = adc1_get_raw(JOY_X);
+        s2 = adc1_get_raw(JOY_Y);
+
+        // Enviar per UDP (només si IP válida)
+        if (dest_addr.sin_addr.s_addr != INADDR_NONE) {
+            int btn = gpio_get_level(BUTTON);   // 1 = NO premut, 0 = premut
+            int n;
+
+            // Construïm el paquet segons l’estat del botó
+            if (btn == 0) {   // Botó premut → activació
+                n = snprintf(msg, sizeof(msg), "Sensor1=%d;Sensor2=%d;BTN=1", s1, s2);
+            } else {          // Botó NO premut
+                n = snprintf(msg, sizeof(msg), "Sensor1=%d;Sensor2=%d;BTN=0", s1, s2);
+            }
+
+            // Enviem un únic paquet
+            if (n > 0) {
+                int sent = sendto(sock, msg, n, 0,
+                                (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+
+                if (sent < 0) {
+                    ESP_LOGW(TAG_UDP, "joystick_task: sendto failed");
+                }
+            }
+            
+            // imprimir per terminal
+            ESP_LOGI("JOYSTICK", "Sensor1=%d   Sensor2=%d   BTN=%d",
+                 s1, s2, (btn == 0 ? 1 : 0));
+
+        }
+
+        // Actualitzar labels de la UI (crida modular a system_tile)
+        if (lvgl_port_lock(10)) {
+            system_set_joystick_sensor_1(s1);
+            system_set_joystick_sensor_2(s2);
+            lvgl_port_unlock();
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(50)); // 20Hz
+    }
+
+    // (No arribem aquí normalment) tanca socket
+    close(sock);
+    vTaskDelete(NULL);
+
+}
+
+
 
 // Funció principal
 extern "C" void app_main(void)
@@ -158,6 +240,10 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
+    // --- Inicialitzar ADC per joystick ---
+    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten(JOY_X, ADC_ATTEN_DB_11);
+    adc1_config_channel_atten(JOY_Y, ADC_ATTEN_DB_11);
 
     // Inicialització del bus I2C i del TCA9554 (expansor I/O)
     i2c_bus_init();
@@ -197,11 +283,19 @@ extern "C" void app_main(void)
     system_tile_init(lv_scr_act());    // Crear la UI amb el label
     lvgl_port_unlock();                // Desbloquejar LVGL
 
+    // Inicialitzar botó GPIO38 amb pull-up intern
+    gpio_config_t btn_conf = {
+        .pin_bit_mask = (1ULL << BUTTON),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,    // Activa pull-up intern
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&btn_conf);
 
     /*
  * Tasca Wi-Fi.
  */
-
     ESP_LOGI(TAG_UDP, "Iniciant receptor UDP...");    // Missatge inicial al log
 
     // Credencials del Wi-Fi del primer ESP32 (AP)
@@ -228,6 +322,13 @@ extern "C" void app_main(void)
                 NULL,                             // Argument (no el fem servir)
                 5,                                // Prioritat (5 = normal)
                 NULL);                            // Handle (no necessari)
+
+    xTaskCreate(joystick_task,
+            "joystick_task",
+            4096,
+            NULL,
+            5,
+            NULL);
 
 }
 
