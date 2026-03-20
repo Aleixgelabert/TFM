@@ -1,5 +1,5 @@
 {
-  "idf.port": "/dev/tty.usbmodem14401",
+  "idf.port": "/dev/tty.usbmodem1101",
   "idf.openOcdConfigs": [
     "board/esp32s3-builtin.cfg"
   ],
@@ -20,5 +20,5 @@
     "lvgl.h": "c",
     "wifi_manager.h": "c"
   },
-  "idf.currentSetup": "/Users/aleixgelabert/esp/v5.5.1/esp-idf"
+  "idf.currentSetup": "/Users/aleixgelabert/.espressif/v5.5.3/esp-idf"
 }

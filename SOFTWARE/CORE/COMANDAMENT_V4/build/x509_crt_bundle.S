@@ -1,4 +1,4 @@
-/* * Data converted from /Users/aleixgelabert/Desktop/TFM_MECATRONICA/C/VERSIO4/COMANDAMENT_V4/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 #if !defined (__APPLE__) && !defined (__linux__)
