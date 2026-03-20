@@ -1,5 +1,5 @@
 //---------------------------------------------------------
-// FITXER exemple_03.cpp DE PROVES PER CANVIAR DADES PANTALLA
+// FITXER comandament_V4.cpp
 //---------------------------------------------------------
 #include <stdio.h>  // Standard Input/Output Header defineix funcions i macros amb l'entrada i sortida standard
 #include <string.h>  // Per treballar amb cadenes (strncpy, strlen, etc.)
