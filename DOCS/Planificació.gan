@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Comandament sense fils" company="" webLink="http://" view-date="2025-12-22" view-index="0" gantt-divider-location="461" resource-divider-location="300" version="3.3.3322" locale="ca_ES">
+    <description/>
+    <view zooming-state="default:6" id="gantt-chart">
+        <field id="tpd3" name="Nom" width="365" order="0"/>
+        <field id="tpd6" name="Durada" width="79" order="1"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="filter.dueTodayTasks" value="false"/>
+        <option id="filter.overdueTasks" value="false"/>
+        <option id="filter.inProgressTodayTasks" value="false"/>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Nom" width="209" order="0"/>
+        <field id="1" name="Funció" width="85" order="1"/>
+    </view>
+    <!-- -->
+    <calendars base-id="ca_es">
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+        <date year="" month="1" date="1" type="HOLIDAY"><![CDATA[Cap d'any]]></date>
+        <date year="" month="1" date="6" type="HOLIDAY"><![CDATA[Reis]]></date>
+        <date year="" month="5" date="1" type="HOLIDAY"><![CDATA[Festa del Treball]]></date>
+        <date year="" month="6" date="24" type="HOLIDAY"><![CDATA[Sant Joan]]></date>
+        <date year="" month="8" date="15" type="HOLIDAY"><![CDATA[l'Assumpció]]></date>
+        <date year="" month="9" date="11" type="HOLIDAY"><![CDATA[Diada Nacional de Catalunya]]></date>
+        <date year="" month="10" date="12" type="HOLIDAY"><![CDATA[Festa Nacional d'Espanya]]></date>
+        <date year="" month="11" date="1" type="HOLIDAY"><![CDATA[Tots Sants]]></date>
+        <date year="" month="12" date="6" type="HOLIDAY"><![CDATA[Dia de la Constitució]]></date>
+        <date year="" month="12" date="8" type="HOLIDAY"><![CDATA[Immaculada Concepció]]></date>
+        <date year="" month="12" date="25" type="HOLIDAY"><![CDATA[Nadal]]></date>
+        <date year="" month="12" date="26" type="HOLIDAY"><![CDATA[Sant Esteve]]></date>
+        <date year="2020" month="4" date="10" type="HOLIDAY"><![CDATA[Divendres Sant]]></date>
+        <date year="2020" month="4" date="13" type="HOLIDAY"><![CDATA[Pasqua Florida]]></date>
+        <date year="2021" month="4" date="2" type="HOLIDAY"><![CDATA[Divendres Sant]]></date>
+        <date year="2021" month="4" date="5" type="HOLIDAY"><![CDATA[Pasqua Florida]]></date>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="6" uid="7d977c85425b474993db4b10fb06cdc3" name="Anàlisi i definició del projecte" meeting="false" start="2025-09-01" duration="18" complete="0" expand="true">
+            <depend id="16" type="2" difference="0" hardness="Strong"/>
+            <task id="28" uid="44d4ddbb6cd9447197c202868a995f51" name="Definició objectius TFM" meeting="false" start="2025-09-01" duration="4" complete="0" expand="true">
+                <depend id="29" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="29" uid="0da8ae565d8c42f89e7dc8d04e85154e" name="Estudi de l'estat de l'art" meeting="false" start="2025-09-05" duration="3" complete="0" expand="true">
+                <depend id="30" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="30" uid="e3ca67ce1958408286e69c210fc1cf77" name="Anàlisi de soulcions existents" meeting="false" start="2025-09-10" duration="3" complete="0" expand="true">
+                <depend id="31" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="31" uid="1ab8a4c5f0fd48a98dcbe098a3bbcf1d" name="Definició de requisits funcionals" meeting="false" start="2025-09-16" duration="4" complete="0" expand="true">
+                <depend id="32" type="1" difference="0" hardness="Strong"/>
+            </task>
+            <task id="32" uid="ee2d8d082da04e1ab7e194998e532b21" name="Definició de requisits no funcionals" meeting="false" start="2025-09-16" duration="4" complete="0" expand="true">
+                <depend id="33" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="33" uid="f760c8360fbc49559fc8f513c407f8ef" name="Planificació inicial del projecte" meeting="false" start="2025-09-22" duration="4" complete="0" expand="true"/>
+        </task>
+        <task id="16" uid="1a0d4785f9904c90808a3afb58f32c83" name="Disseny del sistema" meeting="false" start="2025-09-26" duration="31" complete="0" expand="true">
+            <task id="18" uid="ea5c1199ac564d99b1cc3f6dc1e2a8e5" name="Disseny Hardware" meeting="false" start="2025-09-26" duration="16" complete="0" expand="false">
+                <depend id="19" type="2" difference="0" hardness="Strong"/>
+                <task id="34" uid="c4bf6d95449d439495451804affe5a26" name="Selecció de components" meeting="false" start="2025-09-26" duration="4" complete="0" expand="true">
+                    <depend id="35" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="35" uid="82b73b8440c84b8aadfc5d61d606bb1b" name="Disseny del sistema electrònic" meeting="false" start="2025-10-02" duration="3" complete="0" expand="true">
+                    <depend id="36" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="36" uid="9e92081b3c3140348451da69e11b3cf8" name="Esquemes elèctrics" meeting="false" start="2025-10-07" duration="6" complete="0" expand="true">
+                    <depend id="37" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="37" uid="21435f258c98469fb48a9353079c74fc" name="Disseny prototip" meeting="false" start="2025-10-15" duration="3" complete="0" expand="false"/>
+            </task>
+            <task id="19" uid="213d13e935ab4abcaaa2e22c3a1977fd" name="Disseny Software" meeting="false" start="2025-10-20" duration="15" complete="0" expand="false">
+                <depend id="4" type="2" difference="0" hardness="Strong"/>
+                <task id="38" uid="daca3d5271ad4d9e9335a398dd86dde7" name="Arquitectura del Firmware" meeting="false" start="2025-10-20" duration="5" complete="0" expand="true">
+                    <depend id="39" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="39" uid="8775b3d550924d3bb3f09285717c54a0" name="Disseny del protocol de comunicació Wi-Fi" meeting="false" start="2025-10-27" duration="5" complete="0" expand="true">
+                    <depend id="41" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="41" uid="afb3ef8d879a4690a26ff500843c3317" name="Disseny de la interfície d'usuari" meeting="false" start="2025-11-03" duration="5" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="4" uid="6e94640948624b27b42dfbf34b11512f" name="Desenvolupament del sistema" meeting="false" start="2025-11-10" duration="46" complete="0" expand="true">
+            <depend id="63" type="3" difference="0" hardness="Strong"/>
+            <task id="20" uid="303c035b635d4d7994f140a0be0ec925" name="Programació mòduls bàsics" meeting="false" start="2025-11-10" duration="9" complete="0" expand="false">
+                <depend id="21" type="2" difference="0" hardness="Strong"/>
+                <task id="42" uid="7865b632de52454da39d48d50c29828f" name="Programació entrades/sortides digitals" meeting="false" start="2025-11-10" duration="3" complete="0" expand="true">
+                    <depend id="43" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="43" uid="424a8a33fc6c4ceeb9d53e51080ca136" name="Lectura del joystick" meeting="false" start="2025-11-13" duration="3" complete="0" expand="true">
+                    <depend id="44" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="44" uid="15d18ff6d358476c924ad91ae9abafc8" name="Control LED i indicadors" meeting="false" start="2025-11-18" duration="3" complete="0" expand="true"/>
+            </task>
+            <task id="21" uid="39129d1a8bd54e7f92249e07a605c05e" name="Comunicacions" meeting="false" start="2025-11-21" duration="12" complete="0" expand="false">
+                <depend id="22" type="2" difference="0" hardness="Strong"/>
+                <task id="45" uid="faf698ca65604cc3b5852407ead99143" name="Implementació comunicació emissor" meeting="false" start="2025-11-21" duration="4" complete="0" expand="true">
+                    <depend id="46" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="46" uid="4af610f1e0fc42fd86d32bd31701a2f5" name="Implementació comunicació Wi-Fi receptor" meeting="false" start="2025-11-27" duration="4" complete="0" expand="true">
+                    <depend id="47" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="47" uid="7f509295b97941e6b63b7ff870cbb8d4" name="Protocl d'enviament i recepció de dades" meeting="false" start="2025-12-03" duration="4" complete="0" expand="true"/>
+            </task>
+            <task id="22" uid="9350db9fffbb48829d6ae34ad2e86075" name="Sensors i actuadors" meeting="false" start="2025-12-10" duration="6" complete="0" expand="false">
+                <depend id="23" type="2" difference="0" hardness="Strong"/>
+                <task id="48" uid="7b151718d6ac40a8bb091f018b31698d" name="Integració sensor de distància" meeting="false" start="2025-12-10" duration="2" complete="0" expand="true">
+                    <depend id="49" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="49" uid="1ad116500c76458f8940abc8e3c680e8" name="Control servomotor" meeting="false" start="2025-12-12" duration="2" complete="0" expand="true">
+                    <depend id="50" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="50" uid="3361b9d13511448c971e5e6b86047262" name="Control motor pas a pas" meeting="false" start="2025-12-16" duration="2" complete="0" expand="true"/>
+            </task>
+            <task id="23" uid="05e1df0525624f12a40486befe097b91" name="Integració del sistema" meeting="false" start="2026-01-07" duration="9" complete="0" expand="false">
+                <task id="51" uid="8c6d9f6fada34c40bdc885d0f594e6ef" name="Integració emissor-receptor" meeting="false" start="2026-01-07" duration="3" complete="0" expand="true">
+                    <depend id="52" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="52" uid="8339ee87d34b4d9b8f1b15ef1aecab86" name="Integració sensors i actuadors" meeting="false" start="2026-01-12" duration="3" complete="0" expand="true">
+                    <depend id="53" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="53" uid="83d0a74bcb444457b23e59665f12c278" name="Desenvolupament del comandament final" meeting="false" start="2026-01-15" duration="3" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="2" uid="b8247b7abe3244afa2777f84d0295235" name="Proves i validació" meeting="false" start="2026-01-07" duration="39" complete="0" expand="true">
+            <depend id="64" type="3" difference="0" hardness="Strong"/>
+            <task id="24" uid="23e6a087ca9c4bc6aa8f7352a518b2d1" name="Proves unitàries" meeting="false" start="2026-01-07" duration="26" complete="0" expand="false">
+                <task id="0" uid="49fdbbc6985a416ab3ff95dd47e5ecfe" name="ESP32+SWITCH_LED" meeting="false" start="2026-01-07" duration="2" complete="0" expand="true">
+                    <depend id="14" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="14" uid="dfff5fe9c28f483085436f747c86d804" name="ESP32+JOYSTCK_LED" meeting="false" start="2026-01-09" duration="2" complete="0" expand="true">
+                    <depend id="13" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="13" uid="2e197c0264a847039a0d40a913fd7353" name="ESP32+LED_WIFI" meeting="false" start="2026-01-13" duration="2" complete="0" expand="true">
+                    <depend id="12" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="12" uid="4bc1a762fbba4ed18d99a98b7779416c" name="ESP32+LED_BATERIA" meeting="false" start="2026-01-15" duration="2" complete="0" expand="true">
+                    <depend id="11" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="11" uid="5f720b3a44ca44a590141d51c20c07f0" name="ESP32A_EMISSOR+ESP32B_RECEPTOR" meeting="false" start="2026-01-19" duration="3" complete="0" expand="true">
+                    <depend id="10" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="10" uid="9ca509d2d68349a2be7f193d40c02df1" name="ESP32A_EMISSOR+ESP32B_RECEPTOR_V2" meeting="false" start="2026-01-22" duration="3" complete="0" expand="true">
+                    <depend id="9" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="9" uid="6b00fa2c99584a37abcac5e457a8bba6" name="ESP32A_EMISSOR+ESP32B_RECEPTOR_V3" meeting="false" start="2026-01-27" duration="3" complete="0" expand="true">
+                    <depend id="8" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="8" uid="da82b70442b74ddb81faf4ca9ad132a5" name="ESP32+SENSOR_DISTANCIA" meeting="false" start="2026-01-30" duration="3" complete="0" expand="true">
+                    <depend id="1" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="1" uid="9179f0de34594caf86ebabcaf4f74169" name="ESP32+SERVO+STEPPER" meeting="false" start="2026-02-04" duration="3" complete="0" expand="true">
+                    <depend id="7" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="7" uid="6555fdb0b57c44619f92fcac79bd4e8e" name="COMANDAMENT_V4+JOYSTICK" meeting="false" start="2026-02-09" duration="3" complete="0" expand="true">
+                    <depend id="54" type="2" difference="0" hardness="Strong"/>
+                </task>
+            </task>
+            <task id="25" uid="d1c7bdf971474da98ecff81d46ac1705" name="Proves d'integració" meeting="false" start="2026-02-12" duration="6" complete="0" expand="false">
+                <task id="54" uid="3e7d088908d845d08c81cf5aeb3d3ff3" name="Proves del sistema emissor" meeting="false" start="2026-02-12" duration="2" complete="0" expand="true">
+                    <depend id="55" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="55" uid="9ff7059218c94bb2bcc75838ecce46a9" name="Proves del sistema receptor" meeting="false" start="2026-02-16" duration="2" complete="0" expand="true">
+                    <depend id="56" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="56" uid="08f07ddf560042ae8f69e1e667b70f6d" name="Proves del sistema complet" meeting="false" start="2026-02-18" duration="2" complete="0" expand="true">
+                    <depend id="57" type="2" difference="0" hardness="Strong"/>
+                </task>
+            </task>
+            <task id="26" uid="614667540d3f4ed5b137b2ed2fa62b89" name="Validació del sistema" meeting="false" start="2026-02-20" duration="7" complete="0" expand="false">
+                <task id="57" uid="7b7f2374d49d4891a3318249c92954a9" name="Mesures de rendiment" meeting="false" start="2026-02-20" duration="2" complete="0" expand="true">
+                    <depend id="58" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="58" uid="64778d2d02b84ea1bb3fc18852c0c2b9" name="Test de fiabilitat i seguretat" meeting="false" start="2026-02-24" duration="2" complete="0" expand="true">
+                    <depend id="59" type="2" difference="0" hardness="Strong"/>
+                </task>
+                <task id="59" uid="f2a51177f1fd4b0a88fd456d909216f9" name="Anàlisi de resultats" meeting="false" start="2026-02-26" duration="3" complete="0" expand="true"/>
+            </task>
+        </task>
+        <task id="27" uid="aa1fd78aa2f440f6a76d1de7f03e4453" name="Redacció de la memòria" meeting="false" start="2025-11-03" duration="111" complete="0" expand="true">
+            <depend id="15" type="2" difference="0" hardness="Strong"/>
+            <task id="60" uid="fcb06f5a3f7b4e15b533d61aeaef0f05" name="Introducció i objectius" meeting="false" start="2025-11-03" duration="5" complete="0" expand="true">
+                <depend id="61" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="61" uid="392e4e197bea46b8b2ded0871a941b50" name="Estat de l'art" meeting="false" start="2025-11-10" duration="9" complete="0" expand="true">
+                <depend id="62" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="62" uid="3bf4d1e53b5b4cc0b1abc2630be3a201" name="Disseny del sistema" meeting="false" start="2025-11-21" duration="13" complete="0" expand="true">
+                <depend id="63" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="63" uid="db490572042d4633a80665d9d4ca91b7" name="Desenvolupament" meeting="false" start="2025-12-11" duration="34" complete="0" expand="true">
+                <depend id="64" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="64" uid="a0bae27bf3ca4683ab4ab22e468724f5" name="Proves i resultats" meeting="false" start="2026-02-05" duration="18" complete="0" expand="true">
+                <depend id="65" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="65" uid="0d39db71dbcb410dab5f5d161f49149f" name="Conclusions i treballs futurs" meeting="false" start="2026-03-03" duration="10" complete="0" expand="true">
+                <depend id="66" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="66" uid="e38476fcb7fc40f6899d84bf5cdc1f12" name="Elaboració annexos" meeting="false" start="2026-03-17" duration="20" complete="0" expand="true"/>
+        </task>
+        <task id="15" uid="453899f9e28b40f7b195478e43acf747" name="Preparació de la defensa" meeting="false" start="2026-04-14" duration="8" complete="0" expand="true">
+            <task id="67" uid="88186dfdbda4479c9385e9159336be19" name="Preparació presentació" meeting="false" start="2026-04-14" duration="3" complete="0" expand="true">
+                <depend id="68" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="68" uid="becd323a5813400f9b4b99d8eb7a1aaf" name="Preparació guió defensa" meeting="false" start="2026-04-17" duration="2" complete="0" expand="true">
+                <depend id="69" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="69" uid="9e4242ce2d404110a528ff84659448d6" name="Assaig presentació" meeting="false" start="2026-04-21" duration="1" complete="0" expand="true">
+                <depend id="70" type="2" difference="0" hardness="Strong"/>
+            </task>
+            <task id="70" uid="0bb801c490c044cc93baafe0ded5bfa4" name="Correccions finals" meeting="false" start="2026-04-22" duration="2" complete="0" expand="true"/>
+        </task>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
