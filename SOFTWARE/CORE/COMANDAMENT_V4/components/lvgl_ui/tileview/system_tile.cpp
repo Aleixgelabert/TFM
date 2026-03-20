@@ -1,6 +1,3 @@
-//---------------------------------------------------------
-// FITXER DE PROVES PER CANVIAR DADES PANTALLA
-//---------------------------------------------------------
 #include "system_tile.h"                          // Inclou el fitxer de capçalera propi d’aquest mòdul
 #include "freertos/FreeRTOS.h"                    // Biblioteca base de FreeRTOS
 #include "freertos/task.h"                        // Per crear i gestionar tasques
