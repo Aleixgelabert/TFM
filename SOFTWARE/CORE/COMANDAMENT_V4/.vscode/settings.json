@@ -19,5 +19,6 @@
   "files.associations": {
     "lvgl.h": "c",
     "wifi_manager.h": "c"
-  }
+  },
+  "idf.currentSetup": "/Users/aleixgelabert/esp/v5.5.1/esp-idf"
 }
