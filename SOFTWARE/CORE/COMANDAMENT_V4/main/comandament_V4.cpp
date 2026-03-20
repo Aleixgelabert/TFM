@@ -144,7 +144,7 @@ static void udp_receive_task(void *arg)
 
             // Bloqueig LVGL per actualitzar label de forma segura
             if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
-                lv_label_set_text_fmt(label_cylinder_position, "%.5s %%", rx_buffer);
+                lv_label_set_text_fmt(label_cylinder_position, "%s cm", rx_buffer);
                 // lv_label_set_text(label_cylinder_position, rx_buffer);
                 lvgl_port_unlock();
             }
