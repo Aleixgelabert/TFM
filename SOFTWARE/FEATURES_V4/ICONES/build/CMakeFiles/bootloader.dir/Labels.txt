@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/CMakeFiles/bootloader
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/CMakeFiles/bootloader.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/CMakeFiles/bootloader-complete.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/FEATURES_V4/ICONES/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

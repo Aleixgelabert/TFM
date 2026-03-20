@@ -1,0 +1,24 @@
+Command: cmake -G Ninja -B /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/Users/aleixgelabert/.espressif/python_env/idf6.1_py3.12_env/bin/python -DESP_PLATFORM=1 -DCCACHE_ENABLE=False /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/aleixgelabert/.espressif/python_env/idf6.1_py3.12_env/lib/python3.12/site-packages/kconfgen/__main__.py", line 18, in <module>
+    main()
+  File "/Users/aleixgelabert/.espressif/python_env/idf6.1_py3.12_env/lib/python3.12/site-packages/kconfgen/core.py", line 830, in main
+    config.load_config(temp_file, replace=False, print_report=print_report)
+  File "/Users/aleixgelabert/.espressif/python_env/idf6.1_py3.12_env/lib/python3.12/site-packages/esp_kconfiglib/core.py", line 1220, in load_config
+    self._load_config(filename, replace, load_deprecated, is_main_sdkconfig)
+  File "/Users/aleixgelabert/.espressif/python_env/idf6.1_py3.12_env/lib/python3.12/site-packages/esp_kconfiglib/core.py", line 1539, in _load_config
+    f"Trying to set symbol {choice.selection.name} to n, but it is currently selected "
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'name'
+CMake Error at /Users/aleixgelabert/esp/esp-idf/tools/cmake/kconfig.cmake:243 (message):
+  Failed to run kconfgen
+  (/Users/aleixgelabert/.espressif/python_env/idf6.1_py3.12_env/bin/python;-m;kconfgen;--list-separator=semicolon;--kconfig;/Users/aleixgelabert/esp/esp-idf/Kconfig;--sdkconfig-rename;/Users/aleixgelabert/esp/esp-idf/sdkconfig.rename;--config;/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/sdkconfig;--defaults;/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/sdkconfig.defaults;--env;IDF_MINIMAL_BUILD=n;--env-file;/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/config.env).
+  Error 1
+Call Stack (most recent call first):
+  /Users/aleixgelabert/esp/esp-idf/tools/cmake/build.cmake:772 (__kconfig_generate_config)
+  /Users/aleixgelabert/esp/esp-idf/tools/cmake/project.cmake:753 (idf_build_process)
+  CMakeLists.txt:8 (project)
+
+
