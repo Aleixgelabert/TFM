@@ -134,13 +134,15 @@
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__esp_lcd_touch/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_lcd_touch_ft6336/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_port/cmake_install.cmake",
+		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/lvgl_ui/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__esp_io_expander/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__esp_io_expander_tca9554/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/wifi_manager/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__cmake_utilities/cmake_install.cmake",
 		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__button/cmake_install.cmake",
-		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/main/cmake_install.cmake"
+		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/main/cmake_install.cmake",
+		"/Users/aleixgelabert/Documents/MECATRO\u0300NICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

@@ -619,6 +619,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/lvgl_ui/cmake_install.cmake")
 endif()
 
@@ -650,6 +655,11 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
   include("/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/main/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/cmake_install.cmake")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT

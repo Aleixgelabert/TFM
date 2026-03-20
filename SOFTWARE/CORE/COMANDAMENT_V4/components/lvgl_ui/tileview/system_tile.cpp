@@ -101,10 +101,10 @@ void system_tile_init(lv_obj_t *parent)
                                                                                 // LV_PART_MAIN indica que el canvi s’aplica a la part principal de l’objecte.
     lv_label_set_text(lable, "TRIM TAB");
     lv_obj_align(lable, LV_ALIGN_TOP_MID, 0, 10);        // Col·loca el títol a la part superior i centrada horitzontalment (TOP_MID),
-                                                        // amb un petit desplaçament vertical de 3 píxels.
-    lv_obj_set_size(list, lv_pct(95), lv_pct(70));      // Dona a la llista una mida del 95% de l’amplada i 70% de l’alçada del contenidor pare (parent).
+                                                        // amb un petit desplaçament vertical de 10 píxels.
+    lv_obj_set_size(list, lv_pct(95), lv_pct(73));      // Dona a la llista una mida del 95% de l’amplada i 73% de l’alçada del contenidor pare (parent).
                                                         // Així ocupa gairebé tota la pantalla.
-    lv_obj_align(list, LV_ALIGN_TOP_MID, 0, 40);        // Col·loca la llista sota el títol, centrada a dalt, i amb 30 píxels de marge des del top.
+    lv_obj_align(list, LV_ALIGN_TOP_MID, 0, 40);        // Col·loca la llista sota el títol, centrada a dalt, i amb 40 píxels de marge des del top.
 
     
     // Slider per controlar la brillantor
@@ -134,11 +134,11 @@ void system_tile_init(lv_obj_t *parent)
     label_joystick_position_A = lv_label_create(list_item);
     lv_label_set_text(label_joystick_position_A, "--- %");
 
-    list_item = lv_list_add_btn(list, NULL, "Output Joystick A");
+    list_item = lv_list_add_btn(list, NULL, "Output Joystick B");
     label_output_joystick_B = lv_label_create(list_item);
     lv_label_set_text(label_output_joystick_B, "--- mV");
 
-    list_item = lv_list_add_btn(list, NULL, "Position Joystick A");
+    list_item = lv_list_add_btn(list, NULL, "Position Joystick B");
     label_joystick_position_B = lv_label_create(list_item);
     lv_label_set_text(label_joystick_position_B, "--- %");
 

@@ -944,6 +944,13 @@
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_port/CMakeFiles/install.dir
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_port/CMakeFiles/install/local.dir
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_port/CMakeFiles/install/strip.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/CMakeFiles/__idf_pmu_battery.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/CMakeFiles/edit_cache.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/CMakeFiles/rebuild_cache.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/CMakeFiles/list_install_components.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/CMakeFiles/install.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/CMakeFiles/install/local.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/CMakeFiles/install/strip.dir
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/lvgl_ui/CMakeFiles/__idf_lvgl_ui.dir
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/lvgl_ui/CMakeFiles/edit_cache.dir
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/lvgl_ui/CMakeFiles/rebuild_cache.dir
@@ -992,3 +999,10 @@
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/main/CMakeFiles/install.dir
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/main/CMakeFiles/install/local.dir
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/main/CMakeFiles/install/strip.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/CMakeFiles/__idf_ui_icons.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/CMakeFiles/edit_cache.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/CMakeFiles/rebuild_cache.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/CMakeFiles/list_install_components.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/CMakeFiles/install.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/CMakeFiles/install/local.dir
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/CMakeFiles/install/strip.dir

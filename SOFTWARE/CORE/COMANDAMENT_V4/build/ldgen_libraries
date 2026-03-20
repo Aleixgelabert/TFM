@@ -182,8 +182,10 @@
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/fatfs/libfatfs.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_lcd_st7796/libesp_lcd_st7796.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_lcd_touch_ft6336/libesp_lcd_touch_ft6336.a
-/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/lvgl_ui/liblvgl_ui.a
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/libpmu_battery.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/esp_port/libesp_port.a
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/lvgl_ui/liblvgl_ui.a
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/pmu_battery/libpmu_battery.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__esp_io_expander/libespressif__esp_io_expander.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__esp_io_expander_tca9554/libespressif__esp_io_expander_tca9554.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__esp_io_expander/libespressif__esp_io_expander.a
@@ -193,3 +195,4 @@
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__esp_io_expander_tca9554/libespressif__esp_io_expander_tca9554.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/wifi_manager/libwifi_manager.a
 /Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/espressif__button/libespressif__button.a
+/Users/aleixgelabert/Documents/MECATRÒNICA/TFM/SOFTWARE/CORE/COMANDAMENT_V4/build/esp-idf/ui_icons/libui_icons.a
