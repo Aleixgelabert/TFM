@@ -48,6 +48,20 @@ lv_obj_t *icon_battery = NULL;
 lv_obj_t *icon_wifi = NULL;
 lv_obj_t *label_batt_pct = NULL;
 
+
+void system_set_joystick_sensor_1(int s1)
+{
+    if (label_output_joystick_A)
+        lv_label_set_text_fmt(label_output_joystick_A , "%d mV", s1);
+}
+
+void system_set_joystick_sensor_2(int s2)
+{
+    if (label_output_joystick_B)
+        lv_label_set_text_fmt(label_output_joystick_B, "%d mV", s2);
+}
+
+
 //---------------------------------------------------------
 // CALLBACK del slider de brillantor
 //---------------------------------------------------------
