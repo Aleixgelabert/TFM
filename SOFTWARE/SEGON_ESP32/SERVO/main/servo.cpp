@@ -20,7 +20,6 @@ extern "C" {
 #include "esp_rom_sys.h"
 #include "esp_timer.h"
 #include "driver/mcpwm.h"
-#include "driver/adc.h"
 }
 
 static const char *TAG = "Sensor_distancia";
@@ -45,27 +44,25 @@ static const char *TAG = "Sensor_distancia";
 static float vx_value = 90;   // inici al centre
 static float vy_value = 0;  // reservat per altres usos
 static int btn_pressed = 0; // variable global
+static float last_angle = 90;   // memòria de posició
 
-int parse_vx_vy_from_msg(const char *msg, float *vx, float *vy)
+/* ---------- PARSE UDP ---------- */
+int parse_vx_vy_from_msg(const char *msg, float *raw_vx, float *raw_vy)
 {
-    *vx = 90; // valor per defecte
-    *vy = 0;
-    btn_pressed = 0; // per defecte botó no premut
-
     const char *px = strstr(msg, "VX=");
     if (px) {
-        *vx = atof(px + 3);   // converteix el que hi ha després de "VX="
-        if (*vx < 0) *vx = 0;
-        if (*vx > 4095) *vx = 4095;
-        *vx = (*vx * 180) / 4095; // normalitza a 0..180 graus
+        *raw_vx = atof(px + 3);   // converteix el que hi ha després de "VX="
+        if (*raw_vx < 0) *raw_vx = 0;
+        if (*raw_vx > 4095) *raw_vx = 4095;
+        *raw_vx = (*raw_vx * 180) / 4095; // normalitza a 0..180 graus
     }
 
     const char *py = strstr(msg, "VY=");
     if (py) {
-        *vy = atof(py + 3);
-        if (*vy < 0) *vy = 0;
-        if (*vy > 4095) *vy = 4095;
-        *vy = (*vy * 180) / 4095; // normalitza a 0..180 graus, també es pot deixar 0..4095 per altres funcions
+        *raw_vy = atof(py + 3);
+        if (*raw_vy < 0) *raw_vy = 0;
+        if (*raw_vy > 4095) *raw_vy = 4095;
+        *raw_vy = (*raw_vy * 180) / 4095; // normalitza a 0..180 graus, també es pot deixar 0..4095 per altres funcions
     }
 
     const char *pb = strstr(msg, "BTN=");
@@ -201,7 +198,7 @@ static void udp_receive_task(void *arg)
 
             parse_vx_vy_from_msg(rx_buffer, &vx_value, &vy_value);
 
-            ESP_LOGI(TAG, "vx angle: %.1f   vy raw: %.1f", vx_value, vy_value);
+            ESP_LOGI(TAG, "vx raw: %.1f   vy raw: %.1f", vx_value, vy_value);
         }
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -214,7 +211,7 @@ static void init_servo()
     mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, SERVO_GPIO);
 
     mcpwm_config_t pwm_config;
-    pwm_config.frequency = 50;         // 50 Hz per servos
+    pwm_config.frequency = 50;         // 50 Hz
     pwm_config.cmpr_a = 0;             // duty inicial
     pwm_config.cmpr_b = 0;
     pwm_config.counter_mode = MCPWM_UP_COUNTER;
@@ -226,27 +223,38 @@ static void init_servo()
 }
 
 // Converteix angle 0-180 a polsos µs
-static uint32_t angle_to_us(int angle)
+static uint32_t angle_to_us(float angle)
 {
     return SERVO_MIN_US + (angle * (SERVO_MAX_US - SERVO_MIN_US) / 180);
 }
 
 
-/* ---------- Control del Servo ---------- */
+/* ---------- Control del Servo tipus actuador hidràulic---------- */
 static void servo_task(void *arg)
 {
     while (1) {
-        int angle;
-        if (btn_pressed) {
-            angle = (int)vx_value; // només mou el servo si botó premut
+
+        // Convertim joystick a velocitat incremental (-1 a +1)
+        float speed = 0;
+        float deadzone = 15.0; // graus centrals que es consideren "quiet"
+
+        if (vx_value > 90 + deadzone) {
+            speed = (vx_value - 90) / 90.0;  // cap a la dreta
+        } else if (vx_value < 90 - deadzone) {
+            speed = (vx_value - 90) / 90.0;  // cap a l'esquerra
         } else {
-            angle = 90; // opcional: centra el servo quan no hi ha activació
+            speed = 0; // totalment quiet
         }
 
-        if (angle < 0) angle = 0;
-        if (angle > 180) angle = 180;
+        // --- Mou només si botó premut i joystick fora zona morta ---
+        if (btn_pressed && fabs(speed) > 0.05) {
+            last_angle += speed * 2.0; // ajustable: velocitat del servo
+            if (last_angle < 0) last_angle = 0;
+            if (last_angle > 180) last_angle = 180;
+        }
 
-        uint32_t pulse = angle_to_us(angle);
+        // --- Aplica l’última posició --- 
+        uint32_t pulse = angle_to_us(last_angle);
 
         mcpwm_set_duty_in_us(
             MCPWM_UNIT_0,
@@ -263,7 +271,7 @@ static void servo_task(void *arg)
 /* ---------- app_main ---------- */
 extern "C" void app_main()
 {
-    // Configuració dels pins del sensor HC-SR04
+    // Configuració dels pins del sensor distància HC-SR04
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
@@ -285,7 +293,7 @@ extern "C" void app_main()
     // Inicialitza el servo
     init_servo();
 
-    // Tascas per receptor UDP i servo
+    // Tasques per receptor UDP i servo
     xTaskCreate(udp_receive_task, "udp_receive_task", 4096, NULL, 5, NULL);
     xTaskCreate(servo_task, "servo_task", 4096, NULL, 5, NULL);
 
