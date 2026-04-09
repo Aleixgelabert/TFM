@@ -1,6 +1,6 @@
 // Arxiu servo.cpp
 // ESP32 actua com a punt d'accés i envia dades UDP cada segon a la pantalla (192.168.4.2)
-// La pantalla (192.168.4.2) envia senyal Vx del moviment del joystick
+// La pantalla (192.168.4.2) envia senyal vx i vy del moviment del joystick
 
 #include <string>
 #include <cstring>
@@ -40,14 +40,17 @@ static const char *TAG = "Sensor_distancia";
 #define SERVO_GPIO      GPIO_NUM_5
 #define SERVO_MIN_US    500
 #define SERVO_MAX_US    2500
-// Valor de Vx rebut per UDP (0-180)
+
+// Valor de vx rebut per UDP (0-180)
 static float vx_value = 90;   // inici al centre
 static float vy_value = 0;  // reservat per altres usos
+static int btn_pressed = 0; // variable global
 
 int parse_vx_vy_from_msg(const char *msg, float *vx, float *vy)
 {
     *vx = 90; // valor per defecte
     *vy = 0;
+    btn_pressed = 0; // per defecte botó no premut
 
     const char *px = strstr(msg, "VX=");
     if (px) {
@@ -62,7 +65,12 @@ int parse_vx_vy_from_msg(const char *msg, float *vx, float *vy)
         *vy = atof(py + 3);
         if (*vy < 0) *vy = 0;
         if (*vy > 4095) *vy = 4095;
-        // si vols, també es pot normalitzar a 0..180 o deixar 0..4095 per altres funcions
+        *vy = (*vy * 180) / 4095; // normalitza a 0..180 graus, també es pot deixar 0..4095 per altres funcions
+    }
+
+    const char *pb = strstr(msg, "BTN=");
+    if (pb) {
+        btn_pressed = atoi(pb + 4); // 1 si premut, 0 si no
     }
 
     return 0;
@@ -117,12 +125,12 @@ static float read_distance_cm()
 
     int64_t start_time = esp_timer_get_time();
     while (gpio_get_level(ECHO_PIN) == 0) {
-        if (esp_timer_get_time() - start_time > 2000000) return -1; // timeout 2s
+        if (esp_timer_get_time() - start_time > 500000) return -1; // timeout 0.5s
     }
 
     int64_t echo_start = esp_timer_get_time();
     while (gpio_get_level(ECHO_PIN) == 1) {
-        if (esp_timer_get_time() - echo_start > 2000000) return -1;
+        if (esp_timer_get_time() - echo_start > 500000) return -1;
     }
     int64_t echo_end = esp_timer_get_time();
 
@@ -168,7 +176,7 @@ static void udp_send_task(void *arg)
 }
 
 
-/* ---------- UDP Receiver Vx i Vy ---------- */
+/* ---------- UDP Receiver vx i vy ---------- */
 static void udp_receive_task(void *arg)
 {
     struct sockaddr_in server_addr, client_addr;
@@ -193,7 +201,7 @@ static void udp_receive_task(void *arg)
 
             parse_vx_vy_from_msg(rx_buffer, &vx_value, &vy_value);
 
-            ESP_LOGI(TAG, "VX angle: %.1f   VY raw: %.1f", vx_value, vy_value);
+            ESP_LOGI(TAG, "vx angle: %.1f   vy raw: %.1f", vx_value, vy_value);
         }
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -228,7 +236,12 @@ static uint32_t angle_to_us(int angle)
 static void servo_task(void *arg)
 {
     while (1) {
-        int angle = (int)vx_value;
+        int angle;
+        if (btn_pressed) {
+            angle = (int)vx_value; // només mou el servo si botó premut
+        } else {
+            angle = 90; // opcional: centra el servo quan no hi ha activació
+        }
 
         if (angle < 0) angle = 0;
         if (angle > 180) angle = 180;

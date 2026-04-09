@@ -11,8 +11,8 @@ extern "C" {
 
 void system_tile_init(lv_obj_t *parent);
 
-void system_set_joystick_sensor_1(int s1);
-void system_set_joystick_sensor_2(int s2);
+void system_set_joystick_vx(int vx);
+void system_set_joystick_vy(int vy);
 
 extern lv_obj_t *label_cylinder_position;
 extern lv_obj_t *label_brightness;

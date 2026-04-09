@@ -76,7 +76,7 @@
 #define EXAMPLE_LCD_V_RES 480
 #endif
 
-// Calcula la mida del buffer que usaràs per dibuixar
+// Calcula la mida del buffer per dibuixar
 #define LCD_BUFFER_SIZE EXAMPLE_LCD_H_RES *EXAMPLE_LCD_V_RES / 8
 
 // Defineix el número del port de I2C (pot ser 0 o 1)
@@ -158,7 +158,7 @@ static void joystick_task(void *arg)
     const int dest_port = 3333;            // Port UDP
     struct sockaddr_in dest_addr;
     char msg[64];
-    int s1, s2;
+    int Vx, Vy;
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (sock < 0) {
@@ -178,8 +178,8 @@ static void joystick_task(void *arg)
     while (1)
     {
         // Llegeix ADC (0..4095)
-        s1 = adc1_get_raw(JOY_X);
-        s2 = adc1_get_raw(JOY_Y);
+        Vx = adc1_get_raw(JOY_X);
+        Vy = adc1_get_raw(JOY_Y);
 
         // Enviar per UDP (només si IP válida)
         if (dest_addr.sin_addr.s_addr != INADDR_NONE) {
@@ -188,9 +188,9 @@ static void joystick_task(void *arg)
 
             // Construïm el paquet segons l’estat del botó
             if (btn == 0) {   // Botó premut → activació
-                n = snprintf(msg, sizeof(msg), "Sensor1=%d;Sensor2=%d;BTN=1", s1, s2);
+                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=1", Vx, Vy);
             } else {          // Botó NO premut
-                n = snprintf(msg, sizeof(msg), "Sensor1=%d;Sensor2=%d;BTN=0", s1, s2);
+                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=0", Vx, Vy);
             }
 
             // Enviem un únic paquet
@@ -204,15 +204,15 @@ static void joystick_task(void *arg)
             }
             
             // imprimir per terminal
-            ESP_LOGI("JOYSTICK", "Sensor1=%d   Sensor2=%d   BTN=%d",
-                 s1, s2, (btn == 0 ? 1 : 0));
+            ESP_LOGI("JOYSTICK", "VX=%d   VY=%d   BTN=%d",
+                 Vx, Vy, (btn == 0 ? 1 : 0));
 
         }
 
         // Actualitzar labels de la UI (crida modular a system_tile)
         if (lvgl_port_lock(10)) {
-            system_set_joystick_sensor_1(s1);
-            system_set_joystick_sensor_2(s2);
+            system_set_joystick_vx(Vx);
+            system_set_joystick_vy(Vy);
             lvgl_port_unlock();
         }
 

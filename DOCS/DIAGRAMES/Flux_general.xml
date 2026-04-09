@@ -1,0 +1,81 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Flux TFM Trim Tab">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- START -->
+        <mxCell id="start" value="INICI" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="120" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- INIT -->
+        <mxCell id="init" value="Inicialització sistema (PLC + WiFi)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="100" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- ON/OFF -->
+        <mxCell id="onoff" value="Sistema ON?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="200" width="140" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- ESTOP -->
+        <mxCell id="estop" value="E-STOP activat?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="320" width="160" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- RECEIVE -->
+        <mxCell id="receive" value="Recepció dades (UDP): joystick + botó" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="440" width="260" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- CONFIRM -->
+        <mxCell id="confirm" value="Botó confirmació premut?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="540" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- SENSORS -->
+        <mxCell id="sensors" value="Lectura sensors (posició + pressions)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="660" width="260" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- PLC -->
+        <mxCell id="plc" value="Processament PLC (lògica control)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="760" width="260" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- ACTUATION -->
+        <mxCell id="actuation" value="Actuació cilindre" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="860" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- FEEDBACK -->
+        <mxCell id="feedback" value="Enviament dades a emissor" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="960" width="240" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- STOP -->
+        <mxCell id="stop" value="Sistema aturat" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="200" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- EDGES -->
+        <mxCell id="e1" edge="1" parent="1" source="start" target="init"/>
+        <mxCell id="e2" edge="1" parent="1" source="init" target="onoff"/>
+        <mxCell id="e3" value="NO" edge="1" parent="1" source="onoff" target="stop"/>
+        <mxCell id="e4" value="SÍ" edge="1" parent="1" source="onoff" target="estop"/>
+        <mxCell id="e5" value="SÍ" edge="1" parent="1" source="estop" target="stop"/>
+        <mxCell id="e6" value="NO" edge="1" parent="1" source="estop" target="receive"/>
+        <mxCell id="e7" edge="1" parent="1" source="receive" target="confirm"/>
+        <mxCell id="e8" value="NO" edge="1" parent="1" source="confirm" target="estop"/>
+        <mxCell id="e9" value="SÍ" edge="1" parent="1" source="confirm" target="sensors"/>
+        <mxCell id="e10" edge="1" parent="1" source="sensors" target="plc"/>
+        <mxCell id="e11" edge="1" parent="1" source="plc" target="actuation"/>
+        <mxCell id="e12" edge="1" parent="1" source="actuation" target="feedback"/>
+        <mxCell id="e13" edge="1" parent="1" source="feedback" target="estop"/>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
