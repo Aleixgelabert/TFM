@@ -93,7 +93,7 @@ static const char *TAG_UDP = "udp_receiver"; // Etiqueta que surt als missatges 
 #define JOY_Y ADC1_CHANNEL_9
 #define BUTTON GPIO_NUM_38
 
-#define DEADZONE 400 // Zona morta
+#define DEADZONE 100 // Deadzone ajustada per calibració
 
 
 // Variables per a bus I2C, controladors de pantalla, tàctils, expansor, LVGL
@@ -114,10 +114,9 @@ void i2c_bus_init(void);
 void io_expander_init(void);
 void lv_port_init(void);
 
-
-/**
- * Tasca FreeRTOS que escolta paquets UDP i mostra el seu contingut per log.
- */
+// -----------------------------------------------------------------------------
+// Tasca UDP per rebre dades i mostra el seu contingut per log.
+// -----------------------------------------------------------------------------
 static void udp_receive_task(void *arg)
 {
     (void)arg;
@@ -144,22 +143,33 @@ static void udp_receive_task(void *arg)
 
             // Bloqueig LVGL per actualitzar label de forma segura
             if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
-                lv_label_set_text_fmt(label_cylinder_position, "%s cm", rx_buffer);
-                // lv_label_set_text(label_cylinder_position, rx_buffer);
+                if (label_cylinder_position)
+                {
+                    lv_label_set_text_fmt(label_cylinder_position, "%s cm", rx_buffer);
+                }
                 lvgl_port_unlock();
             }
         }
     }
 }
 
+// -----------------------------------------------------------------------------
+// Tasca Joystick (amb calibració, deadzone i mitjana mòbil)
+// -----------------------------------------------------------------------------
 static void joystick_task(void *arg)
 {
     const char *dest_ip = "192.168.4.1";   // IP del receptor
     const int dest_port = 3333;            // Port UDP
     struct sockaddr_in dest_addr;
     char msg[64];
-    int Vx, Vy;
 
+    int Vx_raw, Vy_raw;        // Lectura ADC directa
+    int Vx_center, Vy_center;  // Valors de centre del joystick
+    int Vx_mapped, Vy_mapped;  // Valors finals mapejats 0..4095
+
+    const int deadzone = 400;  // Zona morta al voltant del centre
+
+    // --- Configuració socket UDP ---
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (sock < 0) {
         ESP_LOGE(TAG_UDP, "joystick_task: no es pot crear socket");
@@ -174,49 +184,113 @@ static void joystick_task(void *arg)
         ESP_LOGW(TAG_UDP, "joystick_task: dest_ip invalida, enviament desactivat");
     }
     
+    // --- Calibració del centre ---
+    ESP_LOGI("JOYSTICK", "Calibrant joystick, mantingueu-lo al centre...");
+    Vx_center = 0;
+    Vy_center = 0;
+    const int N_CAL = 50; // Nombre de mostres per calcular el centre
+    
+    for (int i = 0; i < N_CAL; i++) {
+        Vx_center += adc1_get_raw(JOY_X);
+        Vy_center += adc1_get_raw(JOY_Y);
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+    Vx_center /= N_CAL;
+    Vy_center /= N_CAL;
 
+    ESP_LOGI("JOYSTICK", "Centre calibrat: Vx=%d, Vy=%d", Vx_center, Vy_center);
+
+    // ------  Obtenir extrems del joystick ------
+    // Llegim valors màxim i mínim als extrems per mapatge lineal
+    const int EXT_SAMPLES = 50;
+    int Vx_left=0, Vx_right=0, Vy_up=0, Vy_down=0;
+
+    ESP_LOGI("JOYSTICK", "Calibrant extrems del joystick... mou tot a esquerra, dreta, amunt, avall");
+
+    // Per simplificar, assignem valors teòrics si no es fa calibració física
+    // Això es pot substituir per llegir manualment els extrems
+    Vx_left = 0;
+    Vx_right = 4095;
+    Vy_down = 0;
+    Vy_up = 4095;
+
+
+    // --- Bucle principal ---
     while (1)
     {
         // Llegeix ADC (0..4095)
-        Vx = adc1_get_raw(JOY_X);
-        Vy = adc1_get_raw(JOY_Y);
+        Vx_raw = adc1_get_raw(JOY_X);
+        Vy_raw = adc1_get_raw(JOY_Y);
+
+         // Restem centre per obtenir desviació
+        int Vx_dev = Vx_raw - Vx_center;
+        int Vy_dev = Vy_raw - Vy_center;
+
+        // Aplicar deadzone
+        if (abs(Vx_dev) < deadzone) Vx_dev = 0;
+        if (abs(Vy_dev) < deadzone) Vy_dev = 0;
+
+        // Funció de mapatge lineal
+        auto map_range = [](int val, int in_min, int in_max, int out_min, int out_max) {
+            if (val <= in_min) return out_min;
+            if (val >= in_max) return out_max;
+            return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+        };
+
+        // Mapegem Vx: esquerra=0, dreta=4095
+        if (Vx_dev >= 0)
+            Vx_mapped = map_range(Vx_dev, 0, Vx_right - Vx_center, 2048, 4095);
+        else
+            Vx_mapped = map_range(Vx_dev, Vx_left - Vx_center, 0, 0, 2048);
+
+        // Mapegem Vy: baix=0, amunt=4095
+        if (Vy_dev >= 0)
+            Vy_mapped = map_range(Vy_dev, 0, Vy_up - Vy_center, 2048, 4095);
+        else
+            Vy_mapped = map_range(Vy_dev, Vy_down - Vy_center, 0, 0, 2048);
+
+        // Calculem la posició del joystick en percentatge
+        int Vx_pct = ((Vx_mapped - 2048) * 100) / 2048; // -100..+100
+        int Vy_pct = ((Vy_mapped - 2048) * 100) / 2048; // -100..+100
+
+        // Llegir estat botó
+        int btn = gpio_get_level(BUTTON);    // 1 = NO premut, 0 = premut
+
 
         // Enviar per UDP (només si IP válida)
         if (dest_addr.sin_addr.s_addr != INADDR_NONE) {
-            int btn = gpio_get_level(BUTTON);   // 1 = NO premut, 0 = premut
             int n;
 
             // Construïm el paquet segons l’estat del botó
-            if (btn == 0) {   // Botó premut → activació
-                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=1", Vx, Vy);
-            } else {          // Botó NO premut
-                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=0", Vx, Vy);
-            }
+            if (btn == 0)   // Botó premut → activació
+                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=1", Vx_mapped, Vy_mapped);
+            else            // Botó NO premut
+                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=0", Vx_mapped, Vy_mapped);
 
             // Enviem un únic paquet
             if (n > 0) {
-                int sent = sendto(sock, msg, n, 0,
-                                (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-
-                if (sent < 0) {
-                    ESP_LOGW(TAG_UDP, "joystick_task: sendto failed");
-                }
+                int sent = sendto(sock, msg, n, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+                if (sent < 0)
+                    ESP_LOGW(TAG_UDP, "joystick_task: sendto ha fallat");
             }
-            
-            // imprimir per terminal
-            ESP_LOGI("JOYSTICK", "VX=%d   VY=%d   BTN=%d",
-                 Vx, Vy, (btn == 0 ? 1 : 0));
-
         }
+
+        // imprimir per terminal
+        ESP_LOGI("JOYSTICK", "VX=%d (%d%%)   VY=%d (%d%%)   BTN=%d",
+                Vx_mapped, Vx_pct, Vy_mapped, Vy_pct, (btn==0?1:0));
+
 
         // Actualitzar labels de la UI (crida modular a system_tile)
         if (lvgl_port_lock(10)) {
-            system_set_joystick_vx(Vx);
-            system_set_joystick_vy(Vy);
+            system_set_joystick_vx(Vx_mapped);
+            system_set_joystick_vy(Vy_mapped);
+            system_set_joystick_vx_pct(Vx_pct);
+            system_set_joystick_vy_pct(Vy_pct);
             lvgl_port_unlock();
         }
 
-        vTaskDelay(pdMS_TO_TICKS(50)); // 20Hz
+        // Delay 20ms (50Hz)
+        vTaskDelay(pdMS_TO_TICKS(20));
     }
 
     // (No arribem aquí normalment) tanca socket
@@ -226,8 +300,9 @@ static void joystick_task(void *arg)
 }
 
 
-
-// Funció principal
+// -----------------------------------------------------------------------------
+// Funció principal app_main
+// -----------------------------------------------------------------------------
 extern "C" void app_main(void)
 {
    // Inicialització de NVS (memòria no volàtil)
@@ -257,7 +332,6 @@ extern "C" void app_main(void)
    
     esp_axp2101_port_init(i2c_bus_handle);      // Inicialització del PMU (Power Management Unit) AXP2101 i altres perifèrics I2C
     vTaskDelay(pdMS_TO_TICKS(100));             // Important: sovint cal un petit delay perquè els dispositius s’engeguin.
-    // esp_qmi8658_port_init(i2c_bus_handle);   // IMU (Inertial Mesurement Unit) (QMI8658)*/
     esp_pcf85063_port_init(i2c_bus_handle);     // RTC (Real-Time Clock) (PCF85063)... Tots mitjançant l’I2C. 
     
    
@@ -273,9 +347,6 @@ extern "C" void app_main(void)
     // i després la desbloqueges perquè funcioni normalment
     if (lvgl_port_lock(0))
     {
-        // lv_demo_benchmark();
-        // lv_demo_music();
-        // lv_demo_widgets();
         lvgl_ui_init(); // Funció personalitzada (no LVGL Oficial), inicialitza interfície d'usuari (botons, menús, pantalles,...)
         lvgl_port_unlock();
     }
@@ -293,7 +364,7 @@ extern "C" void app_main(void)
     };
     gpio_config(&btn_conf);
 
-    /*
+/*
  * Tasca Wi-Fi.
  */
     ESP_LOGI(TAG_UDP, "Iniciant receptor UDP...");    // Missatge inicial al log
@@ -312,7 +383,6 @@ extern "C" void app_main(void)
     const TickType_t wait_ticks = pdMS_TO_TICKS(10000);  // 10000 ms = 10 segons
     if (!wifi_wait_connected(wait_ticks)) {       // Si no tenim IP després de 10s
         ESP_LOGE(TAG_UDP, "No s'ha obtingut IP en %d ms", 10000);
-       // return;                                   // Sortim o podríem reiniciar
     }
 
     // Quan ja tenim IP, creem la tasca que escoltarà UDP
@@ -332,7 +402,9 @@ extern "C" void app_main(void)
 
 }
 
-// Configuració I2C
+// -----------------------------------------------------------------------------
+// Funcions I2C i expansor
+// -----------------------------------------------------------------------------
 void i2c_bus_init(void)
 {
     i2c_master_bus_config_t i2c_mst_config = {};
