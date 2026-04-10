@@ -88,10 +88,11 @@ static const char *TAG_UDP = "udp_receiver"; // Etiqueta que surt als missatges 
 #define UDP_PORT 3333                    // Port UDP on rebrem els missatges
 #define RECV_BUF_SIZE 256                // Mida del buffer per llegir dades rebudes
 
-// Definició dels pins del Joystick i del botó Confirm
+// Definició dels pins del Joystick i dels botons Confirm i E-stop
 #define JOY_X ADC1_CHANNEL_8
 #define JOY_Y ADC1_CHANNEL_9
 #define BUTTON GPIO_NUM_38
+#define ESTOP_GPIO GPIO_NUM_21
 
 #define DEADZONE 100 // Deadzone ajustada per calibració
 
@@ -143,9 +144,9 @@ static void udp_receive_task(void *arg)
 
             // Bloqueig LVGL per actualitzar label de forma segura
             if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
-                if (label_cylinder_position)
+                if (label_sensor_position)
                 {
-                    lv_label_set_text_fmt(label_cylinder_position, "%s cm", rx_buffer);
+                    lv_label_set_text_fmt(label_sensor_position, "%s cm", rx_buffer);
                 }
                 lvgl_port_unlock();
             }
@@ -218,75 +219,89 @@ static void joystick_task(void *arg)
     // --- Bucle principal ---
     while (1)
     {
-        // Llegeix ADC (0..4095)
-        Vx_raw = adc1_get_raw(JOY_X);
-        Vy_raw = adc1_get_raw(JOY_Y);
+        bool estop_active = gpio_get_level(ESTOP_GPIO);  // 1 = premut (e-stop actiu)
 
-         // Restem centre per obtenir desviació
-        int Vx_dev = Vx_raw - Vx_center;
-        int Vy_dev = Vy_raw - Vy_center;
+        system_set_estop(estop_active);
 
-        // Aplicar deadzone
-        if (abs(Vx_dev) < deadzone) Vx_dev = 0;
-        if (abs(Vy_dev) < deadzone) Vy_dev = 0;
+        if (!estop_active) {
+            // Llegeix ADC (0..4095)
+            Vx_raw = adc1_get_raw(JOY_X);
+            Vy_raw = adc1_get_raw(JOY_Y);
 
-        // Funció de mapatge lineal
-        auto map_range = [](int val, int in_min, int in_max, int out_min, int out_max) {
-            if (val <= in_min) return out_min;
-            if (val >= in_max) return out_max;
-            return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-        };
+            // Restem centre per obtenir desviació
+            int Vx_dev = Vx_raw - Vx_center;
+            int Vy_dev = Vy_raw - Vy_center;
 
-        // Mapegem Vx: esquerra=0, dreta=4095
-        if (Vx_dev >= 0)
-            Vx_mapped = map_range(Vx_dev, 0, Vx_right - Vx_center, 2048, 4095);
-        else
-            Vx_mapped = map_range(Vx_dev, Vx_left - Vx_center, 0, 0, 2048);
+            // Aplicar deadzone
+            if (abs(Vx_dev) < deadzone) Vx_dev = 0;
+            if (abs(Vy_dev) < deadzone) Vy_dev = 0;
 
-        // Mapegem Vy: baix=0, amunt=4095
-        if (Vy_dev >= 0)
-            Vy_mapped = map_range(Vy_dev, 0, Vy_up - Vy_center, 2048, 4095);
-        else
-            Vy_mapped = map_range(Vy_dev, Vy_down - Vy_center, 0, 0, 2048);
+            // Funció de mapatge lineal
+            auto map_range = [](int val, int in_min, int in_max, int out_min, int out_max) {
+                if (val <= in_min) return out_min;
+                if (val >= in_max) return out_max;
+                return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+            };
 
-        // Calculem la posició del joystick en percentatge
-        int Vx_pct = ((Vx_mapped - 2048) * 100) / 2048; // -100..+100
-        int Vy_pct = ((Vy_mapped - 2048) * 100) / 2048; // -100..+100
+            // Mapegem Vx: esquerra=0, dreta=4095
+            if (Vx_dev >= 0)
+                Vx_mapped = map_range(Vx_dev, 0, Vx_right - Vx_center, 2048, 4095);
+            else
+                Vx_mapped = map_range(Vx_dev, Vx_left - Vx_center, 0, 0, 2048);
 
-        // Llegir estat botó
-        int btn = gpio_get_level(BUTTON);    // 1 = NO premut, 0 = premut
+            // Mapegem Vy: baix=0, amunt=4095
+            if (Vy_dev >= 0)
+                Vy_mapped = map_range(Vy_dev, 0, Vy_up - Vy_center, 2048, 4095);
+            else
+                Vy_mapped = map_range(Vy_dev, Vy_down - Vy_center, 0, 0, 2048);
+
+            // Calculem la posició del joystick en percentatge
+            int Vx_pct = ((Vx_mapped - 2048) * 100) / 2048; // -100..+100
+            int Vy_pct = ((Vy_mapped - 2048) * 100) / 2048; // -100..+100
+
+            // Llegir estat botó
+            int btn = gpio_get_level(BUTTON);    // 1 = NO premut, 0 = premut
 
 
-        // Enviar per UDP (només si IP válida)
-        if (dest_addr.sin_addr.s_addr != INADDR_NONE) {
-            int n;
+            // --- Missatge UDP ---
+            int n = snprintf(msg,sizeof(msg),"VX=%d;VY=%d;BTN=%d;ESTOP=0",
+                             Vx_mapped, Vy_mapped, (btn==0?1:0));
+            if (dest_addr.sin_addr.s_addr != INADDR_NONE)
+                sendto(sock,msg,n,0,(struct sockaddr*)&dest_addr,sizeof(dest_addr));
 
-            // Construïm el paquet segons l’estat del botó
-            if (btn == 0)   // Botó premut → activació
-                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=1", Vx_mapped, Vy_mapped);
-            else            // Botó NO premut
-                n = snprintf(msg, sizeof(msg), "VX=%d;VY=%d;BTN=0", Vx_mapped, Vy_mapped);
+            // imprimir per terminal
+            ESP_LOGI("JOYSTICK",
+                     "VX=%d (%d%%)   VY=%d (%d%%)   BTN=%d   ESTOP=0",
+                     Vx_mapped, Vx_pct, Vy_mapped, Vy_pct, (btn==0?1:0));
 
-            // Enviem un únic paquet
-            if (n > 0) {
-                int sent = sendto(sock, msg, n, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-                if (sent < 0)
-                    ESP_LOGW(TAG_UDP, "joystick_task: sendto ha fallat");
+            // Actualitzar labels de la UI (crida modular a system_tile)
+            if (lvgl_port_lock(10)) {
+                system_set_joystick_vx(Vx_mapped);
+                system_set_joystick_vy(Vy_mapped);
+                system_set_joystick_vx_pct(Vx_pct);
+                system_set_joystick_vy_pct(Vy_pct);
+                system_set_confirm(btn == 0); // 0 = premut → ON, 1 = no premut → OFF
+                lvgl_port_unlock();
             }
-        }
+        } else {
+            // --- E-Stop actiu ---
+            Vx_mapped = Vy_mapped = 0;
+            int btn = 0;
 
-        // imprimir per terminal
-        ESP_LOGI("JOYSTICK", "VX=%d (%d%%)   VY=%d (%d%%)   BTN=%d",
-                Vx_mapped, Vx_pct, Vy_mapped, Vy_pct, (btn==0?1:0));
+            int n = snprintf(msg,sizeof(msg),"VX=0;VY=0;BTN=0;ESTOP=1");
+            if (dest_addr.sin_addr.s_addr != INADDR_NONE)
+                sendto(sock,msg,n,0,(struct sockaddr*)&dest_addr,sizeof(dest_addr));
 
+            ESP_LOGI("JOYSTICK","VX=0 (0%%)   VY=0 (0%%)   BTN=0   ESTOP=1");
 
-        // Actualitzar labels de la UI (crida modular a system_tile)
-        if (lvgl_port_lock(10)) {
-            system_set_joystick_vx(Vx_mapped);
-            system_set_joystick_vy(Vy_mapped);
-            system_set_joystick_vx_pct(Vx_pct);
-            system_set_joystick_vy_pct(Vy_pct);
-            lvgl_port_unlock();
+            // Actualitzar UI
+            if(lvgl_port_lock(10)) {
+                system_set_joystick_vx(0);
+                system_set_joystick_vy(0);
+                system_set_joystick_vx_pct(0);
+                system_set_joystick_vy_pct(0);
+                lvgl_port_unlock();
+            }
         }
 
         // Delay 20ms (50Hz)
@@ -353,6 +368,16 @@ extern "C" void app_main(void)
     lvgl_port_lock(0);                 // Bloquejar LVGL
     system_tile_init(lv_scr_act());    // Crear la UI amb el label
     lvgl_port_unlock();                // Desbloquejar LVGL
+
+    // Inicialitzar botó GPIO21 amb pull-up intern
+    gpio_config_t estop_conf = {
+    .pin_bit_mask = (1ULL << ESTOP_GPIO),
+    .mode = GPIO_MODE_INPUT,
+    .pull_up_en = GPIO_PULLUP_ENABLE,
+    .pull_down_en = GPIO_PULLDOWN_DISABLE,
+    .intr_type = GPIO_INTR_DISABLE
+};
+    gpio_config(&estop_conf);
 
     // Inicialitzar botó GPIO38 amb pull-up intern
     gpio_config_t btn_conf = {

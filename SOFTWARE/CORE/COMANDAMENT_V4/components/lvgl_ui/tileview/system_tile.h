@@ -10,24 +10,21 @@ extern "C" {
 
 
 void system_tile_init(lv_obj_t *parent);
-
+void system_set_estop(bool estop_active);
+void system_set_confirm(bool pressed);
 void system_set_joystick_vx(int vx);
 void system_set_joystick_vy(int vy);
 void system_set_joystick_vx_pct(int Vx_pct);
 void system_set_joystick_vy_pct(int Vy_pct);
 
 
-extern lv_obj_t *label_cylinder_position;
-extern lv_obj_t *label_brightness;
-//extern lv_obj_t *label_time;
-//extern lv_obj_t *label_date;
-//extern lv_obj_t *label_cylinder_pressure;
-//extern lv_obj_t *label_cylinder_load;
+extern lv_obj_t *label_sensor_position;
 extern lv_obj_t *label_joystick_position_A;
 extern lv_obj_t *label_output_joystick_A;
 extern lv_obj_t *label_joystick_position_B;
 extern lv_obj_t *label_output_joystick_B;
-
+extern lv_obj_t *label_estop;
+extern lv_obj_t *label_confirm;
 extern lv_obj_t *icon_battery;
 extern lv_obj_t *icon_wifi;
 extern lv_obj_t *label_batt_pct;

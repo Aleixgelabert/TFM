@@ -36,10 +36,7 @@ LV_IMG_DECLARE(wifi_2);
 LV_IMG_DECLARE(wifi_3);
 
 // Variables globals per etiquetes de la interfície gràfica (LVGL)
-lv_obj_t *label_brightness = NULL;
-//lv_obj_t *label_time;
-//lv_obj_t *label_date;
-lv_obj_t *label_cylinder_position = NULL;
+lv_obj_t *label_sensor_position = NULL;
 lv_obj_t *label_joystick_position_A = NULL;
 lv_obj_t *label_output_joystick_A = NULL;
 lv_obj_t *label_joystick_position_B = NULL;
@@ -47,7 +44,31 @@ lv_obj_t *label_output_joystick_B = NULL;
 lv_obj_t *icon_battery = NULL;
 lv_obj_t *icon_wifi = NULL;
 lv_obj_t *label_batt_pct = NULL;
+lv_obj_t *label_estop = NULL;
+lv_obj_t *label_confirm = NULL;
 
+
+void system_set_estop(bool estop_active)
+{
+    if (label_estop)
+    {
+        lv_label_set_text(label_estop, estop_active ? "ON" : "OFF");
+        lv_obj_set_style_text_color(label_estop,
+                                    estop_active ? lv_color_hex(0xEF4444) : lv_color_hex(0x000000),
+                                    LV_PART_MAIN);
+    }
+}
+
+void system_set_confirm(bool pressed)
+{
+    if (label_confirm)
+    {
+        if (pressed)
+            lv_label_set_text(label_confirm, "ON");
+        else
+            lv_label_set_text(label_confirm, "OFF");
+    }
+}
 
 void system_set_joystick_vx(int vx)
 {
@@ -74,42 +95,6 @@ void system_set_joystick_vy_pct(int Vy_pct)
 }
 
 
-
-
-//---------------------------------------------------------
-// CALLBACK del slider de brillantor
-//---------------------------------------------------------
-static void slider_event_cb(lv_event_t *e)
-{
-    lv_event_code_t code = lv_event_get_code(e);           // Obté el tipus d’esdeveniment
-    if (code == LV_EVENT_VALUE_CHANGED)                    // Si el valor del slider ha canviat
-    {
-        lv_obj_t *slider = lv_event_get_target(e);          // Objecte slider que ha generat l’event
-        int value = lv_slider_get_value(slider);            // Llegeix el valor del slider
-        // printf("Slider value: %d\n", value);
-
-        lv_label_set_text_fmt(label_brightness, "%d %%", value); // Actualitza el text de brillantor
-        esp_3inch5_brightness_port_set(value);                   // Ajusta la brillantor del panell LCD realment
-        lv_event_stop_bubbling(e);                               // Evita que l’event es propagui a altres objectes
-    }
-}
-
-/*//---------------------------------------------------------
-// CALLBACK del temporitzador que actualitza hora
-//---------------------------------------------------------
-static void system_time_cb(lv_timer_t *timer)
-{
-    char str[20];
-    float tsens_out;
-    RTC_DateTime datetime = rtc.getDateTime();                  // Llegeix la data i hora actual del RTC
-
-    // Mostra la data i hora actuals a la interfície
-    lv_label_set_text_fmt(label_date, "%02d-%02d-%d", datetime.day, datetime.month, datetime.year);
-    lv_label_set_text_fmt(label_time, "%02d:%02d:%02d", datetime.hour, datetime.minute, datetime.second);
-
-    }*/
-
-
 //---------------------------------------------------------
 // Inicialització del sistema i lectura de recursos de maquinari
 //---------------------------------------------------------
@@ -134,25 +119,21 @@ void system_tile_init(lv_obj_t *parent)
                                                         // Així ocupa gairebé tota la pantalla.
     lv_obj_align(list, LV_ALIGN_TOP_MID, 0, 40);        // Col·loca la llista sota el títol, centrada a dalt, i amb 40 píxels de marge des del top.
 
-    
-    // Slider per controlar la brillantor
-    lv_obj_t *slider = lv_slider_create(parent);        // Crea l'slider
-    lv_slider_set_range(slider, 1, 100);                // Tamany del rang 1-100
-    lv_slider_set_value(slider, 80, LV_ANIM_OFF);       // Assignació valor inicial 80
-    lv_obj_set_size(slider, lv_pct(50), lv_pct(5));     // Mida de l'slider dins del seu contenidor
-    lv_obj_align(slider, LV_ALIGN_BOTTOM_MID,55, -18);  // Alineament dins la pantalla
-    lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);     // Assignació amb el callback
 
     // Elements de la llista amb diferents informacions del sistema
     lv_obj_t *list_item;
 
-    list_item = lv_list_add_btn(list, NULL, "Brightness");
-    label_brightness = lv_label_create(list_item);
-    lv_label_set_text(label_brightness, "80 %");
+    list_item = lv_list_add_btn(list, NULL, "E-STOP");
+    label_estop = lv_label_create(list_item);
+    lv_label_set_text(label_estop, "---");
+
+    list_item = lv_list_add_btn(list, NULL, "CONFIRM");
+    label_confirm = lv_label_create(list_item);
+    lv_label_set_text(label_confirm, "---");
 
     list_item = lv_list_add_btn(list, NULL, "Distance");
-    label_cylinder_position = lv_label_create(list_item);
-    lv_label_set_text(label_cylinder_position, "--- cm");
+    label_sensor_position = lv_label_create(list_item);
+    lv_label_set_text(label_sensor_position, "--- cm");
 
     list_item = lv_list_add_btn(list, NULL, "Output Joystick A");
     label_output_joystick_A = lv_label_create(list_item);
@@ -170,18 +151,10 @@ void system_tile_init(lv_obj_t *parent)
     label_joystick_position_B = lv_label_create(list_item);
     lv_label_set_text(label_joystick_position_B, "--- %");
 
-    /*list_item = lv_list_add_btn(list, NULL, "Date");
-    label_date = lv_label_create(list_item);
-    lv_label_set_text(label_date, "XX-XX-XXXX");
-
-    list_item = lv_list_add_btn(list, NULL, "Time");
-    label_time = lv_label_create(list_item);
-    lv_label_set_text(label_time, "12:00:00");*/
 
     system_init();                                     // Inicialitza el maquinari
-    /*lv_timer_create(system_time_cb, 1000, NULL);      // Temporitzador per actualitzar hora/temp cada segon
-*/
 
+    
     // Icona bateria
     icon_battery = lv_img_create(parent);
     lv_obj_align(icon_battery, LV_ALIGN_TOP_RIGHT, -17, -10);
