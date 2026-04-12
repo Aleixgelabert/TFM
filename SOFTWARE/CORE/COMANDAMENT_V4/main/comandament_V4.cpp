@@ -83,10 +83,13 @@
 #define I2C_PORT_NUM 0
 
 
-static const char *TAG_UDP = "udp_receiver"; // Etiqueta que surt als missatges de log
+// Etiqueta que surt als missatges de log
+static const char *TAG = "COMANDAMENT_V4"; 
+static const char *TAG_UDP = "udp_receiver"; 
 
 #define UDP_PORT 3333                    // Port UDP on rebrem els missatges
 #define RECV_BUF_SIZE 256                // Mida del buffer per llegir dades rebudes
+
 
 // Definició dels pins del Joystick i dels botons Confirm i E-stop
 #define JOY_X ADC1_CHANNEL_8
@@ -109,11 +112,42 @@ lv_display_t *lvgl_disp = NULL;
 lv_indev_t *lvgl_touch_indev = NULL;
 bool touch_test_done = false;
 
-
 // Declaració de funcions definides més endavant
 void i2c_bus_init(void);
 void io_expander_init(void);
 void lv_port_init(void);
+
+// -----------------------------------------------------------------------------
+// CONTROL DE PAQUETS (COM ↔ ESP32)
+// -----------------------------------------------------------------------------
+
+// TX COM → RX ESP (el que envia el comandament)
+static uint32_t seq_com = 0;
+static uint32_t tx_com = 0;
+
+// TX ESP → RX COM (el que rep de l'ESP32)
+static uint32_t seq_esp = 0;            // Número de seqüència actual del paquet rebut
+static uint32_t last_seq_esp = 0;       // Darrer nñumero de seqüència rebut correctament
+static uint32_t rx_esp = 0;             // Comptador de paquets rebuts
+static uint32_t lost_esp = 0;           // Comptador de paquets perduts 
+static float loss_esp = 0.0f;           // Percentatge de pèrdua de paquets
+
+// Funció per actualitzar estadístiques de paquets rebuts
+static void update_rx_esp(uint32_t seq)
+{
+    rx_esp++;
+
+    if (rx_esp > 1 && seq > last_seq_esp + 1) {         // Detecta la pèrdua de paquets
+        lost_esp += (seq - last_seq_esp - 1);           // Acumulador de paquets perduts
+    }
+
+    last_seq_esp = seq;     // Actualitzar últim paquet
+    seq_esp = seq;          // Actualitzar últim paquet
+
+    uint32_t total = rx_esp + lost_esp;                             // Paquets que hurien d'haver arribat
+    loss_esp = (total > 0) ? (100.0f * lost_esp / total) : 0.0f;    // Càlcul del percentatge de pèrdua
+}
+
 
 // -----------------------------------------------------------------------------
 // Tasca UDP per rebre dades i mostra el seu contingut per log.
@@ -139,14 +173,37 @@ static void udp_receive_task(void *arg)
         int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0,
                            (struct sockaddr *)&source_addr, &socklen);
 
+        
         if (len > 0) {
             rx_buffer[len] = '\0';
+
+            uint32_t seq = 0;
+            int vx = 0, vy = 0, btn = 0, estop = 0;
+
+            /// parse missatge rebut de l'ESP
+            sscanf(rx_buffer,
+                "SEQ=%lu;VX=%d;VY=%d;BTN=%d;ESTOP=%d",
+                &seq, &vx, &vy, &btn, &estop);
+
+            // actualitzar stats de recepció
+            update_rx_esp(seq);
+
+            // Log paquets enviats i rebuts (2 línies)
+            ESP_LOGI(TAG,
+               "Tx_COM: SEQ_COM=%lu TX_COM=%lu",
+                seq_com, tx_com);
+
+            ESP_LOGI(TAG,
+                "Rx_ESP: SEQ_ESP=%lu LOST_ESP=%lu LOSS_ESP=%.2f%%",
+                seq_esp, lost_esp, loss_esp);
 
             // Bloqueig LVGL per actualitzar label de forma segura
             if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
                 if (label_sensor_position)
                 {
-                    lv_label_set_text_fmt(label_sensor_position, "%s cm", rx_buffer);
+                    lv_label_set_text_fmt(label_sensor_position,
+                        "%s cm",
+                        rx_buffer);
                 }
                 lvgl_port_unlock();
             }
@@ -264,11 +321,19 @@ static void joystick_task(void *arg)
 
 
             // --- Missatge UDP ---
-            int n = snprintf(msg,sizeof(msg),"VX=%d;VY=%d;BTN=%d;ESTOP=0",
-                             Vx_mapped, Vy_mapped, (btn==0?1:0));
-            if (dest_addr.sin_addr.s_addr != INADDR_NONE)
+            int n = snprintf(msg,sizeof(msg),
+                "SEQ=%lu;VX=%d;VY=%d;BTN=%d;ESTOP=%d",
+               seq_com, Vx_mapped, Vy_mapped,
+               (btn==0?1:0),
+               (estop_active ? 1: 0));
+
+            if (dest_addr.sin_addr.s_addr != INADDR_NONE) {
                 sendto(sock,msg,n,0,(struct sockaddr*)&dest_addr,sizeof(dest_addr));
 
+                seq_com++;   // incrementa seq
+                tx_com++;    // incrementa enviats
+            }
+                
             // imprimir per terminal
             ESP_LOGI("JOYSTICK",
                      "VX=%d (%d%%)   VY=%d (%d%%)   BTN=%d   ESTOP=0",

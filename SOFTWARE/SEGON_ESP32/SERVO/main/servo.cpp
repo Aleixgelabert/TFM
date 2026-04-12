@@ -22,7 +22,7 @@ extern "C" {
 #include "driver/mcpwm.h"
 }
 
-static const char *TAG = "Sensor_distancia";
+static const char *TAG = "ESP32";
 
 /* ---------- WI-FI CONFIG ---------------------- */
 #define WIFI_SSID       "WIFI_ESP32"
@@ -45,6 +45,38 @@ static float vx_value = 90;   // inici al centre
 static float vy_value = 0;  // reservat per altres usos
 static int btn_pressed = 0; // variable global
 static float last_angle = 90;   // memòria de posició
+
+
+// -----------------------------------------------------------------------------
+// CONTROL DE PAQUETS (ESP32 ↔ COM)
+// -----------------------------------------------------------------------------
+
+// TX ESP → RX COM (el que envia ESP32)
+static uint32_t seq_esp = 0;
+static uint32_t tx_esp = 0;
+
+// TX COM → RX ESP (el que rep del comandament)
+static uint32_t last_seq_com = 0;
+static uint32_t rx_com = 0;
+static uint32_t lost_com = 0;
+
+static void update_rx_com(uint32_t seq)
+{
+    rx_com++;
+
+    if (rx_com > 1 && seq > last_seq_com + 1) {
+        lost_com += (seq - last_seq_com - 1);
+    }
+
+    last_seq_com = seq;
+}
+
+static float loss_com_percent()
+{
+    uint32_t total = rx_com + lost_com;
+    return (total > 0) ? (100.0f * lost_com / total) : 0.0f;
+}
+
 
 /* ---------- PARSE UDP ---------- */
 int parse_vx_vy_from_msg(const char *msg, float *raw_vx, float *raw_vy)
@@ -111,7 +143,7 @@ static void init_wifi_ap()
     ESP_LOGI(TAG, "IP per defecte: 192.168.4.1");
 }
 
-/* ---------- HC-SR04 Distance Measurement ---------- */
+/* ---------- Sensor de distància HC-SR04 ---------- */
 static float read_distance_cm()
 {
     gpio_set_level(TRIG_PIN, 0);
@@ -157,15 +189,19 @@ static void udp_send_task(void *arg)
         float dist = read_distance_cm();
         char msg[64];
         if (dist > 0)
+            //snprintf(msg, sizeof(msg),"SEQ=%lu;DIST=%.1f",seq_esp, dist);
             snprintf(msg, sizeof(msg), "%.1f", dist);
-            // nprintf(msg, sizeof(msg), "Distància: %.1f cm", dist);
-
         else
-            snprintf(msg, sizeof(msg), "Lectura invàlida");
+            snprintf(msg, sizeof(msg), "Error de lectura");
 
         sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-        ESP_LOGI(TAG, "Enviat: %s", msg);
-        vTaskDelay(pdMS_TO_TICKS(1000)); // cada 1 s
+        seq_esp++;
+        tx_esp++;
+
+        ESP_LOGI(TAG,
+           "Tx_ESP: SEQ_ESP=%lu TX_ESP=%lu",
+            seq_esp, tx_esp);
+        vTaskDelay(pdMS_TO_TICKS(500)); // cada 0.5 s
     }
 
     close(sock);
@@ -181,29 +217,63 @@ static void udp_receive_task(void *arg)
     char rx_buffer[RECV_BUF_SIZE];
 
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-    if (sock < 0) { vTaskDelete(NULL); return; }
+    if (sock < 0) {
+        ESP_LOGE(TAG, "Error creant socket UDP");
+        vTaskDelete(NULL);
+        return;
+    }
 
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(UDP_PORT);
+
     if (bind(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        close(sock); vTaskDelete(NULL); return;
+        ESP_LOGE(TAG, "Error en bind()");
+        close(sock);
+        vTaskDelete(NULL);
+        return;
     }
 
+    ESP_LOGI(TAG, "Escoltant UDP (rebent dades del comandament)...");
+
     while (1) {
-        int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer)-1, 0,
+        int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0,
                            (struct sockaddr *)&client_addr, &client_len);
+
         if (len > 0) {
             rx_buffer[len] = 0;
 
+            uint32_t seq = 0;   // Variables locals
+
+            sscanf(rx_buffer, "SEQ=%lu", &seq); // Llegir SEQ del comandament
+
+            // Actualitzar estadístiques RX
+            update_rx_com(seq);
+            float loss = loss_com_percent();
+
+            // Parse joystick
             parse_vx_vy_from_msg(rx_buffer, &vx_value, &vy_value);
 
-            ESP_LOGI(TAG, "vx raw: %.1f   vy raw: %.1f", vx_value, vy_value);
+            // LOG
+            /*ESP_LOGI(TAG,
+                "Tx_ESP: SEQ_ESP=%lu TX_COM=%lu,
+                seq_esp,tx_com);
+*/
+            ESP_LOGI(TAG,
+                "Rx_COM: SEQ_COM=%lu RX_COM=%lu LOST_COM=%lu LOSS_COM=%.2f%%",
+                seq,rx_com,lost_com,loss);
+
+            ESP_LOGI(TAG,
+                "vx: %.1f   vy: %.1f   BTN=%d"
+                ,vx_value,vy_value,btn_pressed);
         }
+
         vTaskDelay(pdMS_TO_TICKS(10));
     }
-}
 
+    close(sock);
+    vTaskDelete(NULL);
+}
 
 /* ---------- Funció inicialització Servo ---------- */
 static void init_servo()
@@ -236,7 +306,7 @@ static void servo_task(void *arg)
 
         // Convertim joystick a velocitat incremental (-1 a +1)
         float speed = 0;
-        float deadzone = 15.0; // graus centrals que es consideren "quiet"
+        float deadzone = 5.0; // graus centrals que es consideren "quiet"
 
         if (vx_value > 90 + deadzone) {
             speed = (vx_value - 90) / 90.0;  // cap a la dreta
