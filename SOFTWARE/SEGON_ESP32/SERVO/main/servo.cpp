@@ -189,18 +189,14 @@ static void udp_send_task(void *arg)
         float dist = read_distance_cm();
         char msg[64];
         if (dist > 0)
-            //snprintf(msg, sizeof(msg),"SEQ=%lu;DIST=%.1f",seq_esp, dist);
-            snprintf(msg, sizeof(msg), "%.1f", dist);
+            snprintf(msg, sizeof(msg),"SEQ=%lu;DIST=%.1f",seq_esp, dist);
         else
-            snprintf(msg, sizeof(msg), "Error de lectura");
+            snprintf(msg, sizeof(msg), "Error de lectura sensor distància");
 
         sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
         seq_esp++;
         tx_esp++;
 
-        ESP_LOGI(TAG,
-           "Tx_ESP: SEQ_ESP=%lu TX_ESP=%lu",
-            seq_esp, tx_esp);
         vTaskDelay(pdMS_TO_TICKS(500)); // cada 0.5 s
     }
 
@@ -255,10 +251,10 @@ static void udp_receive_task(void *arg)
             parse_vx_vy_from_msg(rx_buffer, &vx_value, &vy_value);
 
             // LOG
-            /*ESP_LOGI(TAG,
-                "Tx_ESP: SEQ_ESP=%lu TX_COM=%lu,
-                seq_esp,tx_com);
-*/
+            ESP_LOGI(TAG,
+                "Tx_ESP: SEQ_ESP=%lu TX_ESP=%lu",
+                seq_esp,tx_esp);
+
             ESP_LOGI(TAG,
                 "Rx_COM: SEQ_COM=%lu RX_COM=%lu LOST_COM=%lu LOSS_COM=%.2f%%",
                 seq,rx_com,lost_com,loss);

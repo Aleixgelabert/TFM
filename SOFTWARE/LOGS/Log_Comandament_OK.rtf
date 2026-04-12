@@ -1,0 +1,478 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 I (24) boot: ESP-IDF v5.5.3 2nd stage bootloader\
+I (24) boot: compile time Apr  9 2026 13:28:06\
+I (25) boot: Multicore bootloader\
+I (25) boot: chip revision: v0.2\
+I (28) boot: efuse block revision: v1.3\
+I (31) qio_mode: Enabling QIO for flash chip WinBond\
+I (36) boot.esp32s3: Boot SPI Speed : 80MHz\
+I (40) boot.esp32s3: SPI Mode       : QIO\
+I (43) boot.esp32s3: SPI Flash Size : 16MB\
+I (47) boot: Enabling RNG early entropy source...\
+I (52) boot: Partition Table:\
+I (54) boot: ## Label            Usage          Type ST Offset   Length\
+I (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000\
+I (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000\
+I (74) boot:  2 factory          factory app      00 00 00010000 00600000\
+I (80) boot: End of partition table\
+I (84) esp_image: segment 0: paddr=00010020 vaddr=3c0d0020 size=4bd10h (310544) map\
+I (137) esp_image: segment 1: paddr=0005bd38 vaddr=3fc9e900 size=042e0h ( 17120) load\
+I (141) esp_image: segment 2: paddr=00060020 vaddr=42000020 size=c252ch (795948) map\
+I (259) esp_image: segment 3: paddr=00122554 vaddr=3fca2be0 size=0154ch (  5452) load\
+I (260) esp_image: segment 4: paddr=00123aa8 vaddr=40374000 size=1a8e0h (108768) load\
+I (283) esp_image: segment 5: paddr=0013e390 vaddr=50000000 size=00020h (    32) load\
+I (294) boot: Loaded app from partition at offset 0x10000\
+I (294) boot: Disabling RNG early entropy source...\
+I (305) octal_psram: vendor id    : 0x0d (AP)\
+I (305) octal_psram: dev id       : 0x02 (generation 3)\
+I (305) octal_psram: density      : 0x03 (64 Mbit)\
+I (307) octal_psram: good-die     : 0x01 (Pass)\
+I (311) octal_psram: Latency      : 0x01 (Fixed)\
+I (315) octal_psram: VCC          : 0x01 (3V)\
+I (320) octal_psram: SRF          : 0x01 (Fast Refresh)\
+I (324) octal_psram: BurstType    : 0x01 (Hybrid Wrap)\
+I (329) octal_psram: BurstLen     : 0x01 (32 Byte)\
+I (334) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)\
+I (339) octal_psram: DriveStrength: 0x00 (1/1)\
+I (343) MSPI Timing: Enter psram timing tuning\
+I (348) esp_psram: Found 8MB PSRAM device\
+I (351) esp_psram: Speed: 80MHz\
+I (354) cpu_start: Multicore app\
+I (790) esp_psram: SPI SRAM memory test OK\
+I (798) cpu_start: GPIO 44 and 43 are used as console UART I/O pins\
+I (798) cpu_start: Pro cpu start user code\
+I (799) cpu_start: cpu freq: 240000000 Hz\
+I (800) app_init: Application information:\
+I (804) app_init: Project name:     COMANDAMENT_V4\
+I (809) app_init: App version:      v2.0-35-gc9f23bc5-dirty\
+I (814) app_init: Compile time:     Apr 12 2026 20:51:29\
+I (819) app_init: ELF file SHA256:  be197852f...\
+I (823) app_init: ESP-IDF:          v5.5.3\
+I (827) efuse_init: Min chip rev:     v0.0\
+I (831) efuse_init: Max chip rev:     v0.99 \
+I (835) efuse_init: Chip rev:         v0.2\
+I (839) heap_init: Initializing. RAM available for dynamic allocation:\
+I (845) heap_init: At 3FCA8668 len 000410A8 (260 KiB): RAM\
+I (850) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM\
+I (855) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM\
+I (860) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM\
+I (866) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator\
+I (873) spi_flash: detected chip: winbond\
+I (876) spi_flash: flash io: qio\
+W (879) ADC: legacy driver is deprecated, please migrate to `esp_adc/adc_oneshot.h`\
+I (887) sleep_gpio: Configure to isolate all GPIO pins in sleep state\
+I (893) sleep_gpio: Enable automatic switching of GPIO sleep configuration\
+I (900) main_task: Started on CPU0\
+I (910) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations\
+I (910) main_task: Calling app_main()\
+I (1130) esp_3inch5_lcd_port: SPI BUS init\
+I (1130) esp_3inch5_lcd_port: Install panel IO\
+W (1370) st7796: The 3Ah command has been used and will be overwritten by external initialization sequence\
+I (1490) AXP2101: Implemented using read and write callback methods\
+I (1490) AXP2101: Init PMU SUCCESS!\
+getID:0x4a\
+->  getSysPowerDownVoltage:2600\
+->  getSysPowerDownVoltage:2600\
+DC1  : +   Voltage:3300 mV \
+DC2  : +   Voltage:1000 mV \
+DC3  : +   Voltage:3300 mV \
+DC4  : +   Voltage:1000 mV \
+DC5  : +   Voltage:3300 mV \
+DCDC=======================================================================\
+DC1  : +   Voltage:3300 mV \
+DC2  : +   Voltage:1000 mV \
+DC3  : +   Voltage:3300 mV \
+DC4  : +   Voltage:1000 mV \
+DC5  : +   Voltage:3300 mV \
+ALDO=======================================================================\
+ALDO1: +   Voltage:3300 mV\
+ALDO2: +   Voltage:3300 mV\
+ALDO3: +   Voltage:3300 mV\
+ALDO4: +   Voltage:3300 mV\
+BLDO=======================================================================\
+BLDO1: +   Voltage:1500 mV\
+BLDO2: +   Voltage:2800 mV\
+CPUSLDO====================================================================\
+CPUSLDO: + Voltage:1000 mV\
+DLDO=======================================================================\
+DLDO1: +   Voltage:3300 mV\
+DLDO2: +   Voltage:3300 mV\
+===========================================================================\
+PowerKeyPressOffTime:4 Second\
+PowerKeyPressOnTime:128 Ms\
+===========================================================================\
+getDCHighVoltagePowerDownEn:ENABLE\
+getDC1LowVoltagePowerDownEn:ENABLE\
+getDC2LowVoltagePowerDownEn:ENABLE\
+getDC3LowVoltagePowerDownEn:ENABLE\
+getDC4LowVoltagePowerDownEn:ENABLE\
+getDC5LowVoltagePowerDownEn:ENABLE\
+Using ESP-IDF Driver interface.Added Device Address : 0x51  New Dev Address: 0x3c120ed0 Speed :400000 I (1710) esp_3inch5_lcd_port: LCD brightness set to 80%\
+I (1710) LVGL: Starting LVGL task\
+I (1710) lvgl_system: Adding LCD screen\
+I (1810) udp_receiver: Iniciant receptor UDP...\
+I (1810) pp: pp rom version: e7ae62f\
+I (1810) net80211: net80211 rom version: e7ae62f\
+I (1820) wifi:wifi driver task: 3fcbaeac, prio:23, stack:6656, core=0\
+I (1820) wifi:wifi firmware version: 4df78f2\
+I (1820) wifi:wifi certification version: v7.0\
+I (1820) wifi:config NVS flash: enabled\
+I (1820) wifi:config nano formatting: disabled\
+I (1830) wifi:Init data frame dynamic rx buffer num: 32\
+I (1830) wifi:Init static rx mgmt buffer num: 5\
+I (1840) wifi:Init management short buffer num: 32\
+I (1840) wifi:Init dynamic tx buffer num: 32\
+I (1850) wifi:Init static tx FG buffer num: 2\
+I (1850) wifi:Init static rx buffer size: 1600\
+I (1850) wifi:Init static rx buffer num: 10\
+I (1860) wifi:Init dynamic rx buffer num: 32\
+I (1860) wifi_init: rx ba win: 6\
+I (1870) wifi_init: accept mbox: 6\
+I (1870) wifi_init: tcpip mbox: 32\
+I (1870) wifi_init: udp mbox: 6\
+I (1870) wifi_init: tcp mbox: 6\
+I (1880) wifi_init: tcp tx win: 5760\
+I (1880) wifi_init: tcp rx win: 5760\
+I (1880) wifi_init: tcp mss: 1440\
+I (1890) wifi_init: WiFi IRAM OP enabled\
+I (1890) wifi_init: WiFi RX IRAM OP enabled\
+W (1900) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2\
+I (1900) phy_init: phy_version 711,97bcf0a2,Aug 25 2025,19:04:10\
+I (1940) wifi:mode : sta (10:20:ba:44:9a:4c)\
+I (1940) wifi:enable tsf\
+I (1940) wifi_manager: wifi_init_sta finished.\
+I (1940) wifi_manager: WIFI_EVENT_STA_START -> connecting...\
+I (1950) wifi:new:<1,1>, old:<1,0>, ap:<255,255>, sta:<1,1>, prof:1, snd_ch_cfg:0x0\
+I (1950) wifi:state: init -> auth (0xb0)\
+I (1960) wifi:state: auth -> assoc (0x0)\
+I (1970) wifi:Association refused temporarily time 1500, comeback time 1600 (TUs)\
+I (3610) wifi:state: assoc -> assoc (0x0)\
+I (3620) wifi:state: assoc -> run (0x10)\
+I (3630) wifi:connected with WIFI_ESP32, aid = 1, channel 1, 40U, bssid = 88:57:21:68:e2:35\
+I (3630) wifi:security: WPA2-PSK, phy: bgn, rssi: -54\
+I (3630) wifi:pm start, type: 1\
+\
+I (3630) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us\
+I (3640) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000\
+I (3700) wifi:AP's beacon interval = 102400 us, DTIM period = 1\
+I (4670) esp_netif_handlers: sta ip: 192.168.4.2, mask: 255.255.255.0, gw: 192.168.4.1\
+I (4670) wifi_manager: Got IP: 192.168.4.2\
+I (4670) JOYSTICK: Calibrant joystick, mantingueu-lo al centre...\
+I (4670) main_task: Returned from app_main()\
+I (4820) wifi:<ba-add>idx:0 (ifx:0, 88:57:21:68:e2:35), tid:0, ssn:0, winSize:64\
+I (4820) COMANDAMENT_V4: Tx_COM: SEQ_COM=0 TX_COM=0\
+I (4820) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=467 RX_ESP=1 LOST_ESP=0 LOSS_ESP=0.00%\
+I (4830) COMANDAMENT_V4: Tx_COM: SEQ_COM=0 TX_COM=0\
+I (4830) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=468 RX_ESP=2 LOST_ESP=0 LOSS_ESP=0.00%\
+I (4840) COMANDAMENT_V4: Tx_COM: SEQ_COM=0 TX_COM=0\
+I (4840) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=469 RX_ESP=3 LOST_ESP=0 LOSS_ESP=0.00%\
+I (5170) JOYSTICK: Centre calibrat: Vx=2381, Vy=2328\
+I (5170) JOYSTICK: Calibrant extrems del joystick... mou tot a esquerra, dreta, amunt, avall\
+I (5170) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5190) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5220) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5250) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5260) COMANDAMENT_V4: Tx_COM: SEQ_COM=4 TX_COM=4\
+I (5260) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=470 RX_ESP=4 LOST_ESP=0 LOSS_ESP=0.00%\
+I (5270) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5300) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5320) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5350) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5370) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5400) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5420) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5440) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5470) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5490) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5520) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5540) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5560) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5590) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5610) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5640) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5660) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5680) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5710) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5730) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5760) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5770) COMANDAMENT_V4: Tx_COM: SEQ_COM=25 TX_COM=25\
+I (5770) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=471 RX_ESP=5 LOST_ESP=0 LOSS_ESP=0.00%\
+I (5780) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5800) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5830) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5860) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5890) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5910) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5940) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5960) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (5980) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6010) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6030) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6060) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6080) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6100) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6130) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6150) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6180) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6200) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6220) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6250) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6260) COMANDAMENT_V4: Tx_COM: SEQ_COM=45 TX_COM=45\
+I (6260) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=472 RX_ESP=6 LOST_ESP=0 LOSS_ESP=0.00%\
+I (6270) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6300) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6320) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6340) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6370) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6390) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6420) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6440) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6460) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6490) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6510) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6540) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6560) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6580) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6610) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6630) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6660) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6680) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6700) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6730) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6750) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6770) COMANDAMENT_V4: Tx_COM: SEQ_COM=66 TX_COM=66\
+I (6770) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=473 RX_ESP=7 LOST_ESP=0 LOSS_ESP=0.00%\
+I (6780) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6810) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6830) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6850) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6880) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6900) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6930) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6950) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (6970) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7000) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7020) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7050) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7070) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7090) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7120) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7140) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7170) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7190) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7210) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7240) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7260) COMANDAMENT_V4: Tx_COM: SEQ_COM=86 TX_COM=86\
+I (7260) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=474 RX_ESP=8 LOST_ESP=0 LOSS_ESP=0.00%\
+I (7260) JOYSTICK: VX=2979 (45%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7290) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7310) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7330) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7360) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7380) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (7400) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7430) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7450) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7480) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7500) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7520) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7550) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7570) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7600) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7620) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7640) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7670) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7690) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7720) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7740) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7760) JOYSTICK: VX=313 (-84%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (7780) COMANDAMENT_V4: Tx_COM: SEQ_COM=108 TX_COM=108\
+I (7780) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=475 RX_ESP=9 LOST_ESP=0 LOSS_ESP=0.00%\
+I (7790) JOYSTICK: VX=4 (-99%)   VY=2694 (31%)   BTN=1   ESTOP=0\
+I (7820) JOYSTICK: VX=0 (-100%)   VY=2899 (41%)   BTN=1   ESTOP=0\
+I (7840) JOYSTICK: VX=0 (-100%)   VY=2864 (39%)   BTN=1   ESTOP=0\
+I (7860) JOYSTICK: VX=0 (-100%)   VY=2867 (39%)   BTN=1   ESTOP=0\
+I (7890) JOYSTICK: VX=0 (-100%)   VY=2883 (40%)   BTN=1   ESTOP=0\
+I (7910) JOYSTICK: VX=1 (-99%)   VY=2927 (42%)   BTN=1   ESTOP=0\
+I (7940) JOYSTICK: VX=0 (-100%)   VY=2879 (40%)   BTN=1   ESTOP=0\
+I (7960) JOYSTICK: VX=0 (-100%)   VY=2927 (42%)   BTN=1   ESTOP=0\
+I (7990) JOYSTICK: VX=7 (-99%)   VY=2820 (37%)   BTN=1   ESTOP=0\
+I (8010) JOYSTICK: VX=0 (-100%)   VY=2604 (27%)   BTN=1   ESTOP=0\
+I (8030) JOYSTICK: VX=0 (-100%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8060) JOYSTICK: VX=4 (-99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8080) JOYSTICK: VX=150 (-92%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8110) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8130) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8160) JOYSTICK: VX=3997 (95%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8180) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8210) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8230) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8250) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8270) COMANDAMENT_V4: Tx_COM: SEQ_COM=128 TX_COM=128\
+I (8270) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=476 RX_ESP=10 LOST_ESP=0 LOSS_ESP=0.00%\
+I (8280) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8310) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8340) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8360) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8380) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8410) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8430) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8460) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8480) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8500) JOYSTICK: VX=4095 (99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8530) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8550) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8580) JOYSTICK: VX=587 (-71%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8600) JOYSTICK: VX=13 (-99%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8620) JOYSTICK: VX=0 (-100%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8650) JOYSTICK: VX=0 (-100%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8670) JOYSTICK: VX=0 (-100%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8690) JOYSTICK: VX=0 (-100%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8720) JOYSTICK: VX=0 (-100%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8740) JOYSTICK: VX=86 (-95%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8760) COMANDAMENT_V4: Tx_COM: SEQ_COM=148 TX_COM=148\
+I (8760) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=477 RX_ESP=11 LOST_ESP=0 LOSS_ESP=0.00%\
+I (8770) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8800) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8820) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8840) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=1   ESTOP=0\
+I (8870) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (8890) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (8910) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (8940) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (8960) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (8990) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9010) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9030) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9060) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9080) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9110) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9130) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9150) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9180) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9200) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9230) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9250) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9270) COMANDAMENT_V4: Tx_COM: SEQ_COM=169 TX_COM=169\
+I (9270) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=478 RX_ESP=12 LOST_ESP=0 LOSS_ESP=0.00%\
+I (9270) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9300) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9320) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9350) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9370) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9390) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9420) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9440) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9470) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9490) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9510) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9540) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9560) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9590) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9610) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9630) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9660) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9680) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9710) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9730) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9750) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9760) COMANDAMENT_V4: Tx_COM: SEQ_COM=190 TX_COM=190\
+I (9760) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=479 RX_ESP=13 LOST_ESP=0 LOSS_ESP=0.00%\
+I (9780) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9800) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9830) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9850) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9870) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9900) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9920) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9950) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9970) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (9990) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10020) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10040) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10070) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10090) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10110) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10140) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10160) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10190) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10210) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10230) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10260) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10260) COMANDAMENT_V4: Tx_COM: SEQ_COM=211 TX_COM=211\
+I (10260) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=480 RX_ESP=14 LOST_ESP=0 LOSS_ESP=0.00%\
+I (10280) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10310) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10330) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10350) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10380) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10400) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10430) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10450) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10470) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10500) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10520) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10550) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10570) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10590) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10620) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10640) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10670) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10690) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10710) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10740) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10760) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10760) COMANDAMENT_V4: Tx_COM: SEQ_COM=232 TX_COM=232\
+I (10760) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=481 RX_ESP=15 LOST_ESP=0 LOSS_ESP=0.00%\
+I (10790) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10810) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10830) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10860) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10880) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10910) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10930) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10950) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (10980) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11000) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11030) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11050) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11070) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11100) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11120) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11150) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11170) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11190) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11220) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11240) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11260) COMANDAMENT_V4: Tx_COM: SEQ_COM=252 TX_COM=252\
+I (11260) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=482 RX_ESP=16 LOST_ESP=0 LOSS_ESP=0.00%\
+I (11270) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11290) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11310) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11340) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11360) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11390) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11410) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11430) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11460) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11480) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11510) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11530) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11550) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11580) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11600) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11630) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11650) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11670) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11700) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11720) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11750) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0\
+I (11760) COMANDAMENT_V4: Tx_COM: SEQ_COM=273 TX_COM=273\
+I (11760) COMANDAMENT_V4: Rx_ESP: SEQ_ESP=483 RX_ESP=17 LOST_ESP=0 LOSS_ESP=0.00%\
+I (11770) JOYSTICK: VX=2048 (0%)   VY=2048 (0%)   BTN=0   ESTOP=0}

@@ -178,12 +178,14 @@ static void udp_receive_task(void *arg)
             rx_buffer[len] = '\0';
 
             uint32_t seq = 0;
-            int vx = 0, vy = 0, btn = 0, estop = 0;
+            float dist = 0.0f;
 
-            /// parse missatge rebut de l'ESP
-            sscanf(rx_buffer,
-                "SEQ=%lu;VX=%d;VY=%d;BTN=%d;ESTOP=%d",
-                &seq, &vx, &vy, &btn, &estop);
+            sscanf(rx_buffer, "SEQ=%lu", &seq);
+
+            char *p = strstr(rx_buffer, "DIST=");
+            if (p) {
+                dist = atof(p + 5);
+            }
 
             // actualitzar stats de recepció
             update_rx_esp(seq);
@@ -194,16 +196,16 @@ static void udp_receive_task(void *arg)
                 seq_com, tx_com);
 
             ESP_LOGI(TAG,
-                "Rx_ESP: SEQ_ESP=%lu LOST_ESP=%lu LOSS_ESP=%.2f%%",
-                seq_esp, lost_esp, loss_esp);
+                "Rx_ESP: SEQ_ESP=%lu RX_ESP=%lu LOST_ESP=%lu LOSS_ESP=%.2f%%",
+                seq, rx_esp, lost_esp, loss_esp);
 
             // Bloqueig LVGL per actualitzar label de forma segura
             if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
                 if (label_sensor_position)
                 {
-                    lv_label_set_text_fmt(label_sensor_position,
-                        "%s cm",
-                        rx_buffer);
+                    char buf[32];
+                    snprintf(buf, sizeof(buf), "%.1f cm", dist);
+                    lv_label_set_text(label_sensor_position, buf);
                 }
                 lvgl_port_unlock();
             }
@@ -441,7 +443,7 @@ extern "C" void app_main(void)
     .pull_up_en = GPIO_PULLUP_ENABLE,
     .pull_down_en = GPIO_PULLDOWN_DISABLE,
     .intr_type = GPIO_INTR_DISABLE
-};
+    };
     gpio_config(&estop_conf);
 
     // Inicialitzar botó GPIO38 amb pull-up intern
@@ -454,9 +456,9 @@ extern "C" void app_main(void)
     };
     gpio_config(&btn_conf);
 
-/*
- * Tasca Wi-Fi.
- */
+    // -----------------------------------------------------------------------------
+    // Tasca Wi-Fi
+    // -----------------------------------------------------------------------------
     ESP_LOGI(TAG_UDP, "Iniciant receptor UDP...");    // Missatge inicial al log
 
     // Credencials del Wi-Fi del primer ESP32 (AP)
