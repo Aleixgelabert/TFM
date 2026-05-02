@@ -155,7 +155,7 @@ static void update_rx_esp(uint32_t seq)
 static void udp_receive_task(void *arg)
 {
     (void)arg;
-    struct sockaddr_in server_addr, source_addr;
+    struct sockaddr_in server_addr, source_addr, reply_addr;
     socklen_t socklen = sizeof(source_addr);
     char rx_buffer[RECV_BUF_SIZE];
 
@@ -165,6 +165,7 @@ static void udp_receive_task(void *arg)
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(UDP_PORT);
+
     if (bind(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         close(sock); vTaskDelete(NULL); return;
     }
@@ -187,10 +188,14 @@ static void udp_receive_task(void *arg)
                 dist = atof(p + 5);
             }
 
-            // actualitzar stats de recepció
+            // ----------------------------------------------------
+            // Actualitzar estadístiques RX
+            // ----------------------------------------------------
             update_rx_esp(seq);
 
-            // Log paquets enviats i rebuts (2 línies)
+            // ----------------------------------------------------
+            // LOG Comptar paquets
+            // ----------------------------------------------------
             ESP_LOGI(TAG,
                "Tx_COM: SEQ_COM=%lu TX_COM=%lu",
                 seq_com, tx_com);
@@ -325,9 +330,9 @@ static void joystick_task(void *arg)
             // --- Missatge UDP ---
             int n = snprintf(msg,sizeof(msg),
                 "SEQ=%lu;VX=%d;VY=%d;BTN=%d;ESTOP=%d",
-               seq_com, Vx_mapped, Vy_mapped,
-               (btn==0?1:0),
-               (estop_active ? 1: 0));
+                seq_com, Vx_mapped, Vy_mapped,
+                (btn==0?1:0),
+                (estop_active ? 1: 0));
 
             if (dest_addr.sin_addr.s_addr != INADDR_NONE) {
                 sendto(sock,msg,n,0,(struct sockaddr*)&dest_addr,sizeof(dest_addr));

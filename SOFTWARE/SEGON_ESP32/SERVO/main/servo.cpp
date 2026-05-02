@@ -77,7 +77,6 @@ static float loss_com_percent()
     return (total > 0) ? (100.0f * lost_com / total) : 0.0f;
 }
 
-
 /* ---------- PARSE UDP ---------- */
 int parse_vx_vy_from_msg(const char *msg, float *raw_vx, float *raw_vy)
 {
@@ -168,7 +167,7 @@ static float read_distance_cm()
     return distance_cm;
 }
 
-/* ---------- UDP Sender Task ---------- */
+/* ---------- UDP Send Task ---------- */
 static void udp_send_task(void *arg)
 {
     struct sockaddr_in dest_addr = {};
@@ -188,16 +187,17 @@ static void udp_send_task(void *arg)
     while (true) {
         float dist = read_distance_cm();
         char msg[64];
-        if (dist > 0)
-            snprintf(msg, sizeof(msg),"SEQ=%lu;DIST=%.1f",seq_esp, dist);
-        else
+        if (dist > 0){
+            int64_t now = esp_timer_get_time();
+            snprintf(msg, sizeof(msg), "SEQ=%lu;DIST=%.1f",seq_esp, dist);
+        }else{
             snprintf(msg, sizeof(msg), "Error de lectura sensor distància");
-
+        }
         sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
         seq_esp++;
         tx_esp++;
 
-        vTaskDelay(pdMS_TO_TICKS(500)); // cada 0.5 s
+        vTaskDelay(pdMS_TO_TICKS(20)); // 50Hz
     }
 
     close(sock);
@@ -205,10 +205,12 @@ static void udp_send_task(void *arg)
 }
 
 
-/* ---------- UDP Receiver vx i vy ---------- */
+// -----------------------------------------------------------------------------
+// Tasca UDP per rebre dades i mostra el seu contingut per log.
+// -----------------------------------------------------------------------------
 static void udp_receive_task(void *arg)
 {
-    struct sockaddr_in server_addr, client_addr;
+    struct sockaddr_in server_addr, client_addr, reply_addr;
     socklen_t client_len = sizeof(client_addr);
     char rx_buffer[RECV_BUF_SIZE];
 
@@ -234,16 +236,20 @@ static void udp_receive_task(void *arg)
 
     while (1) {
         int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0,
-                           (struct sockaddr *)&client_addr, &client_len);
+                           (struct sockaddr *)&client_addr, &client_len);   //Recepció del paquet UDP
 
         if (len > 0) {
             rx_buffer[len] = 0;
 
+            // ----------------------------------------------------
+            // Extreure seq per comptar paquets
+            // ----------------------------------------------------
             uint32_t seq = 0;   // Variables locals
-
             sscanf(rx_buffer, "SEQ=%lu", &seq); // Llegir SEQ del comandament
 
+            // ----------------------------------------------------
             // Actualitzar estadístiques RX
+            // ----------------------------------------------------
             update_rx_com(seq);
             float loss = loss_com_percent();
 
