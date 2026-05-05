@@ -1,4 +1,4 @@
-// Arxiu servo.cpp
+// Arxiu model_simulacio.cpp
 // ESP32 actua com a punt d'accés i envia dades UDP cada segon a la pantalla (192.168.4.2)
 // La pantalla (192.168.4.2) envia senyal vx i vy del moviment del joystick
 
