@@ -270,8 +270,8 @@ int system_get_wifi_level()
 
     int rssi = info.rssi;
 
-    if (rssi > -55) return 3;
-    if (rssi > -65) return 2;
-    if (rssi > -75) return 1;
+    if (rssi > -60) return 3;
+    if (rssi > -75) return 2;
+    if (rssi > -85) return 1;
     return 0;
 }
