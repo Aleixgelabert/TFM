@@ -269,7 +269,8 @@ int system_get_wifi_level()
         return 0;
 
     int rssi = info.rssi;
-
+    printf("RSSI actual: %d\n", rssi); // Afegeix això per veure el número real
+    
     if (rssi > -60) return 3;
     if (rssi > -75) return 2;
     if (rssi > -85) return 1;
