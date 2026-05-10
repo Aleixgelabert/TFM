@@ -39,8 +39,9 @@ LV_IMG_DECLARE(wifi_3);
 lv_obj_t *label_sensor_position = NULL;
 lv_obj_t *label_joystick_position_A = NULL;
 lv_obj_t *label_output_joystick_A = NULL;
-lv_obj_t *label_joystick_position_B = NULL;
-lv_obj_t *label_output_joystick_B = NULL;
+//lv_obj_t *label_joystick_position_B = NULL;
+//lv_obj_t *label_output_joystick_B = NULL;
+lv_obj_t *label_servo_angle = NULL;
 lv_obj_t *icon_battery = NULL;
 lv_obj_t *icon_wifi = NULL;
 lv_obj_t *label_batt_pct = NULL;
@@ -76,24 +77,29 @@ void system_set_joystick_vx(int vx)
         lv_label_set_text_fmt(label_output_joystick_A , "%d mV", vx);
 }
 
-void system_set_joystick_vy(int vy)
+/*void system_set_joystick_vy(int vy)
 {
     if (label_output_joystick_B)
         lv_label_set_text_fmt(label_output_joystick_B, "%d mV", vy);
 }
-
+*/
 void system_set_joystick_vx_pct(int Vx_pct)
 {
     if (label_joystick_position_A)
         lv_label_set_text_fmt(label_joystick_position_A , "%d %%", Vx_pct);
 }
 
-void system_set_joystick_vy_pct(int Vy_pct)
+/*void system_set_joystick_vy_pct(int Vy_pct)
 {
     if (label_joystick_position_B)
         lv_label_set_text_fmt(label_joystick_position_B , "%d %%", Vy_pct);
-}
+}*/
 
+void system_set_servo_angle(int angle)
+{
+    if (label_servo_angle)
+        lv_label_set_text_fmt(label_servo_angle, "%d deg", angle);
+}
 
 //---------------------------------------------------------
 // Inicialització del sistema i lectura de recursos de maquinari
@@ -135,22 +141,25 @@ void system_tile_init(lv_obj_t *parent)
     label_sensor_position = lv_label_create(list_item);
     lv_label_set_text(label_sensor_position, "--- cm");
 
-    list_item = lv_list_add_btn(list, NULL, "Output Joystick A");
+    list_item = lv_list_add_btn(list, NULL, "Output Joystick X");
     label_output_joystick_A = lv_label_create(list_item);
     lv_label_set_text(label_output_joystick_A, "--- mV");
 
-    list_item = lv_list_add_btn(list, NULL, "Position Joystick A");
+    list_item = lv_list_add_btn(list, NULL, "Position Joystick X");
     label_joystick_position_A = lv_label_create(list_item);
     lv_label_set_text(label_joystick_position_A, "--- %");
 
-    list_item = lv_list_add_btn(list, NULL, "Output Joystick B");
+   /* list_item = lv_list_add_btn(list, NULL, "Output Joystick B");
     label_output_joystick_B = lv_label_create(list_item);
     lv_label_set_text(label_output_joystick_B, "--- mV");
 
     list_item = lv_list_add_btn(list, NULL, "Position Joystick B");
     label_joystick_position_B = lv_label_create(list_item);
     lv_label_set_text(label_joystick_position_B, "--- %");
-
+*/
+    list_item = lv_list_add_btn(list, NULL, "Servo Angle");
+    label_servo_angle = lv_label_create(list_item);
+    lv_label_set_text(label_servo_angle, "--- deg");
 
     system_init();                                     // Inicialitza el maquinari
 

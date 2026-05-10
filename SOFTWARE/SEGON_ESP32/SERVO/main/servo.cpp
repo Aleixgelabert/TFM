@@ -157,7 +157,8 @@ static void udp_send_task(void *arg)
         float dist = read_distance_cm();
         char msg[64];
         if (dist > 0)
-            snprintf(msg, sizeof(msg), "%.1f", dist);
+            //snprintf(msg, sizeof(msg), "%.1f", dist);
+            snprintf(msg, sizeof(msg), "DIST=%.1f;ANGLE=%.1f", dist, last_angle);
             // nprintf(msg, sizeof(msg), "Distància: %.1f cm", dist);
 
         else
@@ -165,7 +166,7 @@ static void udp_send_task(void *arg)
 
         sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
         ESP_LOGI(TAG, "Enviat: %s", msg);
-        vTaskDelay(pdMS_TO_TICKS(1000)); // cada 1 s
+        vTaskDelay(pdMS_TO_TICKS(100)); // cada 0.1 s
     }
 
     close(sock);
@@ -236,7 +237,7 @@ static void servo_task(void *arg)
 
         // Convertim joystick a velocitat incremental (-1 a +1)
         float speed = 0;
-        float deadzone = 15.0; // graus centrals que es consideren "quiet"
+        float deadzone = 5.0; // graus centrals que es consideren "quiet"
 
         if (vx_value > 90 + deadzone) {
             speed = (vx_value - 90) / 90.0;  // cap a la dreta
