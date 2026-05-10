@@ -185,11 +185,11 @@ static void udp_send_task(void *arg)
     ESP_LOGI(TAG, "Enviant dades UDP a %s:%d", RECEIVER_IP, UDP_PORT);
 
     while (true) {
-        float dist = read_distance_cm();
+        float dist = read_distance_cm()
         char msg[64];
         if (dist > 0){
             int64_t now = esp_timer_get_time();
-            snprintf(msg, sizeof(msg), "SEQ=%lu;DIST=%.1f",seq_esp, dist);
+            snprintf(msg, sizeof(msg), "SEQ=%lu;DIST=%.1f;ANGLE=%.1f",seq_esp, dist, last_angle);
         }else{
             snprintf(msg, sizeof(msg), "Error de lectura sensor distància");
         }
@@ -197,7 +197,7 @@ static void udp_send_task(void *arg)
         seq_esp++;
         tx_esp++;
 
-        vTaskDelay(pdMS_TO_TICKS(20)); // 50Hz
+        vTaskDelay(pdMS_TO_TICKS(100)); // Cada 0.1s
     }
 
     close(sock);

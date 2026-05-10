@@ -180,12 +180,24 @@ static void udp_receive_task(void *arg)
 
             uint32_t seq = 0;
             float dist = 0.0f;
+            float angle = 0.0f;
 
             sscanf(rx_buffer, "SEQ=%lu", &seq);
 
-            char *p = strstr(rx_buffer, "DIST=");
+            /*char *p = strstr(rx_buffer, "DIST=");
             if (p) {
                 dist = atof(p + 5);
+            }*/
+           // DIST
+            char *dist_ptr = strstr(rx_buffer, "DIST=");
+            if (dist_ptr) {
+                dist = atof(dist_ptr + 5);
+            }
+
+            // ANGLE
+            char *angle_ptr = strstr(rx_buffer, "ANGLE=");
+            if (angle_ptr) {
+                angle = atof(angle_ptr + 6);
             }
 
             // ----------------------------------------------------
@@ -205,7 +217,7 @@ static void udp_receive_task(void *arg)
                 seq, rx_esp, lost_esp, loss_esp);
 
             // Bloqueig LVGL per actualitzar label de forma segura
-            if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
+            /*if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
                 if (label_sensor_position)
                 {
                     char buf[32];
@@ -213,7 +225,25 @@ static void udp_receive_task(void *arg)
                     lv_label_set_text(label_sensor_position, buf);
                 }
                 lvgl_port_unlock();
-            }
+            }*/
+            if (lvgl_port_lock(10))
+            {
+                // Mostrar distància
+                if (label_sensor_position)
+                {
+                    char buf[32];
+                    snprintf(buf, sizeof(buf), "%.1f cm", dist);
+                    lv_label_set_text(label_sensor_position, buf);
+                }
+
+                // Control servo
+                if (angle_ptr)
+                {
+                    system_set_servo_angle((int)angle);
+                }
+
+                lvgl_port_unlock();
+            }       
         }
     }
 }
@@ -349,9 +379,7 @@ static void joystick_task(void *arg)
             // Actualitzar labels de la UI (crida modular a system_tile)
             if (lvgl_port_lock(10)) {
                 system_set_joystick_vx(Vx_mapped);
-                system_set_joystick_vy(Vy_mapped);
                 system_set_joystick_vx_pct(Vx_pct);
-                system_set_joystick_vy_pct(Vy_pct);
                 system_set_confirm(btn == 0); // 0 = premut → ON, 1 = no premut → OFF
                 lvgl_port_unlock();
             }
@@ -369,9 +397,7 @@ static void joystick_task(void *arg)
             // Actualitzar UI
             if(lvgl_port_lock(10)) {
                 system_set_joystick_vx(0);
-                system_set_joystick_vy(0);
                 system_set_joystick_vx_pct(0);
-                system_set_joystick_vy_pct(0);
                 lvgl_port_unlock();
             }
         }
