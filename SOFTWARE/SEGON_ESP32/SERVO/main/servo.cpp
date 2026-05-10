@@ -157,9 +157,7 @@ static void udp_send_task(void *arg)
         float dist = read_distance_cm();
         char msg[64];
         if (dist > 0)
-            //snprintf(msg, sizeof(msg), "%.1f", dist);
             snprintf(msg, sizeof(msg), "DIST=%.1f;ANGLE=%.1f", dist, last_angle);
-            // nprintf(msg, sizeof(msg), "Distància: %.1f cm", dist);
 
         else
             snprintf(msg, sizeof(msg), "Lectura invàlida");

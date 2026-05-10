@@ -142,12 +142,6 @@ static void udp_receive_task(void *arg)
         if (len > 0) {
             rx_buffer[len] = '\0';
 
-            // Bloqueig LVGL per actualitzar label de forma segura
-            //if (lvgl_port_lock(10)) {  // Espera màxim 10 ticks
-                /*if (label_sensor_position)
-                {
-                    lv_label_set_text_fmt(label_sensor_position, "%s cm", rx_buffer);
-                }*/
             char *dist_ptr  = strstr(rx_buffer, "DIST=");
             char *angle_ptr = strstr(rx_buffer, "ANGLE=");
 
@@ -165,15 +159,14 @@ static void udp_receive_task(void *arg)
             // -------------------------------
             // UPDATE LVGL SEGUR
             // -------------------------------
+            // Bloqueig LVGL per actualitzar label de forma segura
             if (lvgl_port_lock(10))
             {
                 if (label_sensor_position)
                 {
-                    //lv_label_set_text_fmt(label_sensor_position, "%.1f cm", dist_rebuda);
                     char buf[32];
                     snprintf(buf, sizeof(buf), "%.1f cm", (double)dist_rebuda);
                     lv_label_set_text(label_sensor_position, buf);
-                    ESP_LOGI("UDP", "DIST RAW = %f", dist_rebuda);
                 }
 
                 // només mou servo si hi ha angle
@@ -183,9 +176,7 @@ static void udp_receive_task(void *arg)
                 }
 
                lvgl_port_unlock();
-   
-                //lvgl_port_unlock();
-            }
+               }
         }
     }
 }
@@ -313,9 +304,7 @@ static void joystick_task(void *arg)
             // Actualitzar labels de la UI (crida modular a system_tile)
             if (lvgl_port_lock(10)) {
                 system_set_joystick_vx(Vx_mapped);
-                //system_set_joystick_vy(Vy_mapped);
                 system_set_joystick_vx_pct(Vx_pct);
-                //system_set_joystick_vy_pct(Vy_pct);
                 system_set_confirm(btn == 0); // 0 = premut → ON, 1 = no premut → OFF
                 lvgl_port_unlock();
             }
@@ -333,9 +322,7 @@ static void joystick_task(void *arg)
             // Actualitzar UI
             if(lvgl_port_lock(10)) {
                 system_set_joystick_vx(0);
-                //system_set_joystick_vy(0);
                 system_set_joystick_vx_pct(0);
-                //system_set_joystick_vy_pct(0);
                 lvgl_port_unlock();
             }
         }
